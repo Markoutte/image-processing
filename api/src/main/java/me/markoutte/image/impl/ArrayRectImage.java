@@ -1,0 +1,70 @@
+package me.markoutte.image.impl;
+
+import me.markoutte.image.Image;
+import me.markoutte.image.RectImage;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+public final class ArrayRectImage extends RectImage {
+
+    int[] image = null;
+
+    public void setBytes(int[] rgbArray) {
+        this.image = rgbArray;
+    }
+
+    public int[] getBytes() {
+        return image;
+    }
+
+    @Override
+    public RectImage create(int width, int height) {
+        ArrayRectImage image = new ArrayRectImage();
+        image.width = width;
+        image.height = height;
+        image.image = new int[width*height];
+        return image;
+    }
+
+    public void save(String filename) throws IOException {
+        if (image == null) {
+            throw new IOException("Nothing to save");
+        }
+
+        String extension = fetchFormat(filename);
+        ImageIO.write(arrayToBufferedImage(image, width, height), extension, new File(filename));
+    }
+
+    private BufferedImage arrayToBufferedImage(int[] array, int width, int height) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                image.setRGB(i, j, array[width*j + i]);
+            }
+        }
+        return image;
+    }
+
+    @Override
+    public int getPixel(int id) {
+        checkPixelExists(id % width, id / width);
+        return image[id];
+    }
+
+    @Override
+    public void setPixel(int id, int value) {
+        checkPixelExists(id % width, id / width);
+        image[id] = value;
+    }
+
+    @Override
+    public void setPixel(int x, int y, int value) {
+        checkPixelExists(x, y);
+        image[width * y + x] = value;
+    }
+
+}
+
