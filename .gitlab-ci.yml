@@ -1,3 +1,5 @@
 maven-build:
           script:
                       - mvn clean install
+          artifacts:
+                      - api/target/image-processing-api-1.0-SNAPSHOT.jar
