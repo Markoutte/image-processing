@@ -90,7 +90,7 @@ public class MainController implements Initializable {
 
                 progress.setProgress(0.2);
 
-                int[] ints = {5};
+                int[] ints = {2, 5, 6, 7, 8, 9, 10,12, 15, 18, 20,25};
                 double v = 0.8d / ints.length;
                 for (int i : ints) {
                     long startTime = System.currentTimeMillis();

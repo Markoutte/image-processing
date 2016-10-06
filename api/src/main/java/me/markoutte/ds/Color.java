@@ -6,13 +6,13 @@ public final class Color {
         int color = 0;
         switch (channel) {
             case RED:
-                color = pixel & 0x00FF0000 >> 16;
+                color = (pixel & 0x00FF0000) >> 16;
                 break;
             case GREEN:
-                color = pixel & 0x0000FF00 >> 8;
+                color = (pixel & 0x0000FF00) >> 8;
                 break;
             case BLUE:
-                color = pixel & 0x000000FF;
+                color = (pixel & 0x000000FF);
                 break;
             default:
         }

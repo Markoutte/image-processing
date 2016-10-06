@@ -18,7 +18,7 @@ public class KruskalFloodFill {
     private Edge[] edges;
 
     public RectImage getImage(int level) {
-        RectImage ret = (RectImage) hierarchy.getImage(level, PseudoColorizeMethod.PLAIN);
+        RectImage ret = (RectImage) hierarchy.getImage(level, PseudoColorizeMethod.AVERAGE);
         return ret;
     }
 

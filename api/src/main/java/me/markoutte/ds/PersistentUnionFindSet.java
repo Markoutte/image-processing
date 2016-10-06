@@ -1,5 +1,7 @@
 package me.markoutte.ds;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface PersistentUnionFindSet {
@@ -12,7 +14,7 @@ public interface PersistentUnionFindSet {
 
     int size(double version);
 
-    Set<Integer> segments(double version);
+    Map<Integer, List<Integer>> segments(double version);
 
     void compress();
 

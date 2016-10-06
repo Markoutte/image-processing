@@ -3,9 +3,7 @@ package me.markoutte.ds.impl;
 import me.markoutte.ds.PersistentUnionFindSet;
 import me.markoutte.ds.UnionFindSet;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class ArrayPersistentUnionFindSet implements PersistentUnionFindSet {
 
@@ -94,13 +92,16 @@ public class ArrayPersistentUnionFindSet implements PersistentUnionFindSet {
     }
 
     @Override
-    public Set<Integer> segments(double version) {
-        Set<Integer> segments = new TreeSet<Integer>();
+    public Map<Integer, List<Integer>> segments(double version) {
+        Map<Integer, List<Integer>> segments = new HashMap<>();
         // Да, в этом случае double лучше сравнивать так
         for (int i = 0; i < parents.length; i++) {
-            if (parents[i] == i || version < versions[i]) {
-                segments.add(i);
+            int parent = find(i, version);
+            List<Integer> set = segments.get(parent);
+            if (set == null) {
+                segments.put(parent, set = new ArrayList<>());
             }
+            set.add(i);
         }
         return segments;
     }
