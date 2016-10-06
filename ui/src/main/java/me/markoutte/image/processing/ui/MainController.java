@@ -30,7 +30,7 @@ public class MainController implements Initializable {
     @FXML
     private Canvas canvas;
     @FXML
-    private TextField urlField;
+    private Button openButton;
     @FXML
     private Button processButton;
     @FXML
@@ -66,18 +66,28 @@ public class MainController implements Initializable {
 
     public void changeLevel() {
         if (segmentation != null) {
-            Integer level = comboBox.getValue();
-            Image image;
-            if (level == 0) {
-                image = this.image;
-            } else {
-                RectImage ri = segmentation.getImage(level);
-                WritableImage wimg = new WritableImage(ri.width(), ri.height());
-                image = SwingFXUtils.toFXImage(ri.getBufferedImage(), wimg);
-            }
-            GraphicsContext context = canvas.getGraphicsContext2D();
-            context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-            context.drawImage(image, 0, 0);
+            service.execute(() -> {
+                openButton.setDisable(true);
+                processButton.setDisable(true);
+                comboBox.setDisable(true);
+
+                Integer level = comboBox.getValue();
+                Image image;
+                if (level == 0) {
+                    image = this.image;
+                } else {
+                    RectImage ri = segmentation.getImage(level);
+                    WritableImage wimg = new WritableImage(ri.width(), ri.height());
+                    image = SwingFXUtils.toFXImage(ri.getBufferedImage(), wimg);
+                }
+                GraphicsContext context = canvas.getGraphicsContext2D();
+                context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                context.drawImage(image, 0, 0);
+
+                openButton.setDisable(false);
+                processButton.setDisable(false);
+                comboBox.setDisable(false);
+            });
         }
     }
 
@@ -93,6 +103,8 @@ public class MainController implements Initializable {
 
         service.execute(() -> {
             processButton.setDisable(true);
+            openButton.setDisable(true);
+
 
             try {
                 RectImage processed = new ArrayRectImage().create((int) image.getWidth(), (int) image.getHeight());
@@ -107,6 +119,7 @@ public class MainController implements Initializable {
                 segmentation.setImage(processed);
                 segmentation.start();
                 comboBox.setDisable(false);
+                openButton.setDisable(false);
 
             } catch (Exception e) {
                 e.printStackTrace();

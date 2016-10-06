@@ -18,7 +18,7 @@
       </ScrollPane>
    </center>
    <bottom>
-      <HBox alignment="CENTER" prefHeight="50.0" prefWidth="595.0" BorderPane.alignment="CENTER_RIGHT">
+      <HBox alignment="CENTER_RIGHT" prefHeight="50.0" prefWidth="595.0">
          <children>
             <Button fx:id="openButton" defaultButton="true" mnemonicParsing="false" onAction="#chooseFile" text="%openButton.text">
                <HBox.margin>
