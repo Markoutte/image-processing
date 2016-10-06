@@ -22,7 +22,7 @@
          <children>
             <Button fx:id="openButton" defaultButton="true" mnemonicParsing="false" onAction="#chooseFile" text="%openButton.text">
                <HBox.margin>
-                  <Insets />
+                  <Insets left="10.0" />
                </HBox.margin></Button>
             <Button fx:id="processButton" mnemonicParsing="false" onAction="#process" text="%processButton.text">
                <HBox.margin>

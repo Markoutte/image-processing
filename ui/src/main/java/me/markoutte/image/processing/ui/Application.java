@@ -17,7 +17,10 @@ public class Application extends javafx.application.Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         ResourceBundle bundle = ResourceBundle.getBundle("me.markoutte.image.processing.ui.Main", Locale.getDefault());
-        Parent root = FXMLLoader.load(Application.class.getResource("main.fxml"), bundle);
+        FXMLLoader loader = new FXMLLoader(Application.class.getResource("main.fxml"), bundle);
+        Parent root = loader.load();
+        MainController controller = loader.getController();
+        controller.setStage(primaryStage);
         Scene scene = new Scene(root, 640, 480);
 //        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
