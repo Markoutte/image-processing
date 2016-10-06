@@ -1,5 +1,6 @@
 package me.markoutte.image.processing.ui;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -7,17 +8,22 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.impl.ArrayRectImage;
 import me.markoutte.segmentation.KruskalFloodFill;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MainController implements Initializable {
 
@@ -26,28 +32,24 @@ public class MainController implements Initializable {
     @FXML
     private TextField urlField;
     @FXML
-    private MenuBar menu;
-    @FXML
     private Button processButton;
     @FXML
-    private Slider levelSlider;
-    @FXML
-    private ProgressIndicator progress;
+    private ComboBox<Integer> comboBox;
 
     private Image image;
 
+    private KruskalFloodFill segmentation;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        final String os = System.getProperty ("os.name");
-        if (os != null && os.startsWith("Mac")) {
-            menu.useSystemMenuBarProperty().set(true);
-        }
-        levelSlider.setVisible(false);
+        comboBox.getItems().addAll(IntStream.range(0, 256).boxed().collect(Collectors.toList()));
+        comboBox.setValue(0);
+        comboBox.setDisable(true);
     }
 
     public void chooseFile() {
         FileChooser chooser = new FileChooser();
-        File file = chooser.showOpenDialog(menu.getScene().getWindow());
+        File file = chooser.showOpenDialog(canvas.getScene().getWindow());
         if (file != null) {
             String uri = file.toURI().toString();
             GraphicsContext context = canvas.getGraphicsContext2D();
@@ -55,10 +57,29 @@ public class MainController implements Initializable {
             canvas.setWidth(image.getWidth());
             canvas.setHeight(image.getHeight());
             context.drawImage(image, 0, 0);
+            comboBox.setDisable(true);
+            segmentation = null;
         }
     }
 
     private final ExecutorService service = Executors.newSingleThreadExecutor();
+
+    public void changeLevel() {
+        if (segmentation != null) {
+            Integer level = comboBox.getValue();
+            Image image;
+            if (level == 0) {
+                image = this.image;
+            } else {
+                RectImage ri = segmentation.getImage(level);
+                WritableImage wimg = new WritableImage(ri.width(), ri.height());
+                image = SwingFXUtils.toFXImage(ri.getBufferedImage(), wimg);
+            }
+            GraphicsContext context = canvas.getGraphicsContext2D();
+            context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            context.drawImage(image, 0, 0);
+        }
+    }
 
     public void process() {
         if (image == null) {
@@ -82,26 +103,10 @@ public class MainController implements Initializable {
                     }
                 }
 
-                progress.setProgress(0.1);
-
-                KruskalFloodFill segmentation = new KruskalFloodFill();
+                segmentation = new KruskalFloodFill();
                 segmentation.setImage(processed);
                 segmentation.start();
-
-                progress.setProgress(0.2);
-
-                int[] ints = {2, 5, 6, 7, 8, 9, 10,12, 15, 18, 20,25};
-                double v = 0.8d / ints.length;
-                for (int i : ints) {
-                    long startTime = System.currentTimeMillis();
-                    ArrayRectImage img = (ArrayRectImage) segmentation.getImage(i);
-                    img.save(String.format("/Users/markoutte/Developer/Image/lena-%d.bmp".intern(), i));
-                    progress.setProgress(progress.getProgress() + v);
-                    System.out.println(String.format("Total time for level %d is %dms", i, (System.currentTimeMillis() - startTime)));
-                }
-
-                progress.setProgress(1);
-                levelSlider.setVisible(true);
+                comboBox.setDisable(false);
 
             } catch (Exception e) {
                 e.printStackTrace();

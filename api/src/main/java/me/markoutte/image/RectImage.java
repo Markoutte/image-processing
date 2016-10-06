@@ -2,6 +2,7 @@ package me.markoutte.image;
 
 import me.markoutte.image.exceptions.NoSuchPixelException;
 
+import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

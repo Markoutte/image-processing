@@ -29,23 +29,14 @@ public final class ArrayRectImage extends RectImage {
         return image;
     }
 
-    public void save(String filename) throws IOException {
-        if (image == null) {
-            throw new IOException("Nothing to save");
-        }
-
-        String extension = fetchFormat(filename);
-        ImageIO.write(arrayToBufferedImage(image, width, height), extension, new File(filename));
-    }
-
-    private BufferedImage arrayToBufferedImage(int[] array, int width, int height) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+    public BufferedImage getBufferedImage() {
+        BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                image.setRGB(i, j, array[width*j + i]);
+                bf.setRGB(i, j, image[width*j + i]);
             }
         }
-        return image;
+        return bf;
     }
 
     @Override
