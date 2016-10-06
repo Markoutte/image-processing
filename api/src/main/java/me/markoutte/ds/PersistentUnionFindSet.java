@@ -4,16 +4,22 @@ import java.util.Set;
 
 public interface PersistentUnionFindSet {
 
-    public void set(int id);
+    void set(int id);
 
-    public int union(int left, int right, double version);
+    int union(int left, int right, double version);
 
-    public int find(int id, double version);
+    int find(int id, double version);
 
-    public int size(double version);
+    int size(double version);
 
-    public Set<Integer> segments(double version);
+    Set<Integer> segments(double version);
 
-    public void compress();
+    void compress();
+
+    /**
+     * Возвращает неперсистентую систему для выбранного множества
+     * @param version версия
+     */
+    UnionFindSet simplify(double version);
 
 }

@@ -1,6 +1,7 @@
 package me.markoutte.ds.impl;
 
 import me.markoutte.ds.PersistentUnionFindSet;
+import me.markoutte.ds.UnionFindSet;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -109,6 +110,15 @@ public class ArrayPersistentUnionFindSet implements PersistentUnionFindSet {
         for (int i : parents) {
             parents[i] = find(i, versions[i]);
         }
+    }
+
+    @Override
+    public UnionFindSet simplify(double version) {
+        ArrayUnionFindSet ufs = new ArrayUnionFindSet(parents.length);
+        for (int i = 0; i < parents.length; i++) {
+            ufs.parents[i] = find(i, version);
+        }
+        return ufs;
     }
 }
 

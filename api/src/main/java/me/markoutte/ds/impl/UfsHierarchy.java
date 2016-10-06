@@ -3,6 +3,7 @@ package me.markoutte.ds.impl;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.ds.PersistentUnionFindSet;
 import me.markoutte.ds.PseudoColorizeMethod;
+import me.markoutte.ds.UnionFindSet;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 
@@ -38,15 +39,14 @@ public final class UfsHierarchy implements Hierarchy {
     public Image getImage(double level, PseudoColorizeMethod colorize) {
         Image image = getSourceImage();
         if (colorize == PseudoColorizeMethod.PLAIN) {
-            Set<Integer> segments = getSegments(level);
+            UnionFindSet ufs = this.ufs.simplify(level);
+            Set<Integer> segments = ufs.segments();
             for (Integer segment : segments) {
-                long currentTimeMillis = System.currentTimeMillis();
-                List<Pixel> area = getArea(segment, (int) level);
+                List<Pixel> area = getArea(segment, ufs);
                 Pixel first = area.get(0);
                 for (Pixel pixel : area) {
                     image.setPixel(pixel.getId(), first.getValue());
                 }
-                System.out.println("Time is: " + (System.currentTimeMillis() - currentTimeMillis));
             }
 
             return image;
@@ -81,6 +81,16 @@ public final class UfsHierarchy implements Hierarchy {
         List<Pixel> pixels = new LinkedList<Pixel>();
         for (Pixel pixel : image) {
             if (ufs.find(pixel.getId(), level) == id) {
+                pixels.add(pixel);
+            }
+        }
+        return pixels;
+    }
+
+    public List<Pixel> getArea(int id, UnionFindSet ufs) {
+        List<Pixel> pixels = new LinkedList<Pixel>();
+        for (Pixel pixel : image) {
+            if (ufs.find(pixel.getId()) == id) {
                 pixels.add(pixel);
             }
         }

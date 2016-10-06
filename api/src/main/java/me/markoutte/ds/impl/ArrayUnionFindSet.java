@@ -1,0 +1,65 @@
+package me.markoutte.ds.impl;
+
+import me.markoutte.ds.UnionFindSet;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class ArrayUnionFindSet implements UnionFindSet {
+
+    /* package private */ int[] parents;
+
+    public ArrayUnionFindSet(int size) {
+        parents = new int[size];
+        for (int i = 0; i < parents.length; i++) {
+            parents[i] = i;
+        }
+    }
+
+    public void set(int id) {
+        parents[id] = id;
+    }
+
+    public int union(int left, int right) {
+        left = find(left);
+        right = find(right);
+        if (left == right) {
+            return -1;
+        }
+        parents[left] = right;
+        return right;
+    }
+
+    public int find(int id) {
+        while (id != parents[id]) {
+            id = parents[id];
+        }
+        return id;
+    }
+
+    public int size() {
+        int size = 0;
+        for (int i = 0; i < parents.length; i++) {
+            if (parents[i] == i) {
+                size++;
+            }
+        }
+        return size;
+    }
+
+    public Set<Integer> segments() {
+        Set<Integer> segments = new HashSet<>();
+        for (int i = 0; i < parents.length; i++) {
+            if (parents[i] == i) {
+                segments.add(i);
+            }
+        }
+        return segments;
+    }
+
+    public void compress() {
+        for (int i : parents) {
+            parents[i] = find(i);
+        }
+    }
+}

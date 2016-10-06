@@ -90,12 +90,14 @@ public class MainController implements Initializable {
 
                 progress.setProgress(0.2);
 
-                int[] ints = {5, 10, 20, 70};
+                int[] ints = {5};
                 double v = 0.8d / ints.length;
                 for (int i : ints) {
+                    long startTime = System.currentTimeMillis();
                     ArrayRectImage img = (ArrayRectImage) segmentation.getImage(i);
                     img.save(String.format("/Users/markoutte/Developer/Image/lena-%d.bmp".intern(), i));
                     progress.setProgress(progress.getProgress() + v);
+                    System.out.println(String.format("Total time for level %d is %dms", i, (System.currentTimeMillis() - startTime)));
                 }
 
                 progress.setProgress(1);
