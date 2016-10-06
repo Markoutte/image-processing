@@ -2,8 +2,7 @@ package me.markoutte.ds.impl;
 
 import me.markoutte.ds.UnionFindSet;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ArrayUnionFindSet implements UnionFindSet {
 
@@ -47,12 +46,15 @@ public class ArrayUnionFindSet implements UnionFindSet {
         return size;
     }
 
-    public Set<Integer> segments() {
-        Set<Integer> segments = new HashSet<>();
+    public Map<Integer, List<Integer>> segments() {
+        Map<Integer, List<Integer>> segments = new HashMap<>();
         for (int i = 0; i < parents.length; i++) {
-            if (parents[i] == i) {
-                segments.add(i);
+            int parent = find(i);
+            List<Integer> set = segments.get(parent);
+            if (set == null) {
+                segments.put(parent, set = new ArrayList<>());
             }
+            set.add(i);
         }
         return segments;
     }

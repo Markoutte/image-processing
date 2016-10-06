@@ -1,5 +1,8 @@
 package me.markoutte.ds;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface UnionFindSet {
@@ -29,7 +32,7 @@ public interface UnionFindSet {
     /**
      * @return Множество всех сегментов
      */
-    public Set<Integer> segments();
+    public Map<Integer, List<Integer>> segments();
 
     /**
      * Спрямляет дерево

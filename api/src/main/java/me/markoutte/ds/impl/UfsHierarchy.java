@@ -7,8 +7,10 @@ import me.markoutte.ds.UnionFindSet;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 
+import javax.swing.text.Segment;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class UfsHierarchy implements Hierarchy {
@@ -40,12 +42,11 @@ public final class UfsHierarchy implements Hierarchy {
         Image image = getSourceImage();
         if (colorize == PseudoColorizeMethod.PLAIN) {
             UnionFindSet ufs = this.ufs.simplify(level);
-            Set<Integer> segments = ufs.segments();
-            for (Integer segment : segments) {
-                List<Pixel> area = getArea(segment, ufs);
-                Pixel first = area.get(0);
-                for (Pixel pixel : area) {
-                    image.setPixel(pixel.getId(), first.getValue());
+            Map<Integer, List<Integer>> segments = ufs.segments();
+            for (List<Integer> segment : segments.values()) {
+                int value = this.image.getPixel(segment.get(0));
+                for (Integer integer : segment) {
+                    image.setPixel(integer, value);
                 }
             }
 
