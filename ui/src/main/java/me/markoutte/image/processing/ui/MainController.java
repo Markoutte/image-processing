@@ -58,12 +58,15 @@ public class MainController implements Initializable {
 
     private Stage stage;
 
+    private ResourceBundle bundle;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         comboBox.getItems().addAll(IntStream.range(0, 256).boxed().collect(Collectors.toList()));
         comboBox.setValue(0);
         comboBox.setDisable(true);
         processButton.setDisable(true);
+        bundle = resources;
     }
 
     /* package */
@@ -85,6 +88,7 @@ public class MainController implements Initializable {
             comboBox.setDisable(true);
             processButton.setDisable(false);
             segmentation = null;
+            comboBox.setValue(0);
         }
     }
 
@@ -113,7 +117,7 @@ public class MainController implements Initializable {
                 context.drawImage(image, 0, 0);
 
                 long stop = System.currentTimeMillis();
-                showPopup(String.format("Total time is %dms", (stop - start)));
+                showPopup(String.format(bundle.getString("levelChangeTime"), level, (stop - start)));
 
                 openButton.setDisable(false);
                 processButton.setDisable(false);
@@ -124,7 +128,6 @@ public class MainController implements Initializable {
 
     public void process() {
         if (image == null) {
-            ResourceBundle bundle = ResourceBundle.getBundle("me.markoutte.image.processing.ui.Main", Locale.getDefault());
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setHeaderText(bundle.getString("noImageChosen"));
             alert.showAndWait();
@@ -152,7 +155,7 @@ public class MainController implements Initializable {
                 segmentation.start();
 
                 long stop = System.currentTimeMillis();
-                showPopup(String.format("Total time is %dms", (stop - start)));
+                showPopup(String.format(bundle.getString("processTime"), (stop - start)));
 
                 comboBox.setDisable(false);
                 openButton.setDisable(false);
