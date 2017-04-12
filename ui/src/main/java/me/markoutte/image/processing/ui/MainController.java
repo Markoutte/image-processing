@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -32,7 +33,8 @@ import me.markoutte.image.impl.ArrayRectImage;
 import me.markoutte.segmentation.KruskalFloodFill;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -67,6 +69,12 @@ public class MainController implements Initializable {
         comboBox.setDisable(true);
         processButton.setDisable(true);
         bundle = resources;
+
+        try (InputStream stream = getClass().getClassLoader().getResourceAsStream("me/markoutte/image/processing/ui/lena-color.jpg")) {
+            setImage(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /* package */
@@ -78,18 +86,23 @@ public class MainController implements Initializable {
     public void chooseFile() {
         FileChooser chooser = new FileChooser();
         File file = chooser.showOpenDialog(canvas.getScene().getWindow());
-        if (file != null) {
-            String uri = file.toURI().toString();
-            GraphicsContext context = canvas.getGraphicsContext2D();
-            image = new Image(uri);
-            canvas.setWidth(image.getWidth());
-            canvas.setHeight(image.getHeight());
-            context.drawImage(image, 0, 0);
-            comboBox.setDisable(true);
-            processButton.setDisable(false);
-            segmentation = null;
-            comboBox.setValue(0);
+        try (InputStream stream = new FileInputStream(file)) {
+            setImage(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    private void setImage(InputStream stream) {
+        GraphicsContext context = canvas.getGraphicsContext2D();
+        image = new Image(stream);
+        canvas.setWidth(image.getWidth());
+        canvas.setHeight(image.getHeight());
+        context.drawImage(image, 0, 0);
+        comboBox.setDisable(true);
+        processButton.setDisable(false);
+        segmentation = null;
+        comboBox.setValue(0);
     }
 
     private final ExecutorService service = Executors.newSingleThreadExecutor();
@@ -199,5 +212,10 @@ public class MainController implements Initializable {
             popup.show(stage);
             ft.play();
         });
+    }
+
+    @FXML
+    public void showHistogramOfSegment(ActionEvent e) {
+        System.out.println(e);
     }
 }
