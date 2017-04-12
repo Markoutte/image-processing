@@ -36,6 +36,10 @@ public final class UfsHierarchy implements Hierarchy {
 
     @Override
     public Image getImage(double level, PseudoColorizeMethod colorize) {
+        if (level == 0) {
+            return image;
+        }
+
         Image image = getSourceImage().clone();
         if (colorize == PseudoColorizeMethod.PLAIN) {
             Map<Integer, List<Integer>> segments = ufs.segments(level);

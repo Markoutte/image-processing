@@ -19,4 +19,8 @@ public final class Color {
         return color;
     }
 
+    public static int getGray(int pixel) {
+        return (int) (0.21 * getChannel(pixel, Channel.RED) + 0.72 * getChannel(pixel, Channel.GREEN) + 0.07 * getChannel(pixel, Channel.BLUE));
+    }
+
 }

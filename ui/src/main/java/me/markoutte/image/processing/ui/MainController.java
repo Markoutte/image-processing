@@ -8,9 +8,12 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -25,10 +28,9 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
-import javafx.stage.Popup;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.util.Duration;
+import me.markoutte.ds.Channel;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
@@ -39,6 +41,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -230,13 +233,43 @@ public class MainController implements Initializable {
             double y = e.getY();
             Hierarchy hierarchy = segmentation.getHierarchy();
             if (comboBox.getValue() == 0 || hierarchy == null) {
-                System.out.println("Nothing to say");
+                showHistograms("All image histogram", segmentation.getImage(0));
                 return;
             }
             RectImage image = (RectImage) hierarchy.getSourceImage();
             int segment = hierarchy.getSegment((int) (y * image.width() + x), comboBox.getValue());
             List<Pixel> area = hierarchy.getArea(segment, comboBox.getValue());
-            System.out.println(String.format("Area for %fx%f with %d pixels", x, y, area.size()));
+            showHistograms(String.format("Histogram : %d×%d with size %d", segment / image.width(), segment % image.height(), area.size()), area);
+        }
+    }
+
+    private void showHistograms(String title, Iterable<Pixel> area) {
+        int[] reds = new int[256];
+        int[] greens = new int[256];
+        int[] blues = new int[256];
+        int[] grays = new int[256];
+        for (Pixel pixel : area) {
+            reds[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.RED)]++;
+            blues[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.BLUE)]++;
+            greens[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.GREEN)]++;
+            grays[me.markoutte.ds.Color.getGray(pixel.getValue())]++;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("histogram.fxml"));
+            Parent root = loader.load();
+            HistogramController controller = loader.getController();
+            Stage stage = new Stage();
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.show();
+            controller.setReds(reds);
+            controller.setGreens(greens);
+            controller.setBlues(blues);
+            controller.setGrays(grays);
+        } catch (Exception err) {
+            err.printStackTrace();
         }
     }
 }
