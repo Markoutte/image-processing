@@ -233,13 +233,13 @@ public class MainController implements Initializable {
             double y = e.getY();
             Hierarchy hierarchy = segmentation.getHierarchy();
             if (comboBox.getValue() == 0 || hierarchy == null) {
-                showHistograms("All image histogram", segmentation.getImage(0));
+                showHistograms(bundle.getString("fullImageHist"), segmentation.getImage(0));
                 return;
             }
             RectImage image = (RectImage) hierarchy.getSourceImage();
             int segment = hierarchy.getSegment((int) (y * image.width() + x), comboBox.getValue());
             List<Pixel> area = hierarchy.getArea(segment, comboBox.getValue());
-            showHistograms(String.format("Histogram : %d×%d with size %d", segment / image.width(), segment % image.height(), area.size()), area);
+            showHistograms(String.format(bundle.getString("partlyImageHist"), segment / image.width(), segment % image.height(), area.size()), area);
         }
     }
 

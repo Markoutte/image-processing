@@ -23,9 +23,11 @@ public class HistogramController implements Initializable {
     @FXML
     private BarChart<String, Integer> grays;
 
+    private ResourceBundle bundle;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        bundle = resources;
     }
 
     public void setReds(int[] reds) {
