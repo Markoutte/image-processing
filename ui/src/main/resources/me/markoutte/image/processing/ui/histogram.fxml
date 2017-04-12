@@ -8,9 +8,9 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.HistogramController">
+<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="598.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.HistogramController">
    <children>
-      <BarChart fx:id="reds" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+      <BarChart fx:id="reds" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" maxWidth="256.0" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
         <xAxis>
           <CategoryAxis side="BOTTOM" />
         </xAxis>
@@ -18,7 +18,7 @@
           <NumberAxis side="LEFT" />
         </yAxis>
       </BarChart>
-      <BarChart fx:id="greens" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+      <BarChart fx:id="greens" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" maxWidth="256.0" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
         <xAxis>
           <CategoryAxis side="BOTTOM" />
         </xAxis>
@@ -26,7 +26,7 @@
           <NumberAxis side="LEFT" />
         </yAxis>
       </BarChart>
-      <BarChart fx:id="blues" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" prefHeight="312.0" prefWidth="600.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+      <BarChart fx:id="blues" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" maxWidth="256.0" minWidth="256.0" prefHeight="312.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
         <xAxis>
           <CategoryAxis side="BOTTOM" />
         </xAxis>
@@ -34,7 +34,7 @@
           <NumberAxis side="LEFT" />
         </yAxis>
       </BarChart>
-      <BarChart fx:id="grays" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+      <BarChart fx:id="grays" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" maxWidth="256.0" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
         <xAxis>
           <CategoryAxis side="BOTTOM" />
         </xAxis>

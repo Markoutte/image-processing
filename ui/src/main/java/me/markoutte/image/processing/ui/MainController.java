@@ -239,7 +239,7 @@ public class MainController implements Initializable {
             RectImage image = (RectImage) hierarchy.getSourceImage();
             int segment = hierarchy.getSegment((int) (y * image.width() + x), comboBox.getValue());
             List<Pixel> area = hierarchy.getArea(segment, comboBox.getValue());
-            showHistograms(String.format(bundle.getString("partlyImageHist"), segment / image.width(), segment % image.height(), area.size()), area);
+            showHistograms(String.format(bundle.getString("partlyImageHist"), segment / image.width(), segment % image.height(), comboBox.getValue(), area.size()), area);
         }
     }
 

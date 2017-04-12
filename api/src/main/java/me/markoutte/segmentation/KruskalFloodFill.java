@@ -72,11 +72,7 @@ public class KruskalFloodFill {
     }
 
     private int getWeight(int left, int right) {
-        int redDiff = Math.abs(Color.getChannel(left, Channel.RED) - Color.getChannel(right, Channel.RED));
-        int greenDiff = Math.abs(Color.getChannel(left, Channel.GREEN) - Color.getChannel(right, Channel.GREEN));
-        int blueDiff = Math.abs(Color.getChannel(left, Channel.BLUE) - Color.getChannel(right, Channel.BLUE));
-
-        return (int) Math.ceil((redDiff + greenDiff + blueDiff)/3.0);
+        return SegmentationConfiguration.heuristics.getWeight(left, right);
     }
 
     private Pixel east(Pixel p) {
