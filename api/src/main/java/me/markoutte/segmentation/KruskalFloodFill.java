@@ -38,6 +38,10 @@ public class KruskalFloodFill {
         edges = null;
     }
 
+    public Hierarchy getHierarchy() {
+        return hierarchy;
+    }
+
     private void calculateHierarchy() {
         int edgesDrawn = 0;
         for (Edge e : edges) {

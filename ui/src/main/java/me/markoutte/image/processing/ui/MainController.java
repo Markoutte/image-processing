@@ -5,6 +5,7 @@ import javafx.animation.Interpolator;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,6 +29,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import me.markoutte.ds.Hierarchy;
+import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.impl.ArrayRectImage;
 import me.markoutte.segmentation.KruskalFloodFill;
@@ -36,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -98,7 +102,7 @@ public class MainController implements Initializable {
         image = new Image(stream);
         canvas.setWidth(image.getWidth());
         canvas.setHeight(image.getHeight());
-        context.drawImage(image, 0, 0);
+        context.drawImage(image, 0, 0, image.getWidth(), image.getHeight());
         comboBox.setDisable(true);
         processButton.setDisable(false);
         segmentation = null;
@@ -215,7 +219,24 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    public void showHistogramOfSegment(ActionEvent e) {
-        System.out.println(e);
+    public void showHistogramOfSegment(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+            if (segmentation == null) {
+                System.out.println("No segmentation found");
+                return;
+            }
+
+            double x = e.getX();
+            double y = e.getY();
+            Hierarchy hierarchy = segmentation.getHierarchy();
+            if (comboBox.getValue() == 0 || hierarchy == null) {
+                System.out.println("Nothing to say");
+                return;
+            }
+            RectImage image = (RectImage) hierarchy.getSourceImage();
+            int segment = hierarchy.getSegment((int) (y * image.width() + x), comboBox.getValue());
+            List<Pixel> area = hierarchy.getArea(segment, comboBox.getValue());
+            System.out.println(String.format("Area for %fx%f with %d pixels", x, y, area.size()));
+        }
     }
 }

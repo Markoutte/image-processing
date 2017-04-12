@@ -10,9 +10,9 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.MainController">
    <center>
-      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false" pannable="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <content>
-            <Canvas fx:id="canvas" focusTraversable="true" height="317.0" mouseTransparent="true" onMouseClicked="#showHistogramOfSegment" width="595.0" />
+            <Canvas fx:id="canvas" height="317.0" onMouseClicked="#showHistogramOfSegment" width="595.0" />
          </content>
       </ScrollPane>
    </center>
