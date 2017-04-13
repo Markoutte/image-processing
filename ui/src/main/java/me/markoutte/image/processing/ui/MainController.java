@@ -7,22 +7,25 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.*;
@@ -47,6 +50,8 @@ public class MainController implements Initializable {
 
     @FXML
     private Canvas canvas;
+    @FXML
+    private ScrollPane imagesp;
     @FXML
     private Button openButton;
     @FXML
@@ -76,6 +81,8 @@ public class MainController implements Initializable {
 
     private Properties properties;
 
+    private double scale = 1;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         comboBox.getItems().addAll(IntStream.range(0, 256).boxed().collect(Collectors.toList()));
@@ -92,17 +99,7 @@ public class MainController implements Initializable {
             preprocessButton.setDisable(newValue == null);
             segmentation.setValue(null);
 
-            GraphicsContext context = canvas.getGraphicsContext2D();
-            context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-            if (newValue != null) {
-                canvas.setWidth(newValue.getWidth());
-                canvas.setHeight(newValue.getHeight());
-                context.drawImage(newValue, 0, 0, newValue.getWidth(), newValue.getHeight());
-            } else {
-                canvas.setWidth(0);
-                canvas.setHeight(0);
-            }
+            drawImage(newValue);
 
             if (newValue != null && !history.contains(newValue)) {
                 // Просто добавили новое значение в конец истории
@@ -137,12 +134,6 @@ public class MainController implements Initializable {
             openButton.setDisable(newValue);
         });
 
-        try (InputStream stream = getClass().getClassLoader().getResourceAsStream("me/markoutte/image/processing/ui/lena-color.jpg")) {
-            image.set(new Image(stream));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         properties = new Properties();
         try (InputStream stream = getClass().getResourceAsStream("algorithms.properties")) {
             properties.load(stream);
@@ -154,6 +145,15 @@ public class MainController implements Initializable {
     /* package */
     void setStage(Stage stage) {
         this.stage = stage;
+        this.stage.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> {
+            try (InputStream stream = getClass().getClassLoader().getResourceAsStream("me/markoutte/image/processing/ui/lena-color.jpg")) {
+                image.set(new Image(stream));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        this.imagesp.widthProperty().addListener(observable -> drawImage(image.get()));
+        this.imagesp.heightProperty().addListener(observable -> drawImage(image.get()));
     }
 
     public void chooseFile() {
@@ -195,7 +195,21 @@ public class MainController implements Initializable {
     private void drawImage(Image image) {
         GraphicsContext context = canvas.getGraphicsContext2D();
         context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        context.drawImage(image, 0, 0);
+
+        if (image != null) {
+            double width = image.getWidth() * scale;
+            double height = image.getHeight() * scale;
+
+            int x = Math.max((int) (imagesp.getViewportBounds().getWidth() - width) / 2, 0);
+            int y = Math.max((int) (imagesp.getViewportBounds().getHeight() - height) / 2, 0);
+
+            canvas.setWidth(width + x);
+            canvas.setHeight(height + y);
+            context.drawImage(image, x, y, width, height);
+        } else {
+            canvas.setWidth(0);
+            canvas.setHeight(0);
+        }
     }
 
     public void preprocess() {
@@ -334,5 +348,20 @@ public class MainController implements Initializable {
     public void setNextImage() {
         int i = history.indexOf(image.get());
         image.set(history.get(i + 1));
+    }
+
+    @FXML
+    public void changeZoom(ScrollEvent event) {
+        if (!event.isAltDown()) {
+            return;
+        }
+        if (event.getDeltaY() < 0) {
+            scale = Math.max(scale * 0.8, 1./16);
+        } else {
+            scale = Math.min(scale * 1.25, 4);
+        }
+
+        drawImage(image.get());
+        event.consume();
     }
 }
