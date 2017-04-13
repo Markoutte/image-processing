@@ -71,6 +71,7 @@ public class MainController implements Initializable {
     private MenuItem nextImage;
 
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
+    private Image drawn = null;
 
     private final List<Image> history = new ArrayList<>();
 
@@ -261,6 +262,8 @@ public class MainController implements Initializable {
             canvas.setWidth(0);
             canvas.setHeight(0);
         }
+
+        drawn = image;
     }
 
     public void preprocess(ImageProcessing processor) {
@@ -374,7 +377,7 @@ public class MainController implements Initializable {
                 return;
             }
             RectImage image = (RectImage) hierarchy.getSourceImage();
-            int segment = hierarchy.getSegment((int) (y * image.width() + x), level);
+            int segment = hierarchy.getSegment( (int) y * image.width() + (int) x, level);
             List<Pixel> area = hierarchy.getArea(segment, level);
             if (e.isControlDown()) {
                 String title = String.format(bundle.getString("partlyImageHist"), segment % image.width(), segment / image.height(), level, area.size());
@@ -450,11 +453,7 @@ public class MainController implements Initializable {
             scale = Math.min(scale * 1.25, 4);
         }
 
-        if (segmentation.get() != null) {
-            drawImage(FXImageUtils.toFXImage(segmentation.get().getImage(comboBox.getValue())));
-        } else {
-            drawImage(image.get());
-        }
+        drawImage(drawn);
         event.consume();
     }
 }
