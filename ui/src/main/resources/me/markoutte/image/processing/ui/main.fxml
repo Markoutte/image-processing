@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
@@ -8,7 +13,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.MainController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.MainController">
    <center>
       <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false" pannable="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <content>
@@ -19,6 +24,12 @@
    <bottom>
       <HBox alignment="CENTER_RIGHT" prefHeight="50.0" prefWidth="595.0">
          <children>
+            <ComboBox fx:id="processing" disable="true" prefWidth="150.0" />
+            <Button fx:id="preprocessButton" disable="true" mnemonicParsing="false" onAction="#preprocess" text="PP">
+               <HBox.margin>
+                  <Insets left="10.0" right="20.0" />
+               </HBox.margin>
+            </Button>
             <Button fx:id="openButton" defaultButton="true" mnemonicParsing="false" onAction="#chooseFile" text="%openButton.text">
                <HBox.margin>
                   <Insets left="10.0" />

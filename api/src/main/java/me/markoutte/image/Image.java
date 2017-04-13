@@ -1,16 +1,12 @@
 package me.markoutte.image;
 
-import java.awt.image.BufferedImage;
-
 public interface Image extends Iterable<Pixel>, Cloneable {
 
     public Image clone();
 
-    public void setBytes(int[] rgbArray);
+    public void setBytes(int[] argbArray);
 
     public int[] getBytes();
-
-    public BufferedImage getBufferedImage();
 
     public abstract int getPixel(int id);
 

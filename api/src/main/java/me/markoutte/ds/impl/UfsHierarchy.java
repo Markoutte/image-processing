@@ -66,7 +66,7 @@ public final class UfsHierarchy implements Hierarchy {
                     blue += Color.getChannel(value, Channel.BLUE);
                 }
                 for (Integer pixel : segment) {
-                    long summary = (red / segment.size()) << 16 | (green / segment.size()) << 8 | (blue / segment.size());
+                    long summary = 255 << 24 | (red / segment.size()) << 16 | (green / segment.size()) << 8 | (blue / segment.size());
                     image.setPixel(pixel, (int) (summary));
                 }
             }
@@ -83,7 +83,7 @@ public final class UfsHierarchy implements Hierarchy {
 
     @Override
     public List<Pixel> getArea(int id, int level) {
-        List<Pixel> pixels = new LinkedList<Pixel>();
+        List<Pixel> pixels = new LinkedList<>();
         for (Pixel pixel : image) {
             if (ufs.find(pixel.getId(), level) == id) {
                 pixels.add(pixel);
@@ -93,7 +93,7 @@ public final class UfsHierarchy implements Hierarchy {
     }
 
     public List<Pixel> getArea(int id, UnionFindSet ufs) {
-        List<Pixel> pixels = new LinkedList<Pixel>();
+        List<Pixel> pixels = new LinkedList<>();
         for (Pixel pixel : image) {
             if (ufs.find(pixel.getId()) == id) {
                 pixels.add(pixel);

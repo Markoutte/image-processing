@@ -6,6 +6,8 @@ public enum Channel {
 
     GREEN,
 
-    BLUE
+    BLUE,
+
+    OPACITY,
 
 }

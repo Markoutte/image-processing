@@ -35,6 +35,9 @@ import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.impl.ArrayRectImage;
+import me.markoutte.image.processing.ui.util.Converters;
+import me.markoutte.process.Algorithms;
+import me.markoutte.process.ImageProcessing;
 import me.markoutte.segmentation.KruskalFloodFill;
 
 import java.awt.image.BufferedImage;
@@ -59,7 +62,11 @@ public class MainController implements Initializable {
     @FXML
     private Button processButton;
     @FXML
+    private Button preprocessButton;
+    @FXML
     private ComboBox<Integer> comboBox;
+    @FXML
+    private ComboBox<ImageProcessing> processing;
 
     private Image image;
 
@@ -74,8 +81,11 @@ public class MainController implements Initializable {
         comboBox.getItems().addAll(IntStream.range(0, 256).boxed().collect(Collectors.toList()));
         comboBox.setValue(0);
         comboBox.setDisable(true);
+        processing.getItems().addAll(Algorithms.values());
+        processing.setValue(Algorithms.values()[0]);
         processButton.setDisable(true);
         bundle = resources;
+
 
         try (InputStream stream = getClass().getClassLoader().getResourceAsStream("me/markoutte/image/processing/ui/lena-color.jpg")) {
             setImage(stream);
@@ -100,9 +110,9 @@ public class MainController implements Initializable {
         }
     }
 
-    private void setImage(InputStream stream) {
+    private void setImage(Image image) {
+        this.image = image;
         GraphicsContext context = canvas.getGraphicsContext2D();
-        image = new Image(stream);
         canvas.setWidth(image.getWidth());
         canvas.setHeight(image.getHeight());
         context.drawImage(image, 0, 0, image.getWidth(), image.getHeight());
@@ -110,6 +120,12 @@ public class MainController implements Initializable {
         processButton.setDisable(false);
         segmentation = null;
         comboBox.setValue(0);
+        processing.setDisable(false);
+        preprocessButton.setDisable(false);
+    }
+
+    private void setImage(InputStream stream) {
+        setImage(new Image(stream));
     }
 
     private final ExecutorService service = Executors.newSingleThreadExecutor();
@@ -128,13 +144,9 @@ public class MainController implements Initializable {
                 if (level == 0) {
                     image = this.image;
                 } else {
-                    RectImage ri = segmentation.getImage(level);
-                    WritableImage wimg = new WritableImage(ri.width(), ri.height());
-                    image = SwingFXUtils.toFXImage(ri.getBufferedImage(), wimg);
+                    image = Converters.toFXImage(segmentation.getImage(level));
                 }
-                GraphicsContext context = canvas.getGraphicsContext2D();
-                context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                context.drawImage(image, 0, 0);
+                drawImage(image);
 
                 long stop = System.currentTimeMillis();
                 showPopup(String.format(bundle.getString("levelChangeTime"), level, (stop - start)));
@@ -144,6 +156,18 @@ public class MainController implements Initializable {
                 comboBox.setDisable(false);
             });
         }
+    }
+
+    private void drawImage(Image image) {
+        GraphicsContext context = canvas.getGraphicsContext2D();
+        context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        context.drawImage(image, 0, 0);
+    }
+
+    public void preprocess() {
+        ImageProcessing value = processing.getValue();
+        me.markoutte.image.RectImage image = value.process(Converters.fromFXImage(this.image));
+        setImage(Converters.toFXImage(image));
     }
 
     public void process() {
@@ -162,13 +186,7 @@ public class MainController implements Initializable {
 
             try {
                 long start = System.currentTimeMillis();
-                RectImage processed = new ArrayRectImage().create((int) image.getWidth(), (int) image.getHeight());
-                PixelReader reader = image.getPixelReader();
-                for (int x = 0; x < image.getWidth(); x++) {
-                    for (int y = 0; y < image.getHeight(); y++) {
-                        processed.setPixel(x, y, reader.getArgb(x, y));
-                    }
-                }
+                RectImage processed = Converters.fromFXImage(image);
 
                 segmentation = new KruskalFloodFill();
                 segmentation.setImage(processed);

@@ -12,8 +12,8 @@ public final class ArrayRectImage extends RectImage {
 
     int[] image = null;
 
-    public void setBytes(int[] rgbArray) {
-        this.image = rgbArray;
+    public void setBytes(int[] argbArray) {
+        this.image = argbArray;
     }
 
     public int[] getBytes() {
@@ -30,7 +30,7 @@ public final class ArrayRectImage extends RectImage {
     }
 
     public BufferedImage getBufferedImage() {
-        BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 bf.setRGB(i, j, image[width*j + i]);
