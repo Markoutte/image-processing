@@ -22,7 +22,7 @@ public class Application extends javafx.application.Application {
         MainController controller = loader.getController();
         controller.setStage(primaryStage);
         Scene scene = new Scene(root, 640, 480);
-//        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.setTitle(bundle.getString("application.name"));
         primaryStage.show();

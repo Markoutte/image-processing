@@ -1,0 +1,5 @@
+.chess {
+    -fx-background-image: url("chess.png");
+    -fx-background-repeat: repeat;
+    -fx-background-position: -4, -4;
+}

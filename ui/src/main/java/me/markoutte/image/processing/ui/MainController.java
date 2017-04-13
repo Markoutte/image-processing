@@ -159,6 +159,9 @@ public class MainController implements Initializable {
     public void chooseFile() {
         FileChooser chooser = new FileChooser();
         File file = chooser.showOpenDialog(canvas.getScene().getWindow());
+        if (file == null) {
+            return;
+        }
         try (InputStream stream = new FileInputStream(file)) {
             image.set(new Image(stream));
         } catch (IOException e) {
@@ -347,7 +350,9 @@ public class MainController implements Initializable {
             HistogramController controller = loader.getController();
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+            stage.setScene(scene);
             stage.setResizable(false);
             stage.setTitle(title);
             stage.show();
