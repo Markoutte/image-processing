@@ -57,14 +57,49 @@ public final class Color {
         double r = getChannel(pixel, Channel.RED) / 255.;
         double g = getChannel(pixel, Channel.GREEN) / 255.;
         double b = getChannel(pixel, Channel.BLUE) / 255.;
-        return  1 - 3 * min(min(r, g), b) / (r + g + b);
+        return  1 - 3 * min(r, g, b) / (r + g + b);
     }
 
-    public static double getLightness(int pixel) {
+    public static double getIntensity(int pixel) {
         double r = getChannel(pixel, Channel.RED) / 255.;
         double g = getChannel(pixel, Channel.GREEN) / 255.;
         double b = getChannel(pixel, Channel.BLUE) / 255.;
         return (r + g + b) / 3.;
+    }
+
+    public static double[] getHSL(int pixel) {
+        double r = getChannel(pixel, Channel.RED) / 255.;
+        double g = getChannel(pixel, Channel.GREEN) / 255.;
+        double b = getChannel(pixel, Channel.BLUE) / 255.;
+
+        double max =  max(r, g, b);
+        double min = min(r, g, b);
+        double h = 0;
+        double s = 0;
+        double l = (max + min) / 2;
+
+        if (max != min) {
+            double d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            if (max == r) {
+                h = (g - b) / d + (g < b ? 6 : 0);
+            } else if (max == g) {
+                h = (b - r) / d + 2;
+            } else if (max == b) {
+                h = (r - g) / d + 4;
+            } else throw new IllegalStateException();
+            h /= 6;
+        }
+
+        return new double[]{h, s, l};
+    }
+
+    private static double max(double a, double b, double c) {
+        return Math.max(Math.max(a, b), c);
+    }
+
+    private static double min(double a, double b, double c) {
+        return Math.min(Math.min(a, b), c);
     }
 
     private Color() {

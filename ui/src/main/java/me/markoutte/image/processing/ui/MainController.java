@@ -15,6 +15,7 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -22,9 +23,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.InputEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -34,6 +33,7 @@ import me.markoutte.ds.Channel;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
+import me.markoutte.image.impl.ArrayRectImage;
 import me.markoutte.process.Algorithms;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.segmentation.Segmentation;
@@ -287,10 +287,25 @@ public class MainController implements Initializable {
     }
 
     @FXML
+    public void textControlPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.CONTROL && segmentation.get() != null) {
+            canvas.setCursor(Cursor.CROSSHAIR);
+        }
+    }
+
+    @FXML
+    public void textControlReleased(KeyEvent event) {
+        if (event.getCode() == KeyCode.CONTROL) {
+            canvas.setCursor(Cursor.DEFAULT);
+        }
+    }
+
+    @FXML
     public void showHistogramOfSegment(MouseEvent e) {
         if (e.getClickCount() == 2) {
             if (segmentation.getValue() == null) {
-                showHistograms(bundle.getString("fullImageHist"), FXImageUtils.fromFXImage(image.get()));
+                RectImage image = FXImageUtils.fromFXImage(this.image.get());
+                showHistograms(bundle.getString("fullImageHist"), image, image);
                 return;
             }
 
@@ -298,17 +313,23 @@ public class MainController implements Initializable {
             double y = e.getY();
             Hierarchy hierarchy = segmentation.get().getHierarchy();
             if (comboBox.getValue() == 0 || hierarchy == null) {
-                showHistograms(bundle.getString("fullImageHist"), segmentation.get().getImage(0));
+                RectImage image = segmentation.get().getImage(0);
+                showHistograms(bundle.getString("fullImageHist"), image, image);
                 return;
             }
             RectImage image = (RectImage) hierarchy.getSourceImage();
             int segment = hierarchy.getSegment((int) (y * image.width() + x), comboBox.getValue());
             List<Pixel> area = hierarchy.getArea(segment, comboBox.getValue());
-            showHistograms(String.format(bundle.getString("partlyImageHist"), segment / image.width(), segment % image.height(), comboBox.getValue(), area.size()), area);
+            if (e.isControlDown()) {
+                String title = String.format(bundle.getString("partlyImageHist"), segment / image.width(), segment % image.height(), comboBox.getValue(), area.size());
+                showHistograms(title, area, createImageFromPixel(area, image.width(), image.height()));
+            } else {
+                showHistograms(bundle.getString("fullImageHist"), image, image);
+            }
         }
     }
 
-    private void showHistograms(String title, Iterable<Pixel> area) {
+    private void showHistograms(String title, Iterable<Pixel> area, me.markoutte.image.Image image) {
         int[] reds = new int[256];
         int[] greens = new int[256];
         int[] blues = new int[256];
@@ -327,15 +348,25 @@ public class MainController implements Initializable {
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
             stage.setScene(new Scene(root));
+            stage.setResizable(false);
             stage.setTitle(title);
             stage.show();
             controller.setReds(reds);
             controller.setGreens(greens);
             controller.setBlues(blues);
             controller.setGrays(grays);
+            controller.setImage(image);
         } catch (Exception err) {
             err.printStackTrace();
         }
+    }
+
+    private RectImage createImageFromPixel(Iterable<Pixel> pixels, int width, int height) {
+        RectImage image = new ArrayRectImage().create(width, height);
+        for (Pixel pixel : pixels) {
+            image.setPixel(pixel.getId(), pixel.getValue());
+        }
+        return image;
     }
 
     @FXML
@@ -352,7 +383,7 @@ public class MainController implements Initializable {
 
     @FXML
     public void changeZoom(ScrollEvent event) {
-        if (!event.isAltDown()) {
+        if (!event.isControlDown()) {
             return;
         }
         if (event.getDeltaY() < 0) {

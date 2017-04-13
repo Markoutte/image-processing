@@ -4,11 +4,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
-import me.markoutte.image.Image;
+import javafx.scene.image.Image;
+import me.markoutte.image.RectImage;
+import me.markoutte.process.Algorithms;
 
 import java.net.URL;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class HistogramController implements Initializable {
@@ -41,7 +45,7 @@ public class HistogramController implements Initializable {
     private Canvas saturation;
 
     @FXML
-    private Canvas intensive;
+    private Canvas intensity;
 
     private ResourceBundle bundle;
 
@@ -66,8 +70,35 @@ public class HistogramController implements Initializable {
         setData(this.grays, grays, "gray");
     }
 
-    public void setImage(Image image) {
+    public void setImage(me.markoutte.image.Image image) {
+        Properties properties = new Properties();
+        drawImage(red, Algorithms.RED.process(image, properties));
+        drawImage(green, Algorithms.GREEN.process(image, properties));
+        drawImage(blue, Algorithms.BLUE.process(image, properties));
+        drawImage(hue, Algorithms.HUE.process(image, properties));
+        drawImage(saturation, Algorithms.SATURATION.process(image, properties));
+        drawImage(intensity, Algorithms.INTENSITY.process(image, properties));
+    }
 
+    private void drawImage(Canvas canvas, me.markoutte.image.Image image) {
+        Image drawing = FXImageUtils.toFXImage((RectImage) image);
+        double ratio = drawing.getWidth() / drawing.getHeight();
+
+        double x = 0;
+        double y = 0;
+        double width = canvas.getWidth();
+        double height = canvas.getHeight();
+        if (ratio > 1) {
+            height = height / ratio;
+            y = (canvas.getHeight() - height) / 2;
+        } else {
+            width = width * ratio;
+            x = (canvas.getWidth() - width) / 2;
+        }
+
+        GraphicsContext context = canvas.getGraphicsContext2D();
+        context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        context.drawImage(drawing, x, y, width, height);
     }
 
     private void setData(BarChart<String, Integer> chart, int[] data, String color) {

@@ -12,18 +12,18 @@
 
 <HBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.HistogramController">
    <children>
-      <VBox prefHeight="200.0" prefWidth="100.0">
+      <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #CCC;">
          <children>
             <Canvas fx:id="red" height="200.0" width="200.0" />
             <Canvas fx:id="green" height="200.0" width="200.0" />
             <Canvas fx:id="blue" height="200.0" width="200.0" />
          </children>
       </VBox>
-      <VBox prefHeight="200.0" prefWidth="100.0">
+      <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #CCC;">
          <children>
             <Canvas fx:id="hue" height="200.0" width="200.0" />
             <Canvas fx:id="saturation" height="200.0" width="200.0" />
-            <Canvas fx:id="intensive" height="200.0" width="200.0" />
+            <Canvas fx:id="intensity" height="200.0" width="200.0" />
          </children>
       </VBox>
       <VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="598.0">

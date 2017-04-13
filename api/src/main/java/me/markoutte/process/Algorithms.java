@@ -123,12 +123,12 @@ public enum Algorithms implements ImageProcessing {
         }
     },
 
-    LIGHTNESS {
+    INTENSITY {
         @Override
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : out) {
-                double lightness = Color.getLightness(pixel.getValue());
+                double lightness = Color.getIntensity(pixel.getValue());
                 out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * lightness)));
             }
             return out;
