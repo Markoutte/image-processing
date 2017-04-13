@@ -1,19 +1,17 @@
 package me.markoutte.ds;
 
-import static me.markoutte.ds.Channel.*;
-
 public final class Color {
 
     public static int getChannel(int pixel, Channel channel) {
         switch (channel) {
             case OPACITY:
-                return (pixel & 0xFF000000) >> 24;
+                return pixel >> 24 & 0xFF;
             case RED:
-                return (pixel & 0x00FF0000) >> 16;
+                return pixel >> 16 & 0xFF;
             case GREEN:
-                return (pixel & 0x0000FF00) >> 8;
+                return pixel >> 8 & 0xFF;
             case BLUE:
-                return (pixel & 0x000000FF);
+                return pixel & 0xFF;
         }
         throw new IllegalStateException();
     }
@@ -24,7 +22,11 @@ public final class Color {
 
     public static int getIntGray(int pixel) {
         short gray = getGray(pixel);
-        return (255 << 24) + (gray << 16) + (gray << 8) + gray;
+        return (0xFF << 24) + (gray << 16) + (gray << 8) + gray;
+    }
+
+    public static int getBlank(int pixel) {
+        return 0;
     }
 
 }

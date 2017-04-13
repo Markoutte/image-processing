@@ -37,10 +37,7 @@ import me.markoutte.segmentation.Segmentation;
 
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -76,6 +73,8 @@ public class MainController implements Initializable {
     private Stage stage;
 
     private ResourceBundle bundle;
+
+    private Properties properties;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -143,6 +142,13 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        properties = new Properties();
+        try (InputStream stream = getClass().getResourceAsStream("algorithms.properties")) {
+            properties.load(stream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /* package */
@@ -195,7 +201,7 @@ public class MainController implements Initializable {
     public void preprocess() {
         ImageProcessing value = processing.getValue();
         RectImage oldValue = FXImageUtils.fromFXImage(this.image.get());
-        me.markoutte.image.RectImage newValue = value.process(oldValue);
+        me.markoutte.image.RectImage newValue = (RectImage) value.process(oldValue, properties);
         if (!Objects.equals(newValue, oldValue)) {
             this.image.set(FXImageUtils.toFXImage(newValue));
         }

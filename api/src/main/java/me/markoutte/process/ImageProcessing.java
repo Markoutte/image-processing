@@ -2,8 +2,10 @@ package me.markoutte.process;
 
 import me.markoutte.image.Image;
 
+import java.util.Properties;
+
 public interface ImageProcessing {
 
-    <T extends Image> T process(T src);
+    Image process(Image src, Properties properties);
 
 }

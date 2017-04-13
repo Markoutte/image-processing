@@ -51,6 +51,16 @@ public abstract class RectImage implements Image {
         setPixel(y * width + x, value);
     }
 
+    public int[][] rect(int x1, int x2, int y1, int y2) {
+        int[][] rect = new int[x2 - x1 + 1][y2 - y1 + 1];
+        for (int j = Math.max(y1, 0); j < Math.min(y2 + 1, height); j++) {
+            for (int i = Math.max(x1, 0); i < Math.min(x2 + 1, width); i++) {
+                rect[i - x1][j - y1] = getPixel(i, j);
+            }
+        }
+        return rect;
+    }
+
     protected void checkPixelExists(int x, int y) throws NoSuchPixelException {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             throw new NoSuchPixelException(String.format("Coordinates (%d, %d) out of image rect ([0, 0], [%d, %d])", x, y, width, height));
