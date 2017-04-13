@@ -1,5 +1,7 @@
 package me.markoutte.segmentation;
 
+import me.markoutte.algorithm.ColorHeuristics;
+import me.markoutte.algorithm.Heuristics;
 import me.markoutte.algorithm.Quicksort;
 import me.markoutte.ds.Channel;
 import me.markoutte.ds.Color;
@@ -10,10 +12,11 @@ import me.markoutte.image.Edge;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 
-public class KruskalFloodFill {
+public class KruskalFloodFill implements Segmentation<RectImage> {
 
     private RectImage image = null;
     private Hierarchy hierarchy = null;
+    private Heuristics heuristics = ColorHeuristics.MEAN;
 
     private Edge[] edges;
 
@@ -28,6 +31,16 @@ public class KruskalFloodFill {
         hierarchy.setImage(image);
         int edgeCount = 2*image.getSize() - image.width() - image.height();
         edges = new Edge[edgeCount];
+    }
+
+    @Override
+    public void setHeuristic(Heuristics heuristic) {
+        this.heuristics = heuristic;
+    }
+
+    @Override
+    public RectImage getImage() {
+        return image;
     }
 
     public void start() {
@@ -72,7 +85,7 @@ public class KruskalFloodFill {
     }
 
     private int getWeight(int left, int right) {
-        return SegmentationConfiguration.heuristics.getWeight(left, right);
+        return heuristics.getWeight(left, right);
     }
 
     private Pixel east(Pixel p) {

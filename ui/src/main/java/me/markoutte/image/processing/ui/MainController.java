@@ -3,10 +3,12 @@ package me.markoutte.image.processing.ui;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -18,9 +20,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -34,19 +33,15 @@ import me.markoutte.ds.Channel;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
-import me.markoutte.image.impl.ArrayRectImage;
 import me.markoutte.image.processing.ui.util.Converters;
 import me.markoutte.process.Algorithms;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.segmentation.KruskalFloodFill;
+import me.markoutte.segmentation.Segmentation;
 
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URI;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -67,10 +62,16 @@ public class MainController implements Initializable {
     private ComboBox<Integer> comboBox;
     @FXML
     private ComboBox<ImageProcessing> processing;
+    @FXML
+    private Button prevImage;
+    @FXML
+    private Button nextImage;
 
-    private Image image;
+    private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
 
-    private KruskalFloodFill segmentation;
+    private final ObjectProperty<Segmentation<RectImage>> segmentation = new SimpleObjectProperty<>();
+
+    private final BooleanProperty uiLock = new SimpleBooleanProperty();
 
     private Stage stage;
 
@@ -86,17 +87,49 @@ public class MainController implements Initializable {
         processButton.setDisable(true);
         bundle = resources;
 
+        image.addListener((observable, oldValue, newValue) -> {
+            processButton.setDisable(newValue == null);
+            processing.setDisable(newValue == null);
+            preprocessButton.setDisable(newValue == null);
+            segmentation.setValue(null);
+
+            GraphicsContext context = canvas.getGraphicsContext2D();
+            context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+            if (newValue != null) {
+                canvas.setWidth(newValue.getWidth());
+                canvas.setHeight(newValue.getHeight());
+                context.drawImage(newValue, 0, 0, newValue.getWidth(), newValue.getHeight());
+            } else {
+                canvas.setWidth(0);
+                canvas.setHeight(0);
+            }
+        });
+
+        segmentation.addListener((observable, oldValue, newValue) -> {
+            comboBox.setDisable(newValue == null);
+            comboBox.setValue(0);
+        });
+
+        uiLock.addListener((observable, oldValue, newValue) -> {
+            processing.setDisable(newValue || image.getValue() == null);
+            processButton.setDisable(newValue || image.getValue() == null);
+            preprocessButton.setDisable(newValue || image.getValue() == null);
+            prevImage.setDisable(newValue);
+            nextImage.setDisable(newValue);
+            comboBox.setDisable(newValue || segmentation.get() == null);
+            openButton.setDisable(newValue);
+        });
 
         try (InputStream stream = getClass().getClassLoader().getResourceAsStream("me/markoutte/image/processing/ui/lena-color.jpg")) {
-            setImage(stream);
+            image.set(new Image(stream));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /* package */
-
-    public void setStage(Stage stage) {
+    void setStage(Stage stage) {
         this.stage = stage;
     }
 
@@ -104,58 +137,36 @@ public class MainController implements Initializable {
         FileChooser chooser = new FileChooser();
         File file = chooser.showOpenDialog(canvas.getScene().getWindow());
         try (InputStream stream = new FileInputStream(file)) {
-            setImage(stream);
+            image.set(new Image(stream));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void setImage(Image image) {
-        this.image = image;
-        GraphicsContext context = canvas.getGraphicsContext2D();
-        canvas.setWidth(image.getWidth());
-        canvas.setHeight(image.getHeight());
-        context.drawImage(image, 0, 0, image.getWidth(), image.getHeight());
-        comboBox.setDisable(true);
-        processButton.setDisable(false);
-        segmentation = null;
-        comboBox.setValue(0);
-        processing.setDisable(false);
-        preprocessButton.setDisable(false);
-    }
-
-    private void setImage(InputStream stream) {
-        setImage(new Image(stream));
-    }
-
     private final ExecutorService service = Executors.newSingleThreadExecutor();
 
     public void changeLevel() {
-        if (segmentation != null) {
-            service.execute(() -> {
-                openButton.setDisable(true);
-                processButton.setDisable(true);
-                comboBox.setDisable(true);
+        service.execute(() -> {
+            uiLock.setValue(true);
 
+            try {
                 Integer level = comboBox.getValue();
                 Image image;
 
                 long start = System.currentTimeMillis();
                 if (level == 0) {
-                    image = this.image;
+                    image = this.image.get();
                 } else {
-                    image = Converters.toFXImage(segmentation.getImage(level));
+                    image = Converters.toFXImage(segmentation.get().getImage(level));
                 }
                 drawImage(image);
 
                 long stop = System.currentTimeMillis();
                 showPopup(String.format(bundle.getString("levelChangeTime"), level, (stop - start)));
-
-                openButton.setDisable(false);
-                processButton.setDisable(false);
-                comboBox.setDisable(false);
-            });
-        }
+            } finally {
+                uiLock.setValue(false);
+            }
+        });
     }
 
     private void drawImage(Image image) {
@@ -166,42 +177,38 @@ public class MainController implements Initializable {
 
     public void preprocess() {
         ImageProcessing value = processing.getValue();
-        me.markoutte.image.RectImage image = value.process(Converters.fromFXImage(this.image));
-        setImage(Converters.toFXImage(image));
+        me.markoutte.image.RectImage image = value.process(Converters.fromFXImage(this.image.get()));
+        this.image.set(Converters.toFXImage(image));
     }
 
     public void process() {
-        if (image == null) {
+        if (image.get() == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setHeaderText(bundle.getString("noImageChosen"));
             alert.showAndWait();
             return;
         }
 
-
         service.execute(() -> {
-            processButton.setDisable(true);
-            openButton.setDisable(true);
-
+            uiLock.setValue(true);
 
             try {
                 long start = System.currentTimeMillis();
-                RectImage processed = Converters.fromFXImage(image);
+                RectImage processed = Converters.fromFXImage(image.get());
 
-                segmentation = new KruskalFloodFill();
-                segmentation.setImage(processed);
-                segmentation.start();
+                Segmentation<RectImage> ff = Configuration.segmentation.newInstance();
+                ff.setImage(processed);
+                ff.start();
 
                 long stop = System.currentTimeMillis();
                 showPopup(String.format(bundle.getString("processTime"), (stop - start)));
 
-                comboBox.setDisable(false);
-                openButton.setDisable(false);
+                segmentation.set(ff);
 
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                processButton.setDisable(false);
+                uiLock.setValue(false);
             }
         });
 
@@ -242,16 +249,16 @@ public class MainController implements Initializable {
     @FXML
     public void showHistogramOfSegment(MouseEvent e) {
         if (e.getClickCount() == 2) {
-            if (segmentation == null) {
+            if (segmentation.getValue() == null) {
                 System.out.println("No segmentation found");
                 return;
             }
 
             double x = e.getX();
             double y = e.getY();
-            Hierarchy hierarchy = segmentation.getHierarchy();
+            Hierarchy hierarchy = segmentation.get().getHierarchy();
             if (comboBox.getValue() == 0 || hierarchy == null) {
-                showHistograms(bundle.getString("fullImageHist"), segmentation.getImage(0));
+                showHistograms(bundle.getString("fullImageHist"), segmentation.get().getImage(0));
                 return;
             }
             RectImage image = (RectImage) hierarchy.getSourceImage();

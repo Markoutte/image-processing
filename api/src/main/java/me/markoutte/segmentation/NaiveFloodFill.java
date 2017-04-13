@@ -1,5 +1,7 @@
 package me.markoutte.segmentation;
 
+import me.markoutte.algorithm.ColorHeuristics;
+import me.markoutte.algorithm.Heuristics;
 import me.markoutte.ds.Channel;
 import me.markoutte.ds.Color;
 import me.markoutte.ds.Hierarchy;
@@ -11,10 +13,11 @@ import me.markoutte.image.RectImage;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class NaiveFloodFill {
+public class NaiveFloodFill implements Segmentation<RectImage> {
 
-    RectImage image = null;
-    Hierarchy hierarchy = new UfsHierarchy();
+    private RectImage image = null;
+    private Hierarchy hierarchy = new UfsHierarchy();
+    private Heuristics heuristics = ColorHeuristics.MEAN;
     private int delta;
     private boolean[] painted;
 
@@ -27,10 +30,19 @@ public class NaiveFloodFill {
         return ret;
     }
 
-    public NaiveFloodFill setImage(RectImage image) {
+    public void setImage(RectImage image) {
         this.image = image;
         hierarchy.setImage(image);
-        return this;
+    }
+
+    @Override
+    public void setHeuristic(Heuristics heuristic) {
+        this.heuristics = heuristic;
+    }
+
+    @Override
+    public RectImage getImage() {
+        return image;
     }
 
     public void start() {
@@ -42,7 +54,14 @@ public class NaiveFloodFill {
                 }
             }
         }
-    };
+    }
+
+    @Override
+    public Hierarchy getHierarchy() {
+        return hierarchy;
+    }
+
+    ;
 
     private int getPixel(int id) {
         return image.getPixel(id);
@@ -83,7 +102,7 @@ public class NaiveFloodFill {
     }
 
     private boolean isSimilar(int left, int right) {
-        if (SegmentationConfiguration.heuristics.getWeight(left, right) <= delta) {
+        if (heuristics.getWeight(left, right) <= delta) {
             return true;
         }
         return false;
