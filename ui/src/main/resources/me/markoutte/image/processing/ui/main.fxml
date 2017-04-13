@@ -74,7 +74,6 @@
                         <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <SeparatorMenuItem mnemonicParsing="false" />
               </items>
             </Menu>
             <Menu fx:id="menuFilters" mnemonicParsing="false" text="%menu.filters" />

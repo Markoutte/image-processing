@@ -95,9 +95,9 @@ public class MainController implements Initializable {
         processButton.setDisable(true);
         bundle = resources;
 
-        final String os = System.getProperty ("os.name");
-        if (os != null && os.startsWith ("Mac"))
-            menu.useSystemMenuBarProperty ().set (true);
+//        final String os = System.getProperty ("os.name");
+//        if (os != null && os.startsWith ("Mac"))
+//            menu.useSystemMenuBarProperty ().set (true);
 
         image.addListener((observable, oldValue, newValue) -> {
             processButton.setDisable(newValue == null);
@@ -146,7 +146,6 @@ public class MainController implements Initializable {
 
         List<MenuItem> items = new ArrayList<>();
         for (Algorithms algorithm : Algorithms.values()) {
-            System.out.println(algorithm.name());
             MenuItem item = new MenuItem(bundle.containsKey(algorithm.name()) ? bundle.getString(algorithm.name()) : algorithm.name());
             items.add(item);
             item.setOnAction(event -> preprocess(algorithm));
@@ -333,6 +332,7 @@ public class MainController implements Initializable {
             popup.setX(stage.getX());
             popup.setY(stage.getY() + stage.getScene().getY());
             popup.getContent().add(box);
+            popup.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> popup.hide());
 
             Timeline timeline = new Timeline();
             KeyFrame key = new KeyFrame(Duration.millis(2000));
