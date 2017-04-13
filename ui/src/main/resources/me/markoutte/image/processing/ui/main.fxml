@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.input.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.canvas.*?>
@@ -44,10 +45,6 @@
                   <Insets left="10.0" right="20.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="openButton" defaultButton="true" mnemonicParsing="false" onAction="#chooseFile" text="%openButton.text">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin></Button>
             <Button fx:id="processButton" mnemonicParsing="false" onAction="#process" text="%processButton.text">
                <HBox.margin>
                   <Insets left="10.0" />
@@ -64,4 +61,24 @@
          </BorderPane.margin>
       </HBox>
    </bottom>
+   <top>
+      <MenuBar fx:id="menu" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="%menu.file">
+            <items>
+              <MenuItem fx:id="openButton" mnemonicParsing="false" onAction="#chooseFile" text="%openButton.text">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#saveFile" text="%menu.file.save">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
 </BorderPane>

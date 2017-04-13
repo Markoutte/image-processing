@@ -3,10 +3,6 @@ package me.markoutte.image.impl;
 import me.markoutte.image.Image;
 import me.markoutte.image.RectImage;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 public final class ArrayRectImage extends RectImage {
@@ -28,16 +24,6 @@ public final class ArrayRectImage extends RectImage {
         image.height = height;
         image.image = new int[width*height];
         return image;
-    }
-
-    public BufferedImage getBufferedImage() {
-        BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                bf.setRGB(i, j, image[width*j + i]);
-            }
-        }
-        return bf;
     }
 
     @Override

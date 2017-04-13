@@ -2,8 +2,11 @@ package me.markoutte.image.processing.ui;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.*;
-import me.markoutte.image.RectImage;
+import javafx.scene.image.Image;
+import me.markoutte.image.*;
 import me.markoutte.image.impl.ArrayRectImage;
+
+import java.awt.image.BufferedImage;
 
 public final class FXImageUtils {
 
@@ -23,6 +26,18 @@ public final class FXImageUtils {
             }
         }
         return processed;
+    }
+
+    public static BufferedImage toBufferedImage(me.markoutte.image.RectImage image) {
+        int width = image.width();
+        int height = image.height();
+        BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                bf.setRGB(i, j, image.getPixel(i, j));
+            }
+        }
+        return bf;
     }
 
     public static boolean equals(Image left, Image right) {

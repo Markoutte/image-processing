@@ -1,12 +1,12 @@
 package me.markoutte.image.processing.ui;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.Interpolator;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -38,9 +38,12 @@ import me.markoutte.process.Algorithms;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.segmentation.Segmentation;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -49,11 +52,13 @@ import java.util.stream.IntStream;
 public class MainController implements Initializable {
 
     @FXML
+    private MenuBar menu;
+    @FXML
     private Canvas canvas;
     @FXML
     private ScrollPane imagesp;
     @FXML
-    private Button openButton;
+    private MenuItem openButton;
     @FXML
     private Button processButton;
     @FXML
@@ -93,6 +98,10 @@ public class MainController implements Initializable {
         processButton.setDisable(true);
         bundle = resources;
 
+        final String os = System.getProperty ("os.name");
+        if (os != null && os.startsWith ("Mac"))
+            menu.useSystemMenuBarProperty ().set (true);
+
         image.addListener((observable, oldValue, newValue) -> {
             processButton.setDisable(newValue == null);
             processing.setDisable(newValue == null);
@@ -128,8 +137,8 @@ public class MainController implements Initializable {
             processing.setDisable(newValue || image.getValue() == null);
             processButton.setDisable(newValue || image.getValue() == null);
             preprocessButton.setDisable(newValue || image.getValue() == null);
-            prevImage.setDisable(newValue && history.size() <= 1 || history.get(0) == image.get());
-            nextImage.setDisable(newValue && history.size() <= 1 || history.get(history.size() - 1) == image.get());
+            prevImage.setDisable(newValue || history.size() <= 1 || history.get(0) == image.get());
+            nextImage.setDisable(newValue || history.size() <= 1 || history.get(history.size() - 1) == image.get());
             comboBox.setDisable(newValue || segmentation.get() == null);
             openButton.setDisable(newValue);
         });
@@ -158,6 +167,7 @@ public class MainController implements Initializable {
 
     public void chooseFile() {
         FileChooser chooser = new FileChooser();
+        chooser.setTitle(bundle.getString("openButton.text"));
         File file = chooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) {
             return;
@@ -169,28 +179,62 @@ public class MainController implements Initializable {
         }
     }
 
+    public void saveFile() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle(bundle.getString("menu.file.save"));
+        File file = chooser.showSaveDialog(canvas.getScene().getWindow());
+        if (file != null) {
+            String path = file.getAbsolutePath();
+            if (!path.endsWith(".png")) {
+                path += ".png";
+            }
+            RectImage image;
+            if (segmentation.get() != null) {
+                image = segmentation.get().getImage(comboBox.getValue());
+            } else {
+                image = FXImageUtils.fromFXImage(this.image.get());
+            }
+            BufferedImage bimg = FXImageUtils.toBufferedImage(image);
+            try {
+                ImageIO.write(bimg, "png", new File(path));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private final ExecutorService service = Executors.newSingleThreadExecutor();
 
     public void changeLevel() {
-        service.execute(() -> {
-            uiLock.setValue(true);
+        uiLock.setValue(true);
+        service.execute(new Task<Long>() {
 
-            try {
+            @Override
+            protected Long call() throws Exception {
                 Integer level = comboBox.getValue();
                 Image image;
 
                 long start = System.currentTimeMillis();
                 if (level == 0) {
-                    image = this.image.get();
+                    image = MainController.this.image.get();
                 } else {
                     image = FXImageUtils.toFXImage(segmentation.get().getImage(level));
                 }
                 drawImage(image);
 
                 long stop = System.currentTimeMillis();
-                showPopup(String.format(bundle.getString("levelChangeTime"), level, (stop - start)));
-            } finally {
-                uiLock.setValue(false);
+                return stop - start;
+            }
+
+            @Override
+            protected void succeeded() {
+                try {
+                    showPopup(String.format(bundle.getString("levelChangeTime"), comboBox.getValue(), get()));
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                } finally {
+                    uiLock.setValue(false);
+                }
             }
         });
     }
@@ -232,10 +276,12 @@ public class MainController implements Initializable {
             return;
         }
 
-        service.execute(() -> {
-            uiLock.setValue(true);
+        uiLock.setValue(true);
 
-            try {
+        Task<Long> task = new Task<Long>() {
+
+            @Override
+            protected Long call() throws Exception {
                 long start = System.currentTimeMillis();
                 RectImage processed = FXImageUtils.fromFXImage(image.get());
 
@@ -244,16 +290,24 @@ public class MainController implements Initializable {
                 ff.start();
 
                 long stop = System.currentTimeMillis();
-                showPopup(String.format(bundle.getString("processTime"), (stop - start)));
 
                 segmentation.set(ff);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                uiLock.setValue(false);
+                return stop - start;
             }
-        });
+
+            @Override
+            protected void succeeded() {
+                try {
+                    showPopup(String.format(bundle.getString("processTime"), get()));
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                } finally {
+                    uiLock.setValue(false);
+                }
+            }
+        };
+
+        service.submit(task);
 
     }
 
@@ -274,18 +328,13 @@ public class MainController implements Initializable {
             popup.setY(stage.getY() + stage.getScene().getY());
             popup.getContent().add(box);
 
-            FadeTransition ft = new FadeTransition(Duration.millis(3000), box);
-            ft.setInterpolator(Interpolator.EASE_OUT);
-            ft.setFromValue(1.0);
-            ft.setToValue(0.0);
-            ft.setCycleCount(1);
-            ft.setAutoReverse(false);
-            ft.setOnFinished(t -> {
-                popup.hide();
-            });
+            Timeline timeline = new Timeline();
+            KeyFrame key = new KeyFrame(Duration.millis(2000));
+            timeline.getKeyFrames().add(key);
+            timeline.setOnFinished((ae) -> popup.hide());
 
             popup.show(stage);
-            ft.play();
+            timeline.play();
         });
     }
 
