@@ -88,7 +88,6 @@ public class ColorTest {
 
     @Test
     public void getGray() {
-
         Assert.assertEquals(0, Color.getGray(png.getPixel(C.BLACK.ordinal())));
         Assert.assertEquals(128, Color.getGray(png.getPixel(C.GRAY.ordinal())));
         Assert.assertEquals(255, Color.getGray(png.getPixel(C.WHITE.ordinal())));

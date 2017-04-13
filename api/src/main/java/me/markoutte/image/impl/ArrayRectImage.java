@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public final class ArrayRectImage extends RectImage {
 
@@ -55,6 +56,26 @@ public final class ArrayRectImage extends RectImage {
     public void setPixel(int x, int y, int value) {
         checkPixelExists(x, y);
         image[width * y + x] = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ArrayRectImage pixels = (ArrayRectImage) o;
+
+        if (width != pixels.width) return false;
+        if (height != pixels.height) return false;
+        return Arrays.equals(image, pixels.image);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = width;
+        result = 31 * result + height;
+        result = 31 * result + Arrays.hashCode(image);
+        return result;
     }
 
 }

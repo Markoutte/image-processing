@@ -19,7 +19,7 @@ public final class Color {
     }
 
     public static short getGray(int pixel) {
-        return (short) (0.2126 * getChannel(pixel, Channel.RED) + 0.7252 * getChannel(pixel, Channel.GREEN) + 0.0722 * getChannel(pixel, Channel.BLUE));
+        return (short) Math.round(0.2126 * getChannel(pixel, Channel.RED) + 0.7152 * getChannel(pixel, Channel.GREEN) + 0.0722 * getChannel(pixel, Channel.BLUE));
     }
 
     public static int getIntGray(int pixel) {

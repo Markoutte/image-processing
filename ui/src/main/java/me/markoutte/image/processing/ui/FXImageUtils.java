@@ -1,14 +1,11 @@
-package me.markoutte.image.processing.ui.util;
+package me.markoutte.image.processing.ui;
 
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.impl.ArrayRectImage;
 
-public final class Converters {
+public final class FXImageUtils {
 
     public static javafx.scene.image.Image toFXImage(me.markoutte.image.RectImage image) {
         WritableImage img = new WritableImage(image.width(), image.height());
@@ -28,6 +25,36 @@ public final class Converters {
         return processed;
     }
 
-    private Converters() {
+    public static boolean equals(Image left, Image right) {
+        if (left == right && left != null) {
+            return true;
+        }
+
+        if (left == null || right == null) {
+            return false;
+        }
+
+        if (left.getWidth() != right.getWidth()) {
+            return false;
+        }
+
+        if (left.getHeight() != right.getHeight()) {
+            return false;
+        }
+
+        PixelReader leftPixelReader = left.getPixelReader();
+        PixelReader rightPixelReader = right.getPixelReader();
+        for (int y = 0; y < left.getHeight(); y++) {
+            for (int x = 0; x < left.getWidth(); x++) {
+                if (leftPixelReader.getArgb(x, y) != rightPixelReader.getArgb(x, y)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private FXImageUtils() {
     }
 }

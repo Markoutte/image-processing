@@ -3,12 +3,10 @@ package me.markoutte.image.processing.ui;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -33,15 +31,15 @@ import me.markoutte.ds.Channel;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
-import me.markoutte.image.processing.ui.util.Converters;
 import me.markoutte.process.Algorithms;
 import me.markoutte.process.ImageProcessing;
-import me.markoutte.segmentation.KruskalFloodFill;
 import me.markoutte.segmentation.Segmentation;
 
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -68,6 +66,8 @@ public class MainController implements Initializable {
     private Button nextImage;
 
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
+
+    private final List<Image> history = new ArrayList<>();
 
     private final ObjectProperty<Segmentation<RectImage>> segmentation = new SimpleObjectProperty<>();
 
@@ -104,6 +104,23 @@ public class MainController implements Initializable {
                 canvas.setWidth(0);
                 canvas.setHeight(0);
             }
+
+            if (newValue != null && !history.contains(newValue)) {
+                // Просто добавили новое значение в конец истории
+                if (history.size() == 0 || history.get(history.size() - 1) == oldValue) {
+                    history.add(newValue);
+                }
+
+                // Когда старый элемент где-то внутри истории, при этом новое значение ни из текущего списка
+                int i = history.indexOf(oldValue);
+                if (i >= 0) {
+                    history.subList(i + 1, history.size()).clear();
+                    history.add(newValue);
+                }
+            }
+
+            prevImage.setDisable(history.size() <= 1 || history.get(0) == newValue);
+            nextImage.setDisable(history.size() <= 1 || history.get(history.size() - 1) == newValue);
         });
 
         segmentation.addListener((observable, oldValue, newValue) -> {
@@ -115,8 +132,8 @@ public class MainController implements Initializable {
             processing.setDisable(newValue || image.getValue() == null);
             processButton.setDisable(newValue || image.getValue() == null);
             preprocessButton.setDisable(newValue || image.getValue() == null);
-            prevImage.setDisable(newValue);
-            nextImage.setDisable(newValue);
+            prevImage.setDisable(newValue && history.size() <= 1 || history.get(0) == image.get());
+            nextImage.setDisable(newValue && history.size() <= 1 || history.get(history.size() - 1) == image.get());
             comboBox.setDisable(newValue || segmentation.get() == null);
             openButton.setDisable(newValue);
         });
@@ -157,7 +174,7 @@ public class MainController implements Initializable {
                 if (level == 0) {
                     image = this.image.get();
                 } else {
-                    image = Converters.toFXImage(segmentation.get().getImage(level));
+                    image = FXImageUtils.toFXImage(segmentation.get().getImage(level));
                 }
                 drawImage(image);
 
@@ -177,8 +194,11 @@ public class MainController implements Initializable {
 
     public void preprocess() {
         ImageProcessing value = processing.getValue();
-        me.markoutte.image.RectImage image = value.process(Converters.fromFXImage(this.image.get()));
-        this.image.set(Converters.toFXImage(image));
+        RectImage oldValue = FXImageUtils.fromFXImage(this.image.get());
+        me.markoutte.image.RectImage newValue = value.process(oldValue);
+        if (!Objects.equals(newValue, oldValue)) {
+            this.image.set(FXImageUtils.toFXImage(newValue));
+        }
     }
 
     public void process() {
@@ -194,7 +214,7 @@ public class MainController implements Initializable {
 
             try {
                 long start = System.currentTimeMillis();
-                RectImage processed = Converters.fromFXImage(image.get());
+                RectImage processed = FXImageUtils.fromFXImage(image.get());
 
                 Segmentation<RectImage> ff = Configuration.segmentation.newInstance();
                 ff.setImage(processed);
@@ -296,5 +316,17 @@ public class MainController implements Initializable {
         } catch (Exception err) {
             err.printStackTrace();
         }
+    }
+
+    @FXML
+    public void setPrevImage() {
+        int i = history.indexOf(image.get());
+        image.set(history.get(i - 1));
+    }
+
+    @FXML
+    public void setNextImage() {
+        int i = history.indexOf(image.get());
+        image.set(history.get(i + 1));
     }
 }
