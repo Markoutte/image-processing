@@ -8,7 +8,7 @@ import me.markoutte.segmentation.Segmentation;
 
 public final class Configuration {
 
-    public static final Heuristics heuristics = ColorHeuristics.MEAN;
+    public static final Heuristics heuristics = ColorHeuristics.HUE;
 
     public static final Class<? extends Segmentation<RectImage>> segmentation = KruskalFloodFill.class;
 

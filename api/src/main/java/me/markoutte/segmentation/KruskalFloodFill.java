@@ -84,7 +84,7 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
         }
     }
 
-    private int getWeight(int left, int right) {
+    private double getWeight(int left, int right) {
         return heuristics.getWeight(left, right);
     }
 

@@ -5,6 +5,6 @@ package me.markoutte.algorithm;
  */
 public interface Heuristics {
 
-    int getWeight(int left, int right);
+    double getWeight(int left, int right);
 
 }

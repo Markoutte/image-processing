@@ -29,6 +29,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
+import me.markoutte.algorithm.ColorHeuristics;
+import me.markoutte.algorithm.Heuristics;
 import me.markoutte.ds.Channel;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
@@ -62,7 +64,7 @@ public class MainController implements Initializable {
     @FXML
     private MenuItem openButton;
     @FXML
-    private Button processButton;
+    private MenuButton processButton;
     @FXML
     private ComboBox<Integer> comboBox;
     @FXML
@@ -121,9 +123,6 @@ public class MainController implements Initializable {
 
             prevImage.setDisable(history.size() <= 1 || history.get(0) == newValue);
             nextImage.setDisable(history.size() <= 1 || history.get(history.size() - 1) == newValue);
-        });
-
-        segmentation.addListener((observable, oldValue, newValue) -> {
             comboBox.setDisable(newValue == null);
             comboBox.setValue(0);
         });
@@ -151,6 +150,14 @@ public class MainController implements Initializable {
             item.setOnAction(event -> preprocess(algorithm));
         }
         menuFilters.getItems().addAll(items);
+
+        List<MenuItem> heuristics = new ArrayList<>();
+        for (ColorHeuristics heuristic : ColorHeuristics.values()) {
+            MenuItem item = new MenuItem(bundle.containsKey(heuristic.name()) ? bundle.getString(heuristic.name()) : heuristic.name());
+            item.setOnAction(event -> process(heuristic));
+            heuristics.add(item);
+        }
+        processButton.getItems().addAll(heuristics);
     }
 
     /* package */
@@ -273,7 +280,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void process() {
+    public void process(Heuristics heuristics) {
         if (image.get() == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setHeaderText(bundle.getString("noImageChosen"));
@@ -292,6 +299,7 @@ public class MainController implements Initializable {
 
                 Segmentation<RectImage> ff = Configuration.segmentation.newInstance();
                 ff.setImage(processed);
+                ff.setHeuristic(heuristics);
                 ff.start();
 
                 long stop = System.currentTimeMillis();
@@ -304,6 +312,7 @@ public class MainController implements Initializable {
             protected void succeeded() {
                 try {
                     showPopup(String.format(bundle.getString("processTime"), get()));
+                    comboBox.setValue(0);
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 } finally {
