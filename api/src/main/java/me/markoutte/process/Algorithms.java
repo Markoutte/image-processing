@@ -8,6 +8,7 @@ import me.markoutte.image.RectImage;
 
 import java.util.Properties;
 
+// https://en.wikipedia.org/wiki/Kernel_(image_processing)
 public enum Algorithms implements ImageProcessing {
 
     GRAYSCALE {
@@ -21,10 +22,10 @@ public enum Algorithms implements ImageProcessing {
         }
     },
 
-    BOX_BLUR {
+    BOX {
         @Override
         public RectImage process(Image src, Properties properties) {
-            Integer kernel = Integer.valueOf(properties.getProperty("BOX_BLUR.kernel", "11"));
+            Integer kernel = Integer.valueOf(properties.getProperty("BOX.kernel", "3"));
             double[][] filter = new double[kernel][kernel];
             for (int j = 0; j < filter[0].length; j++) {
                 for (int i = 0; i < filter.length; i++) {
@@ -36,13 +37,28 @@ public enum Algorithms implements ImageProcessing {
         }
     },
 
-    BLUR {
+    GAUSS {
+        @Override
+        public Image process(Image src, Properties properties) {
+            double matrix[][] = {
+                    {1, 2, 1},
+                    {2, 4, 2},
+                    {1, 2, 1}
+            };
+            Maths.multiply(matrix, 1./16);
+            return filter((RectImage) src, matrix);
+        }
+    },
+
+    SHARPEN {
         @Override
         @SuppressWarnings("unchecked")
         public  RectImage process(Image src, Properties properties) {
-            Integer kernel = Integer.valueOf(properties.getProperty("BLUR.kernel", "7"));
-            Double sigma = Double.valueOf(properties.getProperty("BLUR.sigma", "2"));
-            double matrix[][] = Maths.gaussian(sigma, kernel);
+            double matrix[][] = {
+                    {0, -1, 0},
+                    {-1, 5, -1},
+                    {0, -1, 0}
+            };
             return filter((RectImage) src, matrix);
         }
     },

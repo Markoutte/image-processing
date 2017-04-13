@@ -276,7 +276,7 @@ public class MainController implements Initializable {
     public void showHistogramOfSegment(MouseEvent e) {
         if (e.getClickCount() == 2) {
             if (segmentation.getValue() == null) {
-                System.out.println("No segmentation found");
+                showHistograms(bundle.getString("fullImageHist"), FXImageUtils.fromFXImage(image.get()));
                 return;
             }
 

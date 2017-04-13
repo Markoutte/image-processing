@@ -3,21 +3,9 @@ package me.markoutte.algorithm;
 import me.markoutte.ds.Channel;
 import me.markoutte.ds.Color;
 
+import static me.markoutte.ds.Color.*;
+
 public class Maths {
-
-    public static double[][] gaussian(double sigma, int kernelSize) {
-        double[][] result = new double[kernelSize][kernelSize];
-        for (int y = 0; y < kernelSize; y++) {
-            for (int x = 0; x < kernelSize; x++) {
-                result[x][y] = g(x - kernelSize / 2, y - kernelSize / 2, sigma);
-            }
-        }
-        return result;
-    }
-
-    private static double g(double x, double y, double sigma) {
-        return Math.exp(-(x * x + y * y) / (2 * sigma * sigma)) / (2 * Math.PI * sigma * sigma);
-    }
 
     public static int convolution(int[][] argb, double[][] filter) {
         if (filter.length == 0 || argb.length != filter.length || argb[0].length != filter[0].length) {
@@ -30,13 +18,25 @@ public class Maths {
         double blue = 0;
         for (int j = 0; j < filter[0].length; j++) {
             for (int i = 0; i < filter.length; i++) {
-                opacity += Color.getChannel(argb[i][j], Channel.OPACITY) * filter[i][j];
-                red += Color.getChannel(argb[i][j], Channel.RED) * filter[i][j];
-                green += Color.getChannel(argb[i][j], Channel.GREEN) * filter[i][j];
-                blue += Color.getChannel(argb[i][j], Channel.BLUE) * filter[i][j];
+                opacity += getChannel(argb[i][j], Channel.OPACITY) * filter[i][j];
+                red += getChannel(argb[i][j], Channel.RED) * filter[i][j];
+                green += getChannel(argb[i][j], Channel.GREEN) * filter[i][j];
+                blue += getChannel(argb[i][j], Channel.BLUE) * filter[i][j];
             }
         }
-        return ((int) opacity << 24) | (((int) red) << 16) + (((int) green) << 8) | (int) blue;
+        return combine(normalize((int) opacity), normalize((int) red), normalize((int) green), normalize((int) blue));
+    }
+
+    public static void multiply(double[][] matrix, double multiplier) {
+        for (int j = 0; j < matrix[0].length; j++) {
+            for (int i = 0; i < matrix.length; i++) {
+                matrix[i][j] = matrix[i][j] * multiplier;
+            }
+        }
+    }
+
+    public static int truncate(int value, int min, int max) {
+        return Math.min(Math.max(value, min), max);
     }
 
     private Maths() {
