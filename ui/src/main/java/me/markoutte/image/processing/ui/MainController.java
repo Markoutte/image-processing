@@ -54,6 +54,8 @@ public class MainController implements Initializable {
     @FXML
     private MenuBar menu;
     @FXML
+    private Menu menuFilters;
+    @FXML
     private Canvas canvas;
     @FXML
     private ScrollPane imagesp;
@@ -62,15 +64,11 @@ public class MainController implements Initializable {
     @FXML
     private Button processButton;
     @FXML
-    private Button preprocessButton;
-    @FXML
     private ComboBox<Integer> comboBox;
     @FXML
-    private ComboBox<ImageProcessing> processing;
+    private MenuItem prevImage;
     @FXML
-    private Button prevImage;
-    @FXML
-    private Button nextImage;
+    private MenuItem nextImage;
 
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
 
@@ -93,8 +91,6 @@ public class MainController implements Initializable {
         comboBox.getItems().addAll(IntStream.range(0, 256).boxed().collect(Collectors.toList()));
         comboBox.setValue(0);
         comboBox.setDisable(true);
-        processing.getItems().addAll(Algorithms.values());
-        processing.setValue(Algorithms.values()[0]);
         processButton.setDisable(true);
         bundle = resources;
 
@@ -104,8 +100,6 @@ public class MainController implements Initializable {
 
         image.addListener((observable, oldValue, newValue) -> {
             processButton.setDisable(newValue == null);
-            processing.setDisable(newValue == null);
-            preprocessButton.setDisable(newValue == null);
             segmentation.setValue(null);
 
             drawImage(newValue);
@@ -134,9 +128,8 @@ public class MainController implements Initializable {
         });
 
         uiLock.addListener((observable, oldValue, newValue) -> {
-            processing.setDisable(newValue || image.getValue() == null);
+            menuFilters.setDisable(newValue || image.getValue() == null);
             processButton.setDisable(newValue || image.getValue() == null);
-            preprocessButton.setDisable(newValue || image.getValue() == null);
             prevImage.setDisable(newValue || history.size() <= 1 || history.get(0) == image.get());
             nextImage.setDisable(newValue || history.size() <= 1 || history.get(history.size() - 1) == image.get());
             comboBox.setDisable(newValue || segmentation.get() == null);
@@ -149,6 +142,15 @@ public class MainController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        List<MenuItem> items = new ArrayList<>();
+        for (Algorithms algorithm : Algorithms.values()) {
+            System.out.println(algorithm.name());
+            MenuItem item = new MenuItem(bundle.containsKey(algorithm.name()) ? bundle.getString(algorithm.name()) : algorithm.name());
+            items.add(item);
+            item.setOnAction(event -> preprocess(algorithm));
+        }
+        menuFilters.getItems().addAll(items);
     }
 
     /* package */
@@ -250,19 +252,20 @@ public class MainController implements Initializable {
             int x = Math.max((int) (imagesp.getViewportBounds().getWidth() - width) / 2, 0);
             int y = Math.max((int) (imagesp.getViewportBounds().getHeight() - height) / 2, 0);
 
-            canvas.setWidth(width + x);
-            canvas.setHeight(height + y);
-            context.drawImage(image, x, y, width, height);
+            canvas.setWidth(width);
+            canvas.setHeight(height);
+            canvas.setLayoutX(x);
+            canvas.setLayoutY(y);
+            context.drawImage(image, 0, 0, width, height);
         } else {
             canvas.setWidth(0);
             canvas.setHeight(0);
         }
     }
 
-    public void preprocess() {
-        ImageProcessing value = processing.getValue();
+    public void preprocess(ImageProcessing processor) {
         RectImage oldValue = FXImageUtils.fromFXImage(this.image.get());
-        me.markoutte.image.RectImage newValue = (RectImage) value.process(oldValue, properties);
+        me.markoutte.image.RectImage newValue = (RectImage) processor.process(oldValue, properties);
         if (!Objects.equals(newValue, oldValue)) {
             this.image.set(FXImageUtils.toFXImage(newValue));
         }
@@ -361,19 +364,20 @@ public class MainController implements Initializable {
                 return;
             }
 
-            double x = e.getX();
-            double y = e.getY();
+            double x = e.getX() / scale;
+            double y = e.getY() / scale;
             Hierarchy hierarchy = segmentation.get().getHierarchy();
-            if (comboBox.getValue() == 0 || hierarchy == null) {
+            Integer level = comboBox.getValue();
+            if (level == 0 || hierarchy == null) {
                 RectImage image = segmentation.get().getImage(0);
                 showHistograms(bundle.getString("fullImageHist"), image, image);
                 return;
             }
             RectImage image = (RectImage) hierarchy.getSourceImage();
-            int segment = hierarchy.getSegment((int) (y * image.width() + x), comboBox.getValue());
-            List<Pixel> area = hierarchy.getArea(segment, comboBox.getValue());
+            int segment = hierarchy.getSegment((int) (y * image.width() + x), level);
+            List<Pixel> area = hierarchy.getArea(segment, level);
             if (e.isControlDown()) {
-                String title = String.format(bundle.getString("partlyImageHist"), segment / image.width(), segment % image.height(), comboBox.getValue(), area.size());
+                String title = String.format(bundle.getString("partlyImageHist"), segment % image.width(), segment / image.height(), level, area.size());
                 showHistograms(title, area, createImageFromPixel(area, image.width(), image.height()));
             } else {
                 showHistograms(bundle.getString("fullImageHist"), image, image);
@@ -446,7 +450,11 @@ public class MainController implements Initializable {
             scale = Math.min(scale * 1.25, 4);
         }
 
-        drawImage(image.get());
+        if (segmentation.get() != null) {
+            drawImage(FXImageUtils.toFXImage(segmentation.get().getImage(comboBox.getValue())));
+        } else {
+            drawImage(image.get());
+        }
         event.consume();
     }
 }
