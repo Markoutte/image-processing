@@ -1,12 +1,15 @@
 package me.markoutte.process;
 
 import me.markoutte.algorithm.Maths;
+import me.markoutte.ds.Channel;
 import me.markoutte.ds.Color;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 
 import java.util.Properties;
+
+import static java.lang.Math.*;
 
 // https://en.wikipedia.org/wiki/Kernel_(image_processing)
 public enum Algorithms implements ImageProcessing {
@@ -16,7 +19,7 @@ public enum Algorithms implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image clone = src.clone();
             for (Pixel pixel : src) {
-                clone.setPixel(pixel.getId(), Color.getIntGray(pixel.getValue()));
+                clone.setPixel(pixel.getId(), Color.getIntGray(Color.getGray(pixel.getValue())));
             }
             return clone;
         }
@@ -63,6 +66,74 @@ public enum Algorithms implements ImageProcessing {
         }
     },
 
+    RED {
+        @Override
+        public Image process(Image src, Properties properties) {
+            Image out = src.clone();
+            for (Pixel pixel : out) {
+                out.setPixel(pixel.getId(), Color.combine(255, Color.getChannel(pixel.getValue(), Channel.RED), 0, 0));
+            }
+            return out;
+        }
+    },
+
+    GREEN {
+        @Override
+        public Image process(Image src, Properties properties) {
+            Image out = src.clone();
+            for (Pixel pixel : out) {
+                out.setPixel(pixel.getId(), Color.combine(255, 0, Color.getChannel(pixel.getValue(), Channel.GREEN), 0));
+            }
+            return out;
+        }
+    },
+
+    BLUE {
+        @Override
+        public Image process(Image src, Properties properties) {
+            Image out = src.clone();
+            for (Pixel pixel : out) {
+                out.setPixel(pixel.getId(), Color.combine(255, 0, 0, Color.getChannel(pixel.getValue(), Channel.BLUE)));
+            }
+            return out;
+        }
+    },
+
+    HUE {
+        @Override
+        public Image process(Image src, Properties properties) {
+            Image out = src.clone();
+            for (Pixel pixel : src) {
+                double hue = Color.getHue(pixel.getValue());
+                out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * hue / (2 * PI))));
+            }
+            return out;
+        }
+    },
+
+    SATURATION {
+        @Override
+        public Image process(Image src, Properties properties) {
+            Image out = src.clone();
+            for (Pixel pixel : out) {
+                double saturation = Color.getSaturation(pixel.getValue());
+                out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * saturation)));
+            }
+            return out;
+        }
+    },
+
+    LIGHTNESS {
+        @Override
+        public Image process(Image src, Properties properties) {
+            Image out = src.clone();
+            for (Pixel pixel : out) {
+                double lightness = Color.getLightness(pixel.getValue());
+                out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * lightness)));
+            }
+            return out;
+        }
+    }
     ;
 
     protected RectImage filter(RectImage image, double[][] matrix) {

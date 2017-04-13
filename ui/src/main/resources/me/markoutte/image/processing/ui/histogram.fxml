@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.*?>
 <?import java.lang.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.layout.*?>
@@ -8,39 +9,58 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="598.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.HistogramController">
+
+<HBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.HistogramController">
    <children>
-      <BarChart fx:id="reds" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" />
-        </yAxis>
-      </BarChart>
-      <BarChart fx:id="greens" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" />
-        </yAxis>
-      </BarChart>
-      <BarChart fx:id="blues" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" minWidth="256.0" prefHeight="312.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" />
-        </yAxis>
-      </BarChart>
-      <BarChart fx:id="grays" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" />
-        </yAxis>
-      </BarChart>
+      <VBox prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <Canvas fx:id="red" height="200.0" width="200.0" />
+            <Canvas fx:id="green" height="200.0" width="200.0" />
+            <Canvas fx:id="blue" height="200.0" width="200.0" />
+         </children>
+      </VBox>
+      <VBox prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <Canvas fx:id="hue" height="200.0" width="200.0" />
+            <Canvas fx:id="saturation" height="200.0" width="200.0" />
+            <Canvas fx:id="intensive" height="200.0" width="200.0" />
+         </children>
+      </VBox>
+      <VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="598.0">
+         <children>
+            <BarChart fx:id="reds" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </BarChart>
+            <BarChart fx:id="greens" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </BarChart>
+            <BarChart fx:id="blues" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" minWidth="256.0" prefHeight="312.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </BarChart>
+            <BarChart fx:id="grays" alternativeRowFillVisible="false" animated="false" barGap="1.0" cacheShape="false" categoryGap="1.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" minWidth="256.0" prefWidth="256.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </BarChart>
+         </children>
+      </VBox>
    </children>
-</VBox>
+</HBox>

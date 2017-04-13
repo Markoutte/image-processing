@@ -2,6 +2,9 @@ package me.markoutte.ds;
 
 import me.markoutte.algorithm.Maths;
 
+import static java.lang.Math.*;
+import static java.lang.Math.min;
+
 public final class Color {
 
     public static int getChannel(int pixel, Channel channel) {
@@ -26,9 +29,8 @@ public final class Color {
         return (alpha << 24 & 0xFF000000) | (red << 16 & 0x00FF0000) | (green << 8 & 0x0000FF00) | blue & 0xFF;
     }
 
-    public static int getIntGray(int pixel) {
-        short gray = getGray(pixel);
-        return combine(0xFF, gray, gray, gray);
+    public static int getIntGray(int brightess) {
+        return combine(0xFF, brightess, brightess, brightess);
     }
 
     public static int getBlank(int pixel) {
@@ -39,4 +41,32 @@ public final class Color {
         return Maths.truncate(pixel, 0, 255);
     }
 
+    public static double getHue(int pixel) {
+        double r = getChannel(pixel, Channel.RED) / 255.;
+        double g = getChannel(pixel, Channel.GREEN) / 255.;
+        double b = getChannel(pixel, Channel.BLUE) / 255.;
+
+        double h = acos(.5 * ((r - g) + (r - b)) / pow(pow(r - g, 2) + (r - b) * (g - b), 0.5));
+        if (b > g) {
+            h = 2 * PI - h;
+        }
+        return h;
+    }
+
+    public static double getSaturation(int pixel) {
+        double r = getChannel(pixel, Channel.RED) / 255.;
+        double g = getChannel(pixel, Channel.GREEN) / 255.;
+        double b = getChannel(pixel, Channel.BLUE) / 255.;
+        return  1 - 3 * min(min(r, g), b) / (r + g + b);
+    }
+
+    public static double getLightness(int pixel) {
+        double r = getChannel(pixel, Channel.RED) / 255.;
+        double g = getChannel(pixel, Channel.GREEN) / 255.;
+        double b = getChannel(pixel, Channel.BLUE) / 255.;
+        return (r + g + b) / 3.;
+    }
+
+    private Color() {
+    }
 }

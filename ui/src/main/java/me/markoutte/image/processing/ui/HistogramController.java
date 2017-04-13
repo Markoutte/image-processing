@@ -3,8 +3,10 @@ package me.markoutte.image.processing.ui;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
+import me.markoutte.image.Image;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,6 +24,24 @@ public class HistogramController implements Initializable {
 
     @FXML
     private BarChart<String, Integer> grays;
+
+    @FXML
+    private Canvas red;
+
+    @FXML
+    private Canvas green;
+
+    @FXML
+    private Canvas blue;
+
+    @FXML
+    private Canvas hue;
+
+    @FXML
+    private Canvas saturation;
+
+    @FXML
+    private Canvas intensive;
 
     private ResourceBundle bundle;
 
@@ -44,6 +64,10 @@ public class HistogramController implements Initializable {
 
     public void setGrays(int[] grays) {
         setData(this.grays, grays, "gray");
+    }
+
+    public void setImage(Image image) {
+
     }
 
     private void setData(BarChart<String, Integer> chart, int[] data, String color) {
