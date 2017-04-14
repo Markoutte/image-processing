@@ -57,4 +57,11 @@ public enum HistogramProcessing implements ImageProcessing {
         }
     },
 
+    ;
+
+    @Override
+    public String toString() {
+        return name();
+    }
+
 }

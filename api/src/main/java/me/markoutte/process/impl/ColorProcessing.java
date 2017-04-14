@@ -107,4 +107,11 @@ public enum ColorProcessing implements ImageProcessing {
         }
     },
 
+    ;
+
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

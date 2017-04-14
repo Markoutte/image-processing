@@ -34,5 +34,11 @@ public enum ColorHeuristics implements Heuristics {
         public double getWeight(int left, int right) {
             return Math.abs(Color.getHSL(left).getSaturation() - Color.getHSL(right).getSaturation()) * 255;
         }
-    },
+    },;
+
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

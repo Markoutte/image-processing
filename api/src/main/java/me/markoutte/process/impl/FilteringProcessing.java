@@ -85,4 +85,10 @@ public enum  FilteringProcessing implements ImageProcessing {
         }
     },
 
+    ;
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }
