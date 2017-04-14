@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Image Processing POM</name>
+    <name>Image Processing</name>
     <description>The project contains data for viewing and processing images</description>
 
     <modules>

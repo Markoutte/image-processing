@@ -3,4 +3,5 @@ maven-build:
                       - mvn clean install -Dmaven.test.skip=true
           artifacts:
                 paths:
-                      - api/target/image-processing-api-*.jar
+                      - ui/target/Image Processing *.jar
+                      - ui/target/jfx/native/Image Processing *.pkg
