@@ -39,6 +39,14 @@ public class Maths {
         return Math.min(Math.max(value, min), max);
     }
 
+    public static void exchange(int[] input, int i, int j) {
+        if (input[i] != input[j]) {
+            input[i] = input[i] ^ input[j];
+            input[j] = input[i] ^ input[j];
+            input[i] = input[i] ^ input[j];
+        }
+    }
+
     private Maths() {
     }
 }

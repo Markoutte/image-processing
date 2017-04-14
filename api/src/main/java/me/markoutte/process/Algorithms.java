@@ -7,6 +7,7 @@ import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 import static java.lang.Math.*;
@@ -147,17 +148,87 @@ public enum Algorithms implements ImageProcessing {
         }
     },
 
-    ;
+    MEDIAN {
+        @Override
+        public Image process(Image src, Properties properties) {
+            RectImage out = (RectImage) src.clone();
+            Integer size = Integer.valueOf(properties.getProperty("MEDIAN.size", "3"));
+            for (int y = 0; y < out.height(); y++) {
+                for (int x = 0; x < out.width(); x++) {
+                    int[][] rect = ((RectImage) src).rect(x - size / 2, x + size / 2, y - size / 2, y + size / 2);
+                    int[] reds = new int[size * size];
+                    int[] greens = new int[size * size];
+                    int[] blues = new int[size * size];
 
-    protected RectImage filter(RectImage image, double[][] matrix) {
-        RectImage dest = (RectImage) image.clone();
-        for (int y = 0; y < image.height(); y++) {
-            for (int x = 0; x < image.width(); x++) {
-                int[][] rect = image.rect(-matrix.length / 2 + x, matrix.length / 2 + x, -matrix[0].length / 2 + y, matrix[0].length / 2 + y);
-                dest.setPixel(x, y, Maths.convolution(rect, matrix));
+                    for (int j = 0; j < size; j++) {
+                        for (int i = 0; i < size; i++) {
+                            int value = rect[i][j];
+                            int red = Color.getChannel(value, Channel.RED);
+                            int green = Color.getChannel(value, Channel.GREEN);
+                            int blue = Color.getChannel(value, Channel.BLUE);
+                            int index = j * size + i;
+
+                            reds[index] = red;
+                            greens[index] = green;
+                            blues[index] = blue;
+
+                            for (int k = index - 1; k >= 0 && red < reds[k]; k--) {
+                                reds[k + 1] = reds[k];
+                                reds[k] = red;
+                            }
+                            for (int k = index - 1; k >= 0 && green < greens[k]; k--) {
+                                greens[k + 1] = greens[k];
+                                greens[k] = green;
+                            }
+                            for (int k = index - 1; k >= 0 && blue < blues[k]; k--) {
+                                blues[k + 1] = blues[k];
+                                blues[k] = blue;
+                            }
+                        }
+                    }
+
+                    int median = size * size / 2 + size % 2;
+                    out.setPixel(x, y, Color.combine(255, reds[median], greens[median], blues[median]));
+                }
             }
+            return out;
         }
+    },
 
-        return dest;
+    EQUALIZE {
+        @Override
+        public Image process(Image src, Properties properties) {
+            int range = 256;
+            double red[] = new double[range];
+            double green[] = new double[range];
+            double blue[] = new double[range];
+            for (Pixel pixel : src) {
+                red[Color.getChannel(pixel.getValue(), Channel.RED)] += 1;
+                green[Color.getChannel(pixel.getValue(), Channel.GREEN)] += 1;
+                blue[Color.getChannel(pixel.getValue(), Channel.BLUE)] += 1;
+            }
+            for (int i = 0; i < range; i++) {
+                red[i] /= src.getSize() / 255;
+                green[i] /= src.getSize() / 255;
+                blue[i] /= src.getSize() / 255;
+            }
+            for (int i = 1; i < range; i++) {
+                red[i] = red[i - 1] + red[i];
+                green[i] = green[i - 1] + green[i];
+                blue[i] = blue[i - 1] + blue[i];
+            }
+            Image out = src.clone();
+            for (Pixel pixel : src) {
+                out.setPixel(pixel.getId(), Color.combine(
+                        255,
+                        (int) red[Color.getChannel(pixel.getValue(), Channel.RED)],
+                        (int) green[Color.getChannel(pixel.getValue(), Channel.GREEN)],
+                        (int) blue[Color.getChannel(pixel.getValue(), Channel.BLUE)]
+                ));
+            }
+            return out;
+        }
     }
+
+    ;
 }
