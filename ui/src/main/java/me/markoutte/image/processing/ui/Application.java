@@ -1,12 +1,18 @@
 package me.markoutte.image.processing.ui;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 public class Application extends javafx.application.Application {
 
@@ -26,5 +32,18 @@ public class Application extends javafx.application.Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle(bundle.getString("application.name"));
         primaryStage.show();
+
+        primaryStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, event -> {
+            for (ExecutorService executor : executors) {
+                executor.shutdownNow();
+            }
+            Platform.exit();
+        });
     }
+
+    public static void registerExecutorService(ExecutorService service) {
+        executors.add(service);
+    }
+
+    private final static List<ExecutorService> executors = new ArrayList<>();
 }

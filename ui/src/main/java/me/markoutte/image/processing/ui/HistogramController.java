@@ -75,7 +75,10 @@ public class HistogramController implements Initializable {
         setData(this.grays, grays, "gray");
     }
 
-    private final ExecutorService service = Executors.newFixedThreadPool(10);
+    private static final ExecutorService service = Executors.newFixedThreadPool(10);
+    static {
+        Application.registerExecutorService(service);
+    }
 
     public void setImage(me.markoutte.image.Image image) {
         drawImage(red, image, ColorProcessing.RED);

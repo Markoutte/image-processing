@@ -78,10 +78,10 @@ public class MainController implements Initializable {
 
     private Stage journal;
 
-    private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
+    private final ObjectProperty<ImageContainer> image = new SimpleObjectProperty<>();
     private Image drawn = null;
 
-    private final List<Image> history = new ArrayList<>();
+    private final List<ImageContainer> history = new ArrayList<>();
 
     private final ObjectProperty<Segmentation<RectImage>> segmentation = new SimpleObjectProperty<>();
 
@@ -112,12 +112,17 @@ public class MainController implements Initializable {
             segmentation.setValue(null);
 
             drawImage(newValue);
+            if (newValue != null) {
+                jou.warn(String.format("Выбрано изображение \"%s\"", newValue));
+            } else {
+                jou.error("Добавлено пустое изображение");
+            }
 
             addHistory: if (newValue != null && !history.contains(newValue)) {
                 // Просто добавили новое значение в конец истории
                 if (history.size() == 0 || history.get(history.size() - 1) == oldValue) {
                     history.add(newValue);
-                    jou.debug(String.format("Изображение добавлено в историю. Всего в истории %d изображений", history.size()));
+                    jou.debug(String.format("Изображение \"%s\" добавлено в историю. Всего в истории %d изображений", newValue, history.size()));
                     break addHistory;
                 }
 
@@ -126,7 +131,7 @@ public class MainController implements Initializable {
                 if (i >= 0) {
                     history.subList(i + 1, history.size()).clear();
                     history.add(newValue);
-                    jou.debug(String.format("Изображение добавлено в историю начиная с позиции %d. Всего в истории %d изображений", i + 1, history.size()));
+                    jou.debug(String.format("Изображение \"%s\" добавлено в историю начиная с позиции %d. Всего в истории %d изображений", newValue, i + 1, history.size()));
                 }
             }
 
@@ -134,10 +139,6 @@ public class MainController implements Initializable {
             nextImage.setDisable(history.size() <= 1 || history.get(history.size() - 1) == newValue);
             comboBox.setDisable(segmentation.getValue() == null);
             comboBox.setValue(0);
-
-            if (newValue == null) {
-                jou.error("Удалено изображение");
-            }
         });
 
         uiLock.addListener((observable, oldValue, newValue) -> {
@@ -200,7 +201,7 @@ public class MainController implements Initializable {
         this.stage = stage;
         this.stage.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> {
             try (InputStream stream = getClass().getClassLoader().getResourceAsStream("me/markoutte/image/processing/ui/lena-color.jpg")) {
-                image.set(new Image(stream));
+                image.set(new ImageContainer(new Image(stream), "lena.jpg"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -218,8 +219,9 @@ public class MainController implements Initializable {
         }
         try (InputStream stream = new FileInputStream(file)) {
             Image image = new Image(stream);
-            jou.info(String.format("Загружено новое изображение (%dpx×%dpx) из %s", (int) image.getWidth(), (int) image.getHeight(), file.getName()));
-            this.image.set(image);
+            ImageContainer value = new ImageContainer(image, file.getName());
+            jou.info(String.format("Загружено новое изображение (%s)", value));
+            this.image.set(value);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -238,7 +240,7 @@ public class MainController implements Initializable {
             if (segmentation.get() != null) {
                 image = segmentation.get().getImage(comboBox.getValue());
             } else {
-                image = FXImageUtils.fromFXImage(this.image.get());
+                image = FXImageUtils.fromFXImage(this.image.get().data);
             }
             BufferedImage bimg = FXImageUtils.toBufferedImage(image);
             try {
@@ -249,7 +251,10 @@ public class MainController implements Initializable {
         }
     }
 
-    private final ExecutorService service = Executors.newSingleThreadExecutor();
+    private static final ExecutorService service = Executors.newSingleThreadExecutor();
+    static {
+        Application.registerExecutorService(service);
+    }
 
     public void changeLevel() {
         uiLock.setValue(true);
@@ -262,7 +267,7 @@ public class MainController implements Initializable {
 
                 long start = System.currentTimeMillis();
                 if (level == 0) {
-                    image = MainController.this.image.get();
+                    image = MainController.this.image.get().data;
                 } else {
                     image = FXImageUtils.toFXImage(segmentation.get().getImage(level));
                 }
@@ -284,6 +289,11 @@ public class MainController implements Initializable {
                 }
             }
         });
+    }
+
+    private void drawImage(ImageContainer image) {
+        if (image != null)
+            drawImage(image.data);
     }
 
     private void drawImage(Image image) {
@@ -311,12 +321,12 @@ public class MainController implements Initializable {
     }
 
     public void preprocess(ImageProcessing processor) {
-        RectImage oldValue = FXImageUtils.fromFXImage(this.image.get());
+        RectImage oldValue = FXImageUtils.fromFXImage(this.image.get().data);
         long start = System.currentTimeMillis();
         me.markoutte.image.RectImage newValue = (RectImage) processor.process(oldValue, properties);        long stop = System.currentTimeMillis();
         jou.info(String.format(bundle.getString("preprocessTime"), (stop - start), processor));
         if (!Objects.equals(newValue, oldValue)) {
-            this.image.set(FXImageUtils.toFXImage(newValue));
+            this.image.set(new ImageContainer(FXImageUtils.toFXImage(newValue), this.image.get().name, processor.toString()));
         }
     }
 
@@ -335,7 +345,7 @@ public class MainController implements Initializable {
             @Override
             protected Long call() throws Exception {
                 long start = System.currentTimeMillis();
-                RectImage processed = FXImageUtils.fromFXImage(image.get());
+                RectImage processed = FXImageUtils.fromFXImage(image.get().data);
 
                 Segmentation<RectImage> ff = Configuration.segmentation.newInstance();
                 ff.setImage(processed);
@@ -384,7 +394,7 @@ public class MainController implements Initializable {
     public void showHistogramOfSegment(MouseEvent e) {
         if (e.getClickCount() == 2) {
             if (segmentation.getValue() == null) {
-                RectImage image = FXImageUtils.fromFXImage(this.image.get());
+                RectImage image = FXImageUtils.fromFXImage(this.image.get().data);
                 showHistograms(bundle.getString("fullImageHist"), image, image);
                 return;
             }
@@ -425,9 +435,9 @@ public class MainController implements Initializable {
         }
 
         if (area == image) {
-            jou.info(String.format(bundle.getString("loadImageHistogram"), ((RectImage) image).width(), ((RectImage) image).height()));
+            jou.info(String.format("Загружены гистограммы для изображения \"%s\"", this.image.get()));
         } else {
-            jou.info(String.format(bundle.getString("loadAreaHistogram"), size));
+            jou.info(String.format("Загружены гистограммы для области размером %d изображения \"%s\"", size, this.image.get()));
         }
 
         try {
@@ -463,16 +473,16 @@ public class MainController implements Initializable {
     @FXML
     public void setPrevImage() {
         int i = history.indexOf(image.get());
-        Image image = history.get(i - 1);
-        jou.debug(String.format("Выбрано изображение из истории с позицией %d (%d×%d)", i, (int) image.getWidth(), (int) image.getHeight()));
+        ImageContainer image = history.get(i - 1);
+        jou.debug(String.format("Выбрано изображение из истории с позицией %d (%s)", i, image));
         this.image.set(image);
     }
 
     @FXML
     public void setNextImage() {
         int i = history.indexOf(image.get());
-        Image image = history.get(i + 1);
-        jou.debug(String.format("Выбрано изображение из истории с позицией %d (%d×%d)", i + 2, (int) image.getWidth(), (int) image.getHeight()));
+        ImageContainer image = history.get(i + 1);
+        jou.debug(String.format("Выбрано изображение из истории с позицией %d (%s)", i + 2, image));
         this.image.set(image);
     }
 
@@ -519,6 +529,35 @@ public class MainController implements Initializable {
             journal.show();
         } catch (Exception err) {
             err.printStackTrace();
+        }
+    }
+
+    private static class ImageContainer {
+        private final Image data;
+        private final String name;
+        private String comment;
+
+        public ImageContainer(Image data) {
+            this(data, "*");
+        }
+
+        public ImageContainer(Image data, String name) {
+            this(data, name, null);
+        }
+
+        public ImageContainer(Image data, String name, String comment) {
+            this.data = Objects.requireNonNull(data, "Data cannot be null");
+            this.name = Objects.requireNonNull(name, "Name cannot be null");
+            this.comment = comment;
+        }
+
+        @Override
+        public String toString() {
+            if (comment == null) {
+                return String.format("%s %d×%d", name, (int) data.getWidth(), (int) data.getHeight());
+            } else {
+                return String.format("%s %d×%d [%s]", name, (int) data.getWidth(), (int) data.getHeight(), comment);
+            }
         }
     }
 }
