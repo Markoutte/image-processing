@@ -1,7 +1,9 @@
 maven-build:
-          script:
-                      - mvn clean install -Dmaven.test.skip=true
-          artifacts:
-                name: "$CI_JOB_NAME"
-                paths:
-                      - ui/target/Image Processing *.jar
+      script:
+            - mvn clean install -Dmaven.test.skip=true
+
+job:
+      artifacts:
+            name: "$CI_JOB_NAME"
+            paths:
+                  - ui/target/Image Processing *.jar
