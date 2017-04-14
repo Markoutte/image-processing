@@ -1,4 +1,4 @@
-job:
+image-processing:
       script:
             - mvn clean install -Dmaven.test.skip=true
       artifacts:
