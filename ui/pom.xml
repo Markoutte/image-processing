@@ -17,6 +17,11 @@
             <artifactId>image-processing-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.fxmisc.richtext</groupId>
+            <artifactId>richtextfx</artifactId>
+            <version>0.6.10</version>
+        </dependency>
     </dependencies>
 
     <build>

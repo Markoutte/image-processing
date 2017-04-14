@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.canvas.*?>
@@ -51,6 +50,12 @@
                   <MenuItem fx:id="saveButton" mnemonicParsing="false" onAction="#saveFile" text="%menu.file.save">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#openJournal" text="%menu.file.journal">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="J" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
             </items>

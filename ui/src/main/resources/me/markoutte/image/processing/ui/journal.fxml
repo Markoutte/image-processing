@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import org.fxmisc.richtext.StyleClassedTextArea?>
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.JournalController">
+   <center>
+      <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="400.0" prefViewportWidth="600.0">
+         <content>
+            <StyleClassedTextArea fx:id="textArea" editable="false" styleClass="journal" />
+         </content>
+      </ScrollPane>
+   </center>
+</BorderPane>

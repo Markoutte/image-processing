@@ -3,3 +3,24 @@
     -fx-background-repeat: repeat;
     -fx-background-position: -4, -4;
 }
+
+.journal {
+    -fx-font-family: "Consolas", monospace;
+    -fx-background-color: #111111;
+}
+
+.info {
+    -fx-fill: white;
+}
+
+.debug {
+    -fx-fill: #a1a1a1;
+}
+
+.warn {
+    -fx-fill: #ffff00;
+}
+
+.error {
+    -fx-fill: #ff0000;
+}

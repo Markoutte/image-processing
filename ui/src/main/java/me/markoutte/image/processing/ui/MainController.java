@@ -76,6 +76,8 @@ public class MainController implements Initializable {
     @FXML
     private MenuItem nextImage;
 
+    private Stage journal;
+
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
     private Image drawn = null;
 
@@ -182,6 +184,11 @@ public class MainController implements Initializable {
             heuristics.add(item);
         }
         processButton.getItems().addAll(heuristics);
+
+        Journal.get().info("Все системы подняты!");
+        Journal.get().warn("Все системы подняты!");
+        Journal.get().error("Все системы подняты!");
+        Journal.get().debug("Все системы подняты!");
     }
 
     /* package */
@@ -302,6 +309,7 @@ public class MainController implements Initializable {
         if (!Objects.equals(newValue, oldValue)) {
             this.image.set(FXImageUtils.toFXImage(newValue));
         }
+        Journal.get().error("test");
     }
 
     public void process(Heuristics heuristics) {
@@ -499,6 +507,25 @@ public class MainController implements Initializable {
             prevImage.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.META_DOWN));
             nextImage.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN));
         }
+    }
 
+    public void openJournal() {
+        try {
+            if (journal == null) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("journal.fxml"));
+                Parent root = loader.load();
+                JournalController controller = loader.getController();
+                journal = new Stage();
+                controller.setStage(journal);
+                journal.initModality(Modality.WINDOW_MODAL);
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+                journal.setScene(scene);
+                journal.setTitle(bundle.getString("journal.title"));
+            }
+            journal.show();
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
     }
 }

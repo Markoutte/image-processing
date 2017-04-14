@@ -25,7 +25,7 @@ public enum HistogramProcessing implements ImageProcessing {
     EQUALIZE {
         @Override
         public Image process(Image src, Properties properties) {
-            int range = 256;
+            final int range = 256;
             double red[] = new double[range];
             double green[] = new double[range];
             double blue[] = new double[range];
@@ -35,9 +35,9 @@ public enum HistogramProcessing implements ImageProcessing {
                 blue[Color.getChannel(pixel.getValue(), Channel.BLUE)] += 1;
             }
             for (int i = 0; i < range; i++) {
-                red[i] /= src.getSize() / 255;
-                green[i] /= src.getSize() / 255;
-                blue[i] /= src.getSize() / 255;
+                red[i] = red[i] * 255 / src.getSize();
+                green[i] = green[i] * 255 / src.getSize();
+                blue[i] = blue[i] * 255 / src.getSize();
             }
             for (int i = 1; i < range; i++) {
                 red[i] = red[i - 1] + red[i];
@@ -55,6 +55,6 @@ public enum HistogramProcessing implements ImageProcessing {
             }
             return out;
         }
-    }
+    },
 
 }
