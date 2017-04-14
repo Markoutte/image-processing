@@ -10,12 +10,12 @@ public interface ImageProcessing {
 
     Image process(Image src, Properties properties);
 
-    default RectImage filter(RectImage image, double[][] matrix) {
+    default RectImage filter(RectImage image, double[][] matrix, boolean ignoreAlphaChannel) {
         RectImage dest = (RectImage) image.clone();
         for (int y = 0; y < image.height(); y++) {
             for (int x = 0; x < image.width(); x++) {
                 int[][] rect = image.rect(-matrix.length / 2 + x, matrix.length / 2 + x, -matrix[0].length / 2 + y, matrix[0].length / 2 + y);
-                dest.setPixel(x, y, Maths.convolution(rect, matrix));
+                dest.setPixel(x, y, Maths.convolution(rect, matrix, ignoreAlphaChannel));
             }
         }
 

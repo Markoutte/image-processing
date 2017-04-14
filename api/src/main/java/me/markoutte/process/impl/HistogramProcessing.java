@@ -8,6 +8,8 @@ import me.markoutte.process.ImageProcessing;
 
 import java.util.Properties;
 
+import static me.markoutte.ds.Color.getGray;
+
 public enum HistogramProcessing implements ImageProcessing {
 
     OTSU {
@@ -16,7 +18,27 @@ public enum HistogramProcessing implements ImageProcessing {
             int threshold = Color.getOtsuThreshold(src);
             Image out = src.clone();
             for (Pixel pixel : src) {
-                out.setPixel(pixel.getId(), Color.getGray(pixel.getValue()) < threshold ? 0xFF000000 : 0xFFFFFFFF);
+                out.setPixel(pixel.getId(), getGray(pixel.getValue()) < threshold ? 0xFF000000 : 0xFFFFFFFF);
+            }
+            return out;
+        }
+    },
+
+    BINARIZATION {
+        @Override
+        public Image process(Image src, Properties properties) {
+            int min = 255;
+            int max = 0;
+            for (Pixel pixel : src) {
+                short gray = getGray(pixel.getValue());
+                min = Math.min(gray, min);
+                max = Math.max(gray, max);
+            }
+
+            int threshold = (max + min) / 2;
+            Image out = src.clone();
+            for (Pixel pixel : src) {
+                out.setPixel(pixel.getId(), getGray(pixel.getValue()) < threshold ? 0xFF000000 : 0xFFFFFFFF);
             }
             return out;
         }

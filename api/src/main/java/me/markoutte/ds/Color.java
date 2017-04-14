@@ -1,6 +1,7 @@
 package me.markoutte.ds;
 
 import me.markoutte.algorithm.Maths;
+import me.markoutte.image.ARGB;
 import me.markoutte.image.HSL;
 import me.markoutte.image.Pixel;
 
@@ -25,6 +26,10 @@ public final class Color {
 
     public static short getGray(int pixel) {
         return (short) Math.round(0.2126 * getChannel(pixel, Channel.RED) + 0.7152 * getChannel(pixel, Channel.GREEN) + 0.0722 * getChannel(pixel, Channel.BLUE));
+    }
+
+    public static int combine(ARGB argb) {
+        return (argb.getAlpha() << 24 & 0xFF000000) | (argb.getRed() << 16 & 0x00FF0000) | (argb.getGreen() << 8 & 0x0000FF00) | argb.getBlue() & 0xFF;
     }
 
     public static int combine(int alpha, int red, int green, int blue) {

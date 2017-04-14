@@ -34,7 +34,7 @@ public enum ColorProcessing implements ImageProcessing {
                 }
             }
 
-            return filter((RectImage) src, filter);
+            return filter((RectImage) src, filter, false);
         }
     },
 

@@ -7,7 +7,7 @@ import static me.markoutte.ds.Color.*;
 
 public class Maths {
 
-    public static int convolution(int[][] argb, double[][] filter) {
+    public static int convolution(int[][] argb, double[][] filter, boolean ignoreAlphaChannel) {
         if (filter.length == 0 || argb.length != filter.length || argb[0].length != filter[0].length) {
             throw new IllegalArgumentException("Matrices must have same dimension");
         }
@@ -24,7 +24,7 @@ public class Maths {
                 blue += getChannel(argb[i][j], Channel.BLUE) * filter[i][j];
             }
         }
-        return combine(normalize((int) opacity), normalize((int) red), normalize((int) green), normalize((int) blue));
+        return combine(ignoreAlphaChannel ? 255 : normalize((int) opacity), normalize((int) red), normalize((int) green), normalize((int) blue));
     }
 
     public static void multiply(double[][] matrix, double multiplier) {
