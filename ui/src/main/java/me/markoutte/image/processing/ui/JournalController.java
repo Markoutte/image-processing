@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class JournalController implements Initializable {
 
@@ -53,11 +54,8 @@ public class JournalController implements Initializable {
             }
             while (observable.next()) {
                 List<? extends Journal.Note> added = observable.getAddedSubList();
-                final StringBuilder text = new StringBuilder();
-                for (Journal.Note note : added) {
-                    text.append(getJournalMessage(note));
-                }
-                textArea.replaceText(textArea.getLength(), textArea.getLength(), text.toString());
+                String text = added.stream().map(this::getJournalMessage).collect(Collectors.joining("\n"));
+                textArea.replaceText(textArea.getLength(), textArea.getLength(), "\n" + text);
             }
         });
         textArea.richChanges()
@@ -68,15 +66,12 @@ public class JournalController implements Initializable {
     }
 
     public void update() {
-        final StringBuilder text = new StringBuilder();
-        for (Journal.Note note : notes.get()) {
-            text.append(getJournalMessage(note));
-        }
-        textArea.replaceText(text.toString());
+
+        textArea.replaceText(notes.stream().map(this::getJournalMessage).collect(Collectors.joining("\n")));
     }
 
     private String getJournalMessage(Journal.Note note) {
-        return String.format("[%-6s %s\n", note.getLevel().name() + "]", note.getMessage());
+        return String.format("[%-6s %s", note.getLevel().name() + "]", note.getMessage());
     }
 
     public void setStage(Stage stage) {

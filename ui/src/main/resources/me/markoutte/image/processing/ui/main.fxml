@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.canvas.*?>
@@ -12,7 +13,7 @@
          <content>
             <AnchorPane fx:id="anchor" onScroll="#changeZoom" styleClass="chess">
                <children>
-                  <Canvas fx:id="canvas" height="317.0" onMouseClicked="#showHistogramOfSegment" width="595.0" />
+                  <Canvas fx:id="canvas" focusTraversable="true" height="317.0" onMouseClicked="#showHistogramOfSegment" width="595.0" />
                </children>
             </AnchorPane>
          </content>
@@ -21,6 +22,12 @@
    <bottom>
       <HBox alignment="CENTER_RIGHT" prefHeight="50.0" prefWidth="595.0">
          <children>
+            <Button fx:id="journalButton" mnemonicParsing="false" onAction="#openJournal" />
+            <MenuButton fx:id="filterMenuButton" mnemonicParsing="false" text="%menu.filters">
+               <HBox.margin>
+                  <Insets left="10.0" />
+               </HBox.margin>
+            </MenuButton>
             <MenuButton fx:id="processButton" mnemonicParsing="false" text="%processButton.text">
                <HBox.margin>
                   <Insets left="10.0" />

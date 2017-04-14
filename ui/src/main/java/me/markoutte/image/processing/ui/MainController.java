@@ -23,6 +23,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -75,6 +76,10 @@ public class MainController implements Initializable {
     private MenuItem prevImage;
     @FXML
     private MenuItem nextImage;
+    @FXML
+    private MenuButton filterMenuButton;
+    @FXML
+    private Button journalButton;
 
     private Stage journal;
 
@@ -165,6 +170,7 @@ public class MainController implements Initializable {
             item.setOnAction(event -> preprocess(algorithm));
         }
         colorProcessing.getItems().addAll(colorProcessingItems);
+        filterMenuButton.getItems().addAll(colorProcessingItems);
         menuFilters.getItems().add(colorProcessing);
 
         List<MenuItem> filteringProcessingItems = new ArrayList<>();
@@ -175,6 +181,8 @@ public class MainController implements Initializable {
             item.setOnAction(event -> preprocess(algorithm));
         }
         filteringProcessing.getItems().addAll(filteringProcessingItems);
+        filterMenuButton.getItems().add(new SeparatorMenuItem());
+        filterMenuButton.getItems().addAll(filteringProcessingItems);
         menuFilters.getItems().add(filteringProcessing);
 
         List<MenuItem> histogramProcessingItems = new ArrayList<>();
@@ -185,6 +193,8 @@ public class MainController implements Initializable {
             item.setOnAction(event -> preprocess(algorithm));
         }
         histogramProcessing.getItems().addAll(histogramProcessingItems);
+        filterMenuButton.getItems().add(new SeparatorMenuItem());
+        filterMenuButton.getItems().addAll(histogramProcessingItems);
         menuFilters.getItems().add(histogramProcessing);
 
         List<MenuItem> heuristics = new ArrayList<>();
@@ -194,6 +204,13 @@ public class MainController implements Initializable {
             heuristics.add(item);
         }
         processButton.getItems().addAll(heuristics);
+
+        try (InputStream resource = getClass().getResourceAsStream("icons/terminal.png")) {
+            journalButton.setGraphic(new ImageView(new Image(resource)));
+        } catch (IOException e) {
+            journalButton.setText("×");
+            e.printStackTrace();
+        }
     }
 
     /* package */
@@ -361,7 +378,7 @@ public class MainController implements Initializable {
             @Override
             protected void succeeded() {
                 try {
-                    jou.info(String.format(bundle.getString("processTime"), get(), heuristics));
+                    jou.info(String.format("Изображение \"%s\" обработанно за %d мс (%s)", image.get(), get(), heuristics));
 //                    showPopup(String.format(bundle.getString("processTime"), get(), heuristics));
                     comboBox.setValue(0);
                 } catch (InterruptedException | ExecutionException e) {

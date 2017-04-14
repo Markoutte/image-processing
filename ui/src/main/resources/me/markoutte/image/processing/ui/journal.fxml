@@ -11,7 +11,7 @@
    <center>
       <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="400.0" prefViewportWidth="600.0">
          <content>
-            <StyleClassedTextArea fx:id="textArea" editable="false" styleClass="journal" wrapText="false" />
+            <StyleClassedTextArea fx:id="textArea" editable="false" styleClass="journal" wrapText="true" />
          </content>
       </ScrollPane>
    </center>
