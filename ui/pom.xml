@@ -32,34 +32,6 @@
             </plugin>
 
             <plugin>
-                <groupId>com.zenjava</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>8.8.3</version>
-                <configuration>
-                    <vendor>Maksim Pelevin</vendor>
-                    <appName>Image Processing</appName>
-                    <needMenu>true</needMenu>
-                    <mainClass>me.markoutte.image.processing.ui.Application</mainClass>
-                    <bundleArguments>
-                        <icon.ico>src/main/resources/me/markoutte/image/processing/ui/icons/app.ico</icon.ico>
-                        <icon.png>src/main/resources/me/markoutte/image/processing/ui/icons/app.png</icon.png>
-                        <icon.icns>src/main/resources/me/markoutte/image/processing/ui/icons/app.icns</icon.icns>
-                    </bundleArguments>
-                    <jfxMainAppJarName>${project.build.finalName}.jar</jfxMainAppJarName>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-native</id>
-                        <goals>
-                            <goal>build-jar</goal>
-                            <goal>build-native</goal>
-                        </goals>
-                        <phase>install</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <finalName>${project.name} ${project.version}</finalName>
@@ -85,5 +57,42 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>with-native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.zenjava</groupId>
+                        <artifactId>javafx-maven-plugin</artifactId>
+                        <version>8.8.3</version>
+                        <configuration>
+                            <vendor>Maksim Pelevin</vendor>
+                            <appName>Image Processing</appName>
+                            <needMenu>true</needMenu>
+                            <mainClass>me.markoutte.image.processing.ui.Application</mainClass>
+                            <bundleArguments>
+                                <icon.ico>src/main/resources/me/markoutte/image/processing/ui/icons/app.ico</icon.ico>
+                                <icon.png>src/main/resources/me/markoutte/image/processing/ui/icons/app.png</icon.png>
+                                <icon.icns>src/main/resources/me/markoutte/image/processing/ui/icons/app.icns</icon.icns>
+                            </bundleArguments>
+                            <jfxMainAppJarName>${project.build.finalName}.jar</jfxMainAppJarName>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-native</id>
+                                <goals>
+                                    <goal>build-jar</goal>
+                                    <goal>build-native</goal>
+                                </goals>
+                                <phase>install</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
