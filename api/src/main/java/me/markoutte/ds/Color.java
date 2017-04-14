@@ -1,6 +1,8 @@
 package me.markoutte.ds;
 
 import me.markoutte.algorithm.Maths;
+import me.markoutte.image.HSL;
+import me.markoutte.image.Pixel;
 
 import static java.lang.Math.*;
 import static java.lang.Math.min;
@@ -50,7 +52,7 @@ public final class Color {
         if (b > g) {
             h = 2 * PI - h;
         }
-        return h;
+        return h / (2 * PI);
     }
 
     public static double getSaturation(int pixel) {
@@ -67,7 +69,7 @@ public final class Color {
         return (r + g + b) / 3.;
     }
 
-    public static double[] getHSL(int pixel) {
+    public static HSL getHSL(int pixel) {
         double r = getChannel(pixel, Channel.RED) / 255.;
         double g = getChannel(pixel, Channel.GREEN) / 255.;
         double b = getChannel(pixel, Channel.BLUE) / 255.;
@@ -91,7 +93,47 @@ public final class Color {
             h /= 6;
         }
 
-        return new double[]{h, s, l};
+        return new HSL(h, s, l);
+    }
+
+    public static int getOtsuThreshold(Iterable<Pixel> pixels) {
+        int hist[] = new int[256];
+        int min = 255;
+        int max = 0;
+        for (Pixel pixel : pixels) {
+            short gray = getGray(pixel.getValue());
+            min = Math.min(gray, min);
+            max = Math.max(gray, max);
+        }
+
+        for (Pixel pixel : pixels) {
+            hist[getGray(pixel.getValue()) - min]++;
+        }
+
+        int temp = 0, templ = 0;
+        for (int i = 0; i < hist.length; i++) {
+            temp += i * hist[i];
+            templ += hist[i];
+        }
+
+        int alpha = 0, beta = 0, threshold=0;
+        double maxSigma = -1;
+        for(int i = 0; i < hist.length; i++) {
+            alpha += i * hist[i];
+            beta += hist[i];
+
+            double w1 = (double)beta / templ;
+            double a = (double)alpha / beta - (double)(temp - alpha) / (templ - beta);
+            double sigma;
+            sigma = w1 * (1 - w1) * a * a;
+
+            if (sigma > maxSigma)
+            {
+                maxSigma = sigma;
+                threshold = i;
+            }
+        }
+        return threshold;
     }
 
     private static double max(double a, double b, double c) {

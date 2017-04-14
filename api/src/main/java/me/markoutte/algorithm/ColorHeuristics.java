@@ -18,21 +18,21 @@ public enum ColorHeuristics implements Heuristics {
     HUE {
         @Override
         public double getWeight(int left, int right) {
-            return Math.abs(Color.getHue(left) - Color.getHue(right)) / (2 * Math.PI) * 255;
+            return Math.abs(Color.getHSL(left).getHue() - Color.getHSL(right).getHue()) * 255;
         }
     },
 
     SATURATION {
         @Override
         public double getWeight(int left, int right) {
-            return Math.abs(Color.getSaturation(left) - Color.getSaturation(right)) * 255;
+            return Math.abs(Color.getHSL(left).getSaturation() - Color.getHSL(right).getSaturation()) * 255;
         }
     },
 
     GRAYSCALE {
         @Override
         public double getWeight(int left, int right) {
-            return Math.abs(Color.getGray(left) - Color.getGray(right));
+            return Math.abs(Color.getHSL(left).getSaturation() - Color.getHSL(right).getSaturation()) * 255;
         }
     },
 }

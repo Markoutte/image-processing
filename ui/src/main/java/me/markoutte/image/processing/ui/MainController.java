@@ -64,6 +64,8 @@ public class MainController implements Initializable {
     @FXML
     private MenuItem openButton;
     @FXML
+    private MenuItem saveButton;
+    @FXML
     private MenuButton processButton;
     @FXML
     private ComboBox<Integer> comboBox;
@@ -97,9 +99,7 @@ public class MainController implements Initializable {
         processButton.setDisable(true);
         bundle = resources;
 
-//        final String os = System.getProperty ("os.name");
-//        if (os != null && os.startsWith ("Mac"))
-//            menu.useSystemMenuBarProperty ().set (true);
+        patchMacOS();
 
         image.addListener((observable, oldValue, newValue) -> {
             processButton.setDisable(newValue == null);
@@ -464,5 +464,17 @@ public class MainController implements Initializable {
 
         drawImage(drawn);
         event.consume();
+    }
+
+    private void patchMacOS() {
+        final String os = System.getProperty ("os.name");
+        if (os != null && os.startsWith ("Mac")) {
+            menu.useSystemMenuBarProperty().set(true);
+            openButton.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.META_DOWN));
+            saveButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.META_DOWN));
+            prevImage.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.META_DOWN));
+            nextImage.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN));
+        }
+
     }
 }

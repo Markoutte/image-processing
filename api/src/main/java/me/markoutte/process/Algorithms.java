@@ -104,8 +104,8 @@ public enum Algorithms implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : src) {
-                double hue = Color.getHue(pixel.getValue());
-                out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * hue / (2 * PI))));
+                double hue = Color.getHSL(pixel.getValue()).getHue();
+                out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * hue)));
             }
             return out;
         }
@@ -116,7 +116,7 @@ public enum Algorithms implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : out) {
-                double saturation = Color.getSaturation(pixel.getValue());
+                double saturation = Color.getHSL(pixel.getValue()).getSaturation();
                 out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * saturation)));
             }
             return out;
@@ -128,12 +128,25 @@ public enum Algorithms implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : out) {
-                double lightness = Color.getIntensity(pixel.getValue());
+                double lightness = Color.getHSL(pixel.getValue()).getIntensity();
                 out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * lightness)));
             }
             return out;
         }
-    }
+    },
+
+    OTSU {
+        @Override
+        public Image process(Image src, Properties properties) {
+            int threshold = Color.getOtsuThreshold(src);
+            Image out = src.clone();
+            for (Pixel pixel : src) {
+                out.setPixel(pixel.getId(), Color.getGray(pixel.getValue()) < threshold ? 0xFF000000 : 0xFFFFFFFF);
+            }
+            return out;
+        }
+    },
+
     ;
 
     protected RectImage filter(RectImage image, double[][] matrix) {

@@ -48,7 +48,7 @@
                         <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#saveFile" text="%menu.file.save">
+                  <MenuItem fx:id="saveButton" mnemonicParsing="false" onAction="#saveFile" text="%menu.file.save">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
