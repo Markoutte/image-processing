@@ -10,8 +10,8 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.image.Image;
 import me.markoutte.image.RectImage;
-import me.markoutte.process.Algorithms;
 import me.markoutte.process.ImageProcessing;
+import me.markoutte.process.impl.ColorProcessing;
 
 import java.net.URL;
 import java.util.Properties;
@@ -78,12 +78,12 @@ public class HistogramController implements Initializable {
     private final ExecutorService service = Executors.newFixedThreadPool(10);
 
     public void setImage(me.markoutte.image.Image image) {
-        drawImage(red, image, Algorithms.RED);
-        drawImage(green, image, Algorithms.GREEN);
-        drawImage(blue, image, Algorithms.BLUE);
-        drawImage(hue, image, Algorithms.HUE);
-        drawImage(saturation, image, Algorithms.SATURATION);
-        drawImage(intensity, image, Algorithms.INTENSITY);
+        drawImage(red, image, ColorProcessing.RED);
+        drawImage(green, image, ColorProcessing.GREEN);
+        drawImage(blue, image, ColorProcessing.BLUE);
+        drawImage(hue, image, ColorProcessing.HUE);
+        drawImage(saturation, image, ColorProcessing.SATURATION);
+        drawImage(intensity, image, ColorProcessing.INTENSITY);
     }
 
     private void drawImage(Canvas canvas, me.markoutte.image.Image image, ImageProcessing processing) {

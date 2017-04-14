@@ -36,8 +36,10 @@ import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.impl.ArrayRectImage;
-import me.markoutte.process.Algorithms;
 import me.markoutte.process.ImageProcessing;
+import me.markoutte.process.impl.ColorProcessing;
+import me.markoutte.process.impl.FilteringProcessing;
+import me.markoutte.process.impl.HistogramProcessing;
 import me.markoutte.segmentation.Segmentation;
 
 import javax.imageio.ImageIO;
@@ -143,13 +145,35 @@ public class MainController implements Initializable {
             e.printStackTrace();
         }
 
-        List<MenuItem> items = new ArrayList<>();
-        for (Algorithms algorithm : Algorithms.values()) {
+        List<MenuItem> colorProcessingItems = new ArrayList<>();
+        Menu colorProcessing = new Menu(bundle.getString("menu.filters.color"));
+        for (ColorProcessing algorithm : ColorProcessing.values()) {
             MenuItem item = new MenuItem(bundle.containsKey(algorithm.name()) ? bundle.getString(algorithm.name()) : algorithm.name());
-            items.add(item);
+            colorProcessingItems.add(item);
             item.setOnAction(event -> preprocess(algorithm));
         }
-        menuFilters.getItems().addAll(items);
+        colorProcessing.getItems().addAll(colorProcessingItems);
+        menuFilters.getItems().add(colorProcessing);
+
+        List<MenuItem> filteringProcessingItems = new ArrayList<>();
+        Menu filteringProcessing = new Menu(bundle.getString("menu.filters.filtering"));
+        for (FilteringProcessing algorithm : FilteringProcessing.values()) {
+            MenuItem item = new MenuItem(bundle.containsKey(algorithm.name()) ? bundle.getString(algorithm.name()) : algorithm.name());
+            filteringProcessingItems.add(item);
+            item.setOnAction(event -> preprocess(algorithm));
+        }
+        filteringProcessing.getItems().addAll(filteringProcessingItems);
+        menuFilters.getItems().add(filteringProcessing);
+
+        List<MenuItem> histogramProcessingItems = new ArrayList<>();
+        Menu histogramProcessing = new Menu(bundle.getString("menu.filters.histogram"));
+        for (HistogramProcessing algorithm : HistogramProcessing.values()) {
+            MenuItem item = new MenuItem(bundle.containsKey(algorithm.name()) ? bundle.getString(algorithm.name()) : algorithm.name());
+            histogramProcessingItems.add(item);
+            item.setOnAction(event -> preprocess(algorithm));
+        }
+        histogramProcessing.getItems().addAll(histogramProcessingItems);
+        menuFilters.getItems().add(histogramProcessing);
 
         List<MenuItem> heuristics = new ArrayList<>();
         for (ColorHeuristics heuristic : ColorHeuristics.values()) {
