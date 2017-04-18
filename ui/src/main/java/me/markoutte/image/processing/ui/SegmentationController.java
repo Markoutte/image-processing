@@ -24,10 +24,7 @@ import me.markoutte.segmentation.Segmentation;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,7 +54,7 @@ public class SegmentationController implements Initializable {
         });
     }
 
-    public void setImages(List<Image> images, Image background) {
+    public void setImages(List<ImageCanvas.Info> images, Image background) {
         grid.getChildren().clear();
         int vpw = (int) scrollpane.getViewportBounds().getWidth();
         for (int i = 0; i < images.size(); i++) {
@@ -88,24 +85,44 @@ public class SegmentationController implements Initializable {
             return null;
         }
 
-        Application.async().submit(new Task<List<Image>>() {
+        Application.async().submit(new Task<List<ImageCanvas.Info>>() {
             @Override
-            protected List<me.markoutte.image.Image> call() throws Exception {
+            protected List<ImageCanvas.Info> call() throws Exception {
                 long start = System.currentTimeMillis();
                 double[] bounds = segmentation.getHierarchy().getLevelBounds();
                 RectImage image = (RectImage) segmentation.getImage();
                 int low = image.width() * image.height() * 25 / 10000;
                 int upper = (int) (image.width() * image.height() * 95L * 95L / 10000);
 
-                Function<List<Pixel>, Image> myFunction = pixels -> FXImageUtils.createImageFromPixel(pixels, image.width(), image.height());
+                class LevelWithSegments {
+                    final int level;
+                    final Map<Integer, List<Pixel>> segments;
+                    public LevelWithSegments(int level, Map<Integer, List<Pixel>> segments) {
+                        this.level = level;
+                        this.segments = Collections.unmodifiableMap(segments);
+                    }
+                }
 
-                List<me.markoutte.image.Image> result = IntStream.rangeClosed((int) bounds[0] + 1, (int) bounds[1])
+                Function<LevelWithSegments, List<ImageCanvas.Info>> myFunction = pixels -> {
+                    List<ImageCanvas.Info> infos = new ArrayList<>();
+                    for (Map.Entry<Integer, List<Pixel>> e : pixels.segments.entrySet()) {
+                        if (e.getValue().size() > low && e.getValue().size() < upper)
+                            infos.add(new ImageCanvas.Info(
+                                    FXImageUtils.createImageFromPixel(e.getValue(), image.width(), image.height()),
+                                    pixels.level,
+                                    e.getKey(),
+                                    e.getValue().size()
+                            ));
+                    }
+                    return infos;
+                };
+
+                List<ImageCanvas.Info> result = IntStream.rangeClosed((int) bounds[0] + 1, (int) bounds[1])
                         .parallel()
-                        .mapToObj(i -> segmentation.getHierarchy().getSegmentsWithValues(i))
-                        .flatMap(segment -> segment.values().stream())
-                        .filter(segment -> segment.size() > low && segment.size() < upper)
-                        .sorted(Comparator.comparingInt(Collection::size))
+                        .mapToObj(i -> new LevelWithSegments(i, segmentation.getHierarchy().getSegmentsWithValues(i)))
                         .map(myFunction)
+                        .flatMap(List::stream)
+                        .sorted(Comparator.comparingInt(ImageCanvas.Info::getSize))
                         .collect(Collectors.toList());
                 long stop = System.currentTimeMillis();
                 Journal.get().debug(String.format("Собраны %d интересных сегментов за %s мс", result.size(), (stop - start)));
