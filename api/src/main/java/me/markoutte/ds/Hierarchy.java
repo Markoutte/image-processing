@@ -53,7 +53,7 @@ public interface Hierarchy {
      */
     Set<Integer> getSegments(double level);
 
-    Map<Integer, List<Integer>> getSegmentsAsMap(double level);
+    Map<Integer, List<Pixel>> getSegmentsWithValues(double level);
 
     /**
      * Возвращает границы уровня сегментации.

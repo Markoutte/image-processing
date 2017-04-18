@@ -1,22 +1,11 @@
 package me.markoutte.image.processing.ui;
 
-import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -25,11 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.*;
-import javafx.util.Duration;
 import me.markoutte.algorithm.ColorHeuristics;
 import me.markoutte.algorithm.Heuristics;
 import me.markoutte.ds.Channel;
@@ -42,7 +27,6 @@ import me.markoutte.process.impl.ColorProcessing;
 import me.markoutte.process.impl.FilteringProcessing;
 import me.markoutte.process.impl.HistogramProcessing;
 import me.markoutte.segmentation.Segmentation;
-import org.reactfx.util.Lists;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -52,8 +36,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 public class MainController implements Initializable {
@@ -218,20 +202,24 @@ public class MainController implements Initializable {
                 return;
             }
             uiLock.setValue(true);
-            service.submit(new Task<List<List<Integer>>>() {
+            service.submit(new Task<List<me.markoutte.image.Image>>() {
                 @Override
-                protected List<List<Integer>> call() throws Exception {
+                protected List<me.markoutte.image.Image> call() throws Exception {
                     long start = System.currentTimeMillis();
                     double[] bounds = segmentation.getHierarchy().getLevelBounds();
                     RectImage image = segmentation.getImage();
-                    int low = image.width() * image.height() * 5 / 100;
-                    int upper = image.width() * image.height() * 95 / 100;
-                    List<List<Integer>> result = IntStream.rangeClosed((int) bounds[0] + 1, (int) bounds[1])
+                    int low = image.width() * image.height() * 1 / 100;
+                    int upper = image.width() * image.height() * 50 / 100;
+
+                    Function<List<Pixel>, me.markoutte.image.Image> myFunction = pixels -> createImageFromPixel(pixels, image.width(), image.height());
+
+                    List<me.markoutte.image.Image> result = IntStream.rangeClosed((int) bounds[0] + 1, (int) bounds[1])
                             .parallel()
-                            .mapToObj(i -> segmentation.getHierarchy().getSegmentsAsMap(i))
+                            .mapToObj(i -> segmentation.getHierarchy().getSegmentsWithValues(i))
                             .flatMap(segment -> segment.values().stream())
                             .filter(segment -> segment.size() > low && segment.size() < upper)
                             .sorted(Comparator.comparingInt(Collection::size))
+                            .map(myFunction)
                             .collect(Collectors.toList());
                     long stop = System.currentTimeMillis();
                     Journal.get().debug(String.format("Собраны %d интересных сегментов за %s мс", result.size(), (stop - start)));
@@ -241,8 +229,8 @@ public class MainController implements Initializable {
                 @Override
                 protected void succeeded() {
                     try {
-                        List<List<Integer>> lists = get();
-                    } catch (InterruptedException | ExecutionException e) {
+                        SegmentationController.show(get(), segmentation.getImage());
+                    } catch (InterruptedException | ExecutionException | IOException e) {
                         e.printStackTrace();
                     } finally {
                         uiLock.setValue(false);

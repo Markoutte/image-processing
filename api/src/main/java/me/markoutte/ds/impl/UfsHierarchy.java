@@ -7,6 +7,7 @@ import me.markoutte.image.Pixel;
 import javax.swing.text.Segment;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class UfsHierarchy implements Hierarchy {
 
@@ -111,8 +112,17 @@ public final class UfsHierarchy implements Hierarchy {
     }
 
     @Override
-    public Map<Integer, List<Integer>> getSegmentsAsMap(double level) {
-        return Collections.unmodifiableMap(ufs.segments(level));
+    public Map<Integer, List<Pixel>> getSegmentsWithValues(double level) {
+        Map<Integer, List<Integer>> segments = ufs.segments(level);
+        Map<Integer, List<Pixel>> segmentsWithValues = new HashMap<>();
+        for (Map.Entry<Integer, List<Integer>> entry : segments.entrySet()) {
+            List<Pixel> pixels = new ArrayList<>(entry.getValue().size());
+            for (Integer id : entry.getValue()) {
+                pixels.add(new Pixel(id, image.getPixel(id)));
+            }
+            segmentsWithValues.put(entry.getKey(), pixels);
+        }
+        return segmentsWithValues;
     }
 
     @Override
