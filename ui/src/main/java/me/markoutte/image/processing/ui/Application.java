@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Application extends javafx.application.Application {
 
@@ -45,5 +46,14 @@ public class Application extends javafx.application.Application {
         executors.add(service);
     }
 
+    public static ExecutorService async() {
+        return service;
+    }
+
     private final static List<ExecutorService> executors = new ArrayList<>();
+
+    private static final ExecutorService service = Executors.newCachedThreadPool();
+    static {
+        Application.registerExecutorService(service);
+    }
 }

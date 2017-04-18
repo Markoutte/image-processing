@@ -8,6 +8,6 @@
 
 <ScrollPane fx:id="scrollpane" hbarPolicy="NEVER" pannable="true" prefHeight="400.0" prefWidth="600.0" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.SegmentationController">
     <content>
-        <GridPane fx:id="grid" />
+        <GridPane fx:id="grid" gridLinesVisible="true" />
     </content>
 </ScrollPane>

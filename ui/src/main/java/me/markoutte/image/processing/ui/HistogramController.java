@@ -2,13 +2,20 @@ package me.markoutte.image.processing.ui;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.image.Image;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import me.markoutte.ds.Channel;
+import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.process.impl.ColorProcessing;
@@ -75,11 +82,6 @@ public class HistogramController implements Initializable {
         setData(this.grays, grays, "gray");
     }
 
-    private static final ExecutorService service = Executors.newFixedThreadPool(10);
-    static {
-        Application.registerExecutorService(service);
-    }
-
     public void setImage(me.markoutte.image.Image image) {
         drawImage(red, image, ColorProcessing.RED);
         drawImage(green, image, ColorProcessing.GREEN);
@@ -91,7 +93,7 @@ public class HistogramController implements Initializable {
 
     private void drawImage(Canvas canvas, me.markoutte.image.Image image, ImageProcessing processing) {
 
-        service.submit(new Task<Image>() {
+        Application.async().submit(new Task<Image>() {
             @Override
             protected Image call() throws Exception {
                 return FXImageUtils.toFXImage((RectImage) processing.process(image, new Properties()));
@@ -140,5 +142,47 @@ public class HistogramController implements Initializable {
         chart.getXAxis().setTickMarkVisible(false);
         chart.getYAxis().setTickLabelsVisible(false);
         chart.getYAxis().setTickMarkVisible(false);
+    }
+
+    public static void show(String title, Iterable<Pixel> area, me.markoutte.image.Image image) {
+        int[] reds = new int[256];
+        int[] greens = new int[256];
+        int[] blues = new int[256];
+        int[] grays = new int[256];
+        int size = 0;
+        for (Pixel pixel : area) {
+            reds[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.RED)]++;
+            blues[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.BLUE)]++;
+            greens[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.GREEN)]++;
+            grays[me.markoutte.ds.Color.getGray(pixel.getValue())]++;
+            size++;
+        }
+
+        if (area == image) {
+            Journal.get().info("Загружены гистограммы для изображения");
+        } else {
+            Journal.get().info(String.format("Загружены гистограммы для области размером %d", size));
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(HistogramController.class.getResource("histogram.fxml"));
+            Parent root = loader.load();
+            HistogramController controller = loader.getController();
+            Stage stage = new Stage();
+            stage.initModality(Modality.WINDOW_MODAL);
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(HistogramController.class.getResource("style.css").toExternalForm());
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.setTitle(title);
+            stage.show();
+            controller.setReds(reds);
+            controller.setGreens(greens);
+            controller.setBlues(blues);
+            controller.setGrays(grays);
+            controller.setImage(image);
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
     }
 }

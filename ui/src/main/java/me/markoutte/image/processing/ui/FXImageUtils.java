@@ -40,6 +40,14 @@ public final class FXImageUtils {
         return bf;
     }
 
+    public static RectImage createImageFromPixel(Iterable<Pixel> pixels, int width, int height) {
+        RectImage image = new ArrayRectImage().create(width, height);
+        for (Pixel pixel : pixels) {
+            image.setPixel(pixel.getId(), pixel.getValue());
+        }
+        return image;
+    }
+
     public static boolean equals(Image left, Image right) {
         if (left == right && left != null) {
             return true;

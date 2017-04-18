@@ -202,41 +202,7 @@ public class MainController implements Initializable {
                 return;
             }
             uiLock.setValue(true);
-            service.submit(new Task<List<me.markoutte.image.Image>>() {
-                @Override
-                protected List<me.markoutte.image.Image> call() throws Exception {
-                    long start = System.currentTimeMillis();
-                    double[] bounds = segmentation.getHierarchy().getLevelBounds();
-                    RectImage image = segmentation.getImage();
-                    int low = image.width() * image.height() * 1 / 100;
-                    int upper = image.width() * image.height() * 50 / 100;
-
-                    Function<List<Pixel>, me.markoutte.image.Image> myFunction = pixels -> createImageFromPixel(pixels, image.width(), image.height());
-
-                    List<me.markoutte.image.Image> result = IntStream.rangeClosed((int) bounds[0] + 1, (int) bounds[1])
-                            .parallel()
-                            .mapToObj(i -> segmentation.getHierarchy().getSegmentsWithValues(i))
-                            .flatMap(segment -> segment.values().stream())
-                            .filter(segment -> segment.size() > low && segment.size() < upper)
-                            .sorted(Comparator.comparingInt(Collection::size))
-                            .map(myFunction)
-                            .collect(Collectors.toList());
-                    long stop = System.currentTimeMillis();
-                    Journal.get().debug(String.format("Собраны %d интересных сегментов за %s мс", result.size(), (stop - start)));
-                    return result;
-                }
-
-                @Override
-                protected void succeeded() {
-                    try {
-                        SegmentationController.show(get(), segmentation.getImage());
-                    } catch (InterruptedException | ExecutionException | IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        uiLock.setValue(false);
-                    }
-                }
-            });
+            SegmentationController.show(segmentation);
         });
 
         processButton.getItems().addAll(new SeparatorMenuItem(), item);
@@ -451,7 +417,7 @@ public class MainController implements Initializable {
         if (e.getClickCount() == 2) {
             if (segmentation.getValue() == null) {
                 RectImage image = FXImageUtils.fromFXImage(this.image.get().data);
-                showHistograms(bundle.getString("fullImageHist"), image, image);
+                HistogramController.show(bundle.getString("fullImageHist"), image, image);
                 return;
             }
 
@@ -461,7 +427,7 @@ public class MainController implements Initializable {
             Integer level = comboBox.getValue();
             if (level == 0 || hierarchy == null) {
                 RectImage image = segmentation.get().getImage(0);
-                showHistograms(bundle.getString("fullImageHist"), image, image);
+                HistogramController.show(bundle.getString("fullImageHist"), image, image);
                 return;
             }
             RectImage image = (RectImage) hierarchy.getSourceImage();
@@ -469,61 +435,11 @@ public class MainController implements Initializable {
             List<Pixel> area = hierarchy.getArea(segment, level);
             if (e.isControlDown()) {
                 String title = String.format(bundle.getString("partlyImageHist"), segment % image.width(), segment / image.height(), level, area.size());
-                showHistograms(title, area, createImageFromPixel(area, image.width(), image.height()));
+                HistogramController.show(title, area, FXImageUtils.createImageFromPixel(area, image.width(), image.height()));
             } else {
-                showHistograms(bundle.getString("fullImageHist"), image, image);
+                HistogramController.show(bundle.getString("fullImageHist"), image, image);
             }
         }
-    }
-
-    private void showHistograms(String title, Iterable<Pixel> area, me.markoutte.image.Image image) {
-        int[] reds = new int[256];
-        int[] greens = new int[256];
-        int[] blues = new int[256];
-        int[] grays = new int[256];
-        int size = 0;
-        for (Pixel pixel : area) {
-            reds[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.RED)]++;
-            blues[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.BLUE)]++;
-            greens[me.markoutte.ds.Color.getChannel(pixel.getValue(), Channel.GREEN)]++;
-            grays[me.markoutte.ds.Color.getGray(pixel.getValue())]++;
-            size++;
-        }
-
-        if (area == image) {
-            jou.info(String.format("Загружены гистограммы для изображения \"%s\"", this.image.get()));
-        } else {
-            jou.info(String.format("Загружены гистограммы для области размером %d изображения \"%s\"", size, this.image.get()));
-        }
-
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("histogram.fxml"));
-            Parent root = loader.load();
-            HistogramController controller = loader.getController();
-            Stage stage = new Stage();
-            stage.initModality(Modality.WINDOW_MODAL);
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-            stage.setScene(scene);
-            stage.setResizable(false);
-            stage.setTitle(title);
-            stage.show();
-            controller.setReds(reds);
-            controller.setGreens(greens);
-            controller.setBlues(blues);
-            controller.setGrays(grays);
-            controller.setImage(image);
-        } catch (Exception err) {
-            err.printStackTrace();
-        }
-    }
-
-    private RectImage createImageFromPixel(Iterable<Pixel> pixels, int width, int height) {
-        RectImage image = new ArrayRectImage().create(width, height);
-        for (Pixel pixel : pixels) {
-            image.setPixel(pixel.getId(), pixel.getValue());
-        }
-        return image;
     }
 
     @FXML
