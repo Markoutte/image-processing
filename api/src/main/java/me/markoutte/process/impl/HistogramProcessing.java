@@ -10,7 +10,7 @@ import sun.jvm.hotspot.utilities.Assert;
 
 import java.util.Properties;
 
-import static me.markoutte.ds.Color.getGray;
+import static me.markoutte.ds.Color.*;
 
 public enum HistogramProcessing implements ImageProcessing {
 
@@ -107,6 +107,32 @@ public enum HistogramProcessing implements ImageProcessing {
             return out;
         }
     },
+
+    STRETCH_CONTRAST {
+        @Override
+        public Image process(Image src, Properties properties) {
+            final int range = 256;
+            int minR = 255, maxR = 0;
+            int minG = 255, maxG = 0;
+            int minB = 255, maxB = 0;
+            for (Pixel pixel : src) {
+                minR = Math.min(Color.getRed(pixel.getValue()), minR);
+                maxR = Math.max(Color.getRed(pixel.getValue()), maxR);
+                minG = Math.min(getGreen(pixel.getValue()), minG);
+                maxG = Math.max(getGreen(pixel.getValue()), maxG);
+                minB = Math.min(getBlue(pixel.getValue()), minB);
+                maxB = Math.max(getBlue(pixel.getValue()), maxB);
+            }
+            Image out = src.clone();
+            for (Pixel pixel : src) {
+                int red = (getRed(pixel.getValue()) - minR) * 255 / (maxR - minR);
+                int green = (getGreen(pixel.getValue()) - minG) * 255 / (maxG - minG);
+                int blue = (getBlue(pixel.getValue()) - minB) * 255 / (maxB - minB);
+                out.setPixel(pixel.getId(), Color.combine(255, red, green, blue));
+            }
+            return out;
+        }
+    }
 
     ;
 
