@@ -107,6 +107,31 @@ public enum ColorProcessing implements ImageProcessing {
         }
     },
 
+    DIFF {
+        @Override
+        public Image process(Image src, Properties properties) {
+            Image other = (Image) properties.get("DIFF.image");
+            Image out = src.clone();
+            for (Pixel pixel1 : out) {
+                int red1 = Color.getRed(pixel1.getValue());
+                int green1 = Color.getGreen(pixel1.getValue());
+                int blue1 = Color.getBlue(pixel1.getValue());
+
+                int pixel2 = other.getPixel(pixel1.getId());
+                int red2 = Color.getRed(pixel2);
+                int green2 = Color.getGreen(pixel2);
+                int blue2 = Color.getBlue(pixel2);
+
+                int dRed = Color.normalize(red2 - red1);
+                int dGreen = Color.normalize(green2 - green1);
+                int dBlue = Color.normalize(blue2 - blue1);
+
+                out.setPixel(pixel1.getId(), Color.combine(255, dRed, dGreen, dBlue));
+            }
+            return out;
+        }
+    }
+
     ;
 
 

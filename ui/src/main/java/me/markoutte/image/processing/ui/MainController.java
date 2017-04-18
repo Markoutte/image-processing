@@ -342,7 +342,13 @@ public class MainController implements Initializable {
     public void preprocess(ImageProcessing processor) {
         RectImage oldValue = FXImageUtils.fromFXImage(this.image.get().data);
         long start = System.currentTimeMillis();
-        me.markoutte.image.RectImage newValue = (RectImage) processor.process(oldValue, properties);        long stop = System.currentTimeMillis();
+        int i = history.indexOf(image.get());
+        if (i > 0) {
+            ImageContainer image = history.get(i - 1);
+            properties.put("DIFF.image", FXImageUtils.fromFXImage(image.data));
+        }
+        me.markoutte.image.RectImage newValue = (RectImage) processor.process(oldValue, properties);
+        long stop = System.currentTimeMillis();
         jou.info(String.format(bundle.getString("preprocessTime"), (stop - start), processor));
         if (!Objects.equals(newValue, oldValue)) {
             this.image.set(new ImageContainer(FXImageUtils.toFXImage(newValue), this.image.get().name, processor.toString()));

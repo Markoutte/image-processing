@@ -24,6 +24,18 @@ public final class Color {
         throw new IllegalStateException();
     }
 
+    public static int getRed(int pixel) {
+        return getChannel(pixel, Channel.RED);
+    }
+
+    public static int getGreen(int pixel) {
+        return getChannel(pixel, Channel.GREEN);
+    }
+
+    public static int getBlue(int pixel) {
+        return getChannel(pixel, Channel.BLUE);
+    }
+
     public static short getGray(int pixel) {
         return (short) Math.round(0.2126 * getChannel(pixel, Channel.RED) + 0.7152 * getChannel(pixel, Channel.GREEN) + 0.0722 * getChannel(pixel, Channel.BLUE));
     }
