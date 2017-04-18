@@ -13,8 +13,10 @@ import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import me.markoutte.ds.Color;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
@@ -25,7 +27,10 @@ import me.markoutte.segmentation.Segmentation;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -43,18 +48,19 @@ public class SegmentationController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        scrollpane.heightProperty().addListener(observable -> {
-            int vpw = (int) scrollpane.getViewportBounds().getWidth();
+        scrollpane.widthProperty().addListener(observable -> {
+            double width = scrollpane.getViewportBounds().getWidth() / 4;
             for (Node node : grid.getChildren()) {
                 if (node instanceof ImageCanvas) {
-                    ((ImageCanvas) node).setPrefWidth(vpw / 4);
-                    ((ImageCanvas) node).setPrefHeight(vpw / 4);
+                    ((ImageCanvas) node).setPrefWidth(width);
+                    ((ImageCanvas) node).setPrefHeight(width);
                 }
             }
         });
     }
 
     public void setImages(List<ImageCanvas.Info> images, Image background) {
+        pbwrapper.setVisible(false);
         grid.getChildren().clear();
         int vpw = (int) scrollpane.getViewportBounds().getWidth();
         for (int i = 0; i < images.size(); i++) {
@@ -85,6 +91,7 @@ public class SegmentationController implements Initializable {
             return null;
         }
 
+        final AtomicBoolean isCanceled = new AtomicBoolean();
         Application.async().submit(new Task<List<ImageCanvas.Info>>() {
             @Override
             protected List<ImageCanvas.Info> call() throws Exception {
@@ -97,6 +104,7 @@ public class SegmentationController implements Initializable {
                 class LevelWithSegments {
                     final int level;
                     final Map<Integer, List<Pixel>> segments;
+
                     public LevelWithSegments(int level, Map<Integer, List<Pixel>> segments) {
                         this.level = level;
                         this.segments = Collections.unmodifiableMap(segments);
@@ -106,6 +114,9 @@ public class SegmentationController implements Initializable {
                 Function<LevelWithSegments, List<ImageCanvas.Info>> myFunction = pixels -> {
                     List<ImageCanvas.Info> infos = new ArrayList<>();
                     for (Map.Entry<Integer, List<Pixel>> e : pixels.segments.entrySet()) {
+                        if (isCanceled.get()) {
+                            throw new CancellationException("Work is canceled");
+                        }
                         if (e.getValue().size() > low && e.getValue().size() < upper)
                             infos.add(new ImageCanvas.Info(
                                     FXImageUtils.createImageFromPixel(e.getValue(), image.width(), image.height()),
@@ -136,10 +147,12 @@ public class SegmentationController implements Initializable {
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 } finally {
-                    controller.pbwrapper.setVisible(false);
+                    ((StackPane) controller.pbwrapper.getParent()).getChildren().remove(controller.pbwrapper);
                 }
             }
         });
+
+        stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, event -> isCanceled.set(true));
 
         return stage;
     }

@@ -11,7 +11,7 @@
     <children>
         <ScrollPane fx:id="scrollpane" hbarPolicy="NEVER" pannable="true" vbarPolicy="ALWAYS">
             <content>
-                <GridPane fx:id="grid" gridLinesVisible="true" />
+                <GridPane fx:id="grid" gridLinesVisible="true" styleClass="chess" />
             </content>
         </ScrollPane>
       <VBox fx:id="pbwrapper" alignment="CENTER" style="-fx-background-color: #99000000;">
