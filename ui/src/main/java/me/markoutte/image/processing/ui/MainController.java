@@ -53,6 +53,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 public class MainController implements Initializable {
@@ -205,6 +206,52 @@ public class MainController implements Initializable {
             heuristics.add(item);
         }
         processButton.getItems().addAll(heuristics);
+
+        // Finding all segments of interesting
+        MenuItem item = new MenuItem("Список интересных сегментов");
+        item.setOnAction(event -> {
+            Segmentation<RectImage> segmentation = this.segmentation.get();
+            if (segmentation == null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setHeaderText(bundle.getString("segmentationRequired"));
+                alert.showAndWait();
+                return;
+            }
+            uiLock.setValue(true);
+            service.submit(new Task<List<List<Integer>>>() {
+                @Override
+                protected List<List<Integer>> call() throws Exception {
+                    long start = System.currentTimeMillis();
+                    double[] bounds = segmentation.getHierarchy().getLevelBounds();
+                    RectImage image = segmentation.getImage();
+                    int low = image.width() * image.height() * 5 / 100;
+                    int upper = image.width() * image.height() * 95 / 100;
+                    List<List<Integer>> result = IntStream.rangeClosed((int) bounds[0] + 1, (int) bounds[1])
+                            .parallel()
+                            .mapToObj(i -> segmentation.getHierarchy().getSegmentsAsMap(i))
+                            .flatMap(segment -> segment.values().stream())
+                            .filter(segment -> segment.size() > low && segment.size() < upper)
+                            .sorted(Comparator.comparingInt(Collection::size))
+                            .collect(Collectors.toList());
+                    long stop = System.currentTimeMillis();
+                    Journal.get().debug(String.format("Собраны %d интересных сегментов за %s мс", result.size(), (stop - start)));
+                    return result;
+                }
+
+                @Override
+                protected void succeeded() {
+                    try {
+                        List<List<Integer>> lists = get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    } finally {
+                        uiLock.setValue(false);
+                    }
+                }
+            });
+        });
+
+        processButton.getItems().addAll(new SeparatorMenuItem(), item);
 
         try (InputStream resource = getClass().getResourceAsStream("icons/terminal.png")) {
             journalButton.setGraphic(new ImageView(new Image(resource)));

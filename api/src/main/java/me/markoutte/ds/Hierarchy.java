@@ -4,6 +4,7 @@ import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface Hierarchy {
@@ -51,6 +52,8 @@ public interface Hierarchy {
      * Возвращает список сегментов для заданного уровня.
      */
     Set<Integer> getSegments(double level);
+
+    Map<Integer, List<Integer>> getSegmentsAsMap(double level);
 
     /**
      * Возвращает границы уровня сегментации.

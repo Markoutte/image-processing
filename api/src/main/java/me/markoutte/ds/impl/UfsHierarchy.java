@@ -5,10 +5,8 @@ import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 
 import javax.swing.text.Segment;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class UfsHierarchy implements Hierarchy {
 
@@ -109,7 +107,12 @@ public final class UfsHierarchy implements Hierarchy {
 
     @Override
     public Set<Integer> getSegments(double level) {
-        return ufs.segments(level).keySet();
+        return Collections.unmodifiableSet(ufs.segments(level).keySet());
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getSegmentsAsMap(double level) {
+        return Collections.unmodifiableMap(ufs.segments(level));
     }
 
     @Override
