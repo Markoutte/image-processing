@@ -112,6 +112,11 @@ public final class UfsHierarchy implements Hierarchy {
         return ufs.segments(level).keySet();
     }
 
+    @Override
+    public double[] getLevelBounds() {
+        return new double[] {0.0, ufs.getCurrentValue()};
+    }
+
     public void optimize() {
         ufs.compress();
     }

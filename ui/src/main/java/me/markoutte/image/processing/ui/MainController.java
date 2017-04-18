@@ -42,6 +42,7 @@ import me.markoutte.process.impl.ColorProcessing;
 import me.markoutte.process.impl.FilteringProcessing;
 import me.markoutte.process.impl.HistogramProcessing;
 import me.markoutte.segmentation.Segmentation;
+import org.reactfx.util.Lists;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -379,7 +380,10 @@ public class MainController implements Initializable {
             protected void succeeded() {
                 try {
                     jou.info(String.format("Изображение \"%s\" обработанно за %d мс (%s)", image.get(), get(), heuristics));
-//                    showPopup(String.format(bundle.getString("processTime"), get(), heuristics));
+                    Segmentation<RectImage> ff = segmentation.get();
+                    comboBox.getItems().clear();
+                    double[] bounds = ff.getHierarchy().getLevelBounds();
+                    comboBox.getItems().addAll(IntStream.range((int) bounds[0], (int) bounds[1]).boxed().collect(Collectors.toList()));
                     comboBox.setValue(0);
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();

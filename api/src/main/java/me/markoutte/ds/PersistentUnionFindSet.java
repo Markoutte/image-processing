@@ -24,4 +24,5 @@ public interface PersistentUnionFindSet {
      */
     UnionFindSet simplify(double version);
 
+    double getCurrentValue();
 }

@@ -121,6 +121,11 @@ public class ArrayPersistentUnionFindSet implements PersistentUnionFindSet {
         }
         return ufs;
     }
+
+    @Override
+    public double getCurrentValue() {
+        return currentVersion;
+    }
 }
 
 
