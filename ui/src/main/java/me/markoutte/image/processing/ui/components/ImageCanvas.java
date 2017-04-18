@@ -18,6 +18,8 @@ import me.markoutte.image.RectImage;
 import me.markoutte.image.processing.ui.FXImageUtils;
 import me.markoutte.image.processing.ui.HistogramController;
 
+import java.util.Objects;
+
 public class ImageCanvas extends StackPane {
 
     private javafx.scene.image.Image image;
@@ -43,14 +45,15 @@ public class ImageCanvas extends StackPane {
 
         this.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> box.setVisible(true));
         this.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-            box.setVisible(false);
-            box.setStyle(defaultCss);
+            boolean isSelected = Objects.equals(box.getStyle(), backgroundCss);
+            box.setVisible(isSelected);
+            if (!isSelected) box.setStyle(defaultCss);
         });
         box.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getClickCount() == 2) {
                 HistogramController.show("Гистограмма интересного сегмента", info.getImage(), info.getImage());
             } else {
-                box.setStyle(box.getStyle() == defaultCss ? backgroundCss : defaultCss);
+                box.setStyle(Objects.equals(box.getStyle(), defaultCss) ? backgroundCss : defaultCss);
             }
         });
         box.setCursor(Cursor.HAND);
