@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import me.markoutte.ds.Color;
@@ -40,6 +41,9 @@ public class SegmentationController implements Initializable {
     @FXML
     private GridPane grid;
 
+    @FXML
+    private Pane pbwrapper;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         scrollpane.heightProperty().addListener(observable -> {
@@ -65,7 +69,7 @@ public class SegmentationController implements Initializable {
         }
     }
 
-    public static void show(Segmentation<?> segmentation) {
+    public static Stage show(Segmentation<?> segmentation) {
         SegmentationController controller;
         Stage stage;
         try {
@@ -81,7 +85,7 @@ public class SegmentationController implements Initializable {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+            return null;
         }
 
         Application.async().submit(new Task<List<Image>>() {
@@ -112,13 +116,14 @@ public class SegmentationController implements Initializable {
             protected void succeeded() {
                 try {
                     controller.setImages(get(), segmentation.getImage());
-                    stage.setTitle("Изображения");
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
+                } finally {
+                    controller.pbwrapper.setVisible(false);
                 }
             }
         });
 
-
+        return stage;
     }
 }

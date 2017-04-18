@@ -176,6 +176,7 @@ public class HistogramController implements Initializable {
             stage.setResizable(false);
             stage.setTitle(title);
             stage.show();
+
             controller.setReds(reds);
             controller.setGreens(greens);
             controller.setBlues(blues);

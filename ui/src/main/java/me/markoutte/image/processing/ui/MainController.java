@@ -201,8 +201,8 @@ public class MainController implements Initializable {
                 alert.showAndWait();
                 return;
             }
-            uiLock.setValue(true);
-            SegmentationController.show(segmentation);
+            Stage stage = SegmentationController.show(segmentation);
+            stage.setTitle(String.format("Просмотр интересных областей %s", this.image.get()));
         });
 
         processButton.getItems().addAll(new SeparatorMenuItem(), item);
