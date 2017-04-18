@@ -1,6 +1,7 @@
 package me.markoutte.ds;
 
 import javafx.scene.image.PixelReader;
+import me.markoutte.image.HSL;
 import me.markoutte.image.Image;
 import me.markoutte.image.impl.ArrayRectImage;
 import org.junit.Assert;
@@ -91,7 +92,15 @@ public class ColorTest {
         Assert.assertEquals(0, Color.getGray(png.getPixel(C.BLACK.ordinal())));
         Assert.assertEquals(128, Color.getGray(png.getPixel(C.GRAY.ordinal())));
         Assert.assertEquals(255, Color.getGray(png.getPixel(C.WHITE.ordinal())));
+    }
 
+    @Test
+    public void hsl2rgb() {
+        int rgb = Color.combine(255, 64, 128, 192);
+        HSL hsl = Color.getHSL(rgb);
+        Assert.assertEquals(64, Color.getRed(Color.getRGB(hsl)));
+        Assert.assertEquals(128, Color.getGray(Color.getRGB(hsl)));
+        Assert.assertEquals(192, Color.getBlue(Color.getRGB(hsl)));
     }
 
 }

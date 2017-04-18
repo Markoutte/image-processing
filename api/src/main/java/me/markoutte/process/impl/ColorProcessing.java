@@ -10,6 +10,8 @@ import me.markoutte.process.ImageProcessing;
 
 import java.util.Properties;
 
+import static me.markoutte.ds.Color.*;
+
 public enum ColorProcessing implements ImageProcessing {
 
     GRAYSCALE {
@@ -17,7 +19,7 @@ public enum ColorProcessing implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image clone = src.clone();
             for (Pixel pixel : src) {
-                clone.setPixel(pixel.getId(), Color.getIntGray(Color.getGray(pixel.getValue())));
+                clone.setPixel(pixel.getId(), getIntGray(getGray(pixel.getValue())));
             }
             return clone;
         }
@@ -43,7 +45,7 @@ public enum ColorProcessing implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : out) {
-                out.setPixel(pixel.getId(), Color.combine(255, Color.getChannel(pixel.getValue(), Channel.RED), 0, 0));
+                out.setPixel(pixel.getId(), combine(255, getChannel(pixel.getValue(), Channel.RED), 0, 0));
             }
             return out;
         }
@@ -54,7 +56,7 @@ public enum ColorProcessing implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : out) {
-                out.setPixel(pixel.getId(), Color.combine(255, 0, Color.getChannel(pixel.getValue(), Channel.GREEN), 0));
+                out.setPixel(pixel.getId(), combine(255, 0, getChannel(pixel.getValue(), Channel.GREEN), 0));
             }
             return out;
         }
@@ -65,7 +67,7 @@ public enum ColorProcessing implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : out) {
-                out.setPixel(pixel.getId(), Color.combine(255, 0, 0, Color.getChannel(pixel.getValue(), Channel.BLUE)));
+                out.setPixel(pixel.getId(), combine(255, 0, 0, getChannel(pixel.getValue(), Channel.BLUE)));
             }
             return out;
         }
@@ -76,8 +78,8 @@ public enum ColorProcessing implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : src) {
-                double hue = Color.getHSL(pixel.getValue()).getHue();
-                out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * hue)));
+                double hue = getHSL(pixel.getValue()).getHue();
+                out.setPixel(pixel.getId(), getIntGray((int) (255 * hue)));
             }
             return out;
         }
@@ -88,8 +90,8 @@ public enum ColorProcessing implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : out) {
-                double saturation = Color.getHSL(pixel.getValue()).getSaturation();
-                out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * saturation)));
+                double saturation = getHSL(pixel.getValue()).getSaturation();
+                out.setPixel(pixel.getId(), getIntGray((int) (255 * saturation)));
             }
             return out;
         }
@@ -100,8 +102,8 @@ public enum ColorProcessing implements ImageProcessing {
         public Image process(Image src, Properties properties) {
             Image out = src.clone();
             for (Pixel pixel : out) {
-                double lightness = Color.getHSL(pixel.getValue()).getIntensity();
-                out.setPixel(pixel.getId(), Color.getIntGray((int) (255 * lightness)));
+                double lightness = getHSL(pixel.getValue()).getIntensity();
+                out.setPixel(pixel.getId(), getIntGray((int) (255 * lightness)));
             }
             return out;
         }
@@ -113,24 +115,54 @@ public enum ColorProcessing implements ImageProcessing {
             Image other = (Image) properties.get("DIFF.image");
             Image out = src.clone();
             for (Pixel pixel1 : out) {
-                int red1 = Color.getRed(pixel1.getValue());
-                int green1 = Color.getGreen(pixel1.getValue());
-                int blue1 = Color.getBlue(pixel1.getValue());
+                int red1 = getRed(pixel1.getValue());
+                int green1 = getGreen(pixel1.getValue());
+                int blue1 = getBlue(pixel1.getValue());
 
                 int pixel2 = other.getPixel(pixel1.getId());
-                int red2 = Color.getRed(pixel2);
-                int green2 = Color.getGreen(pixel2);
-                int blue2 = Color.getBlue(pixel2);
+                int red2 = getRed(pixel2);
+                int green2 = getGreen(pixel2);
+                int blue2 = getBlue(pixel2);
 
-                int dRed = Color.normalize(red2 - red1);
-                int dGreen = Color.normalize(green2 - green1);
-                int dBlue = Color.normalize(blue2 - blue1);
+                int dRed = normalize(red2 - red1);
+                int dGreen = normalize(green2 - green1);
+                int dBlue = normalize(blue2 - blue1);
 
-                out.setPixel(pixel1.getId(), Color.combine(255, dRed, dGreen, dBlue));
+                out.setPixel(pixel1.getId(), combine(255, dRed, dGreen, dBlue));
             }
             return out;
         }
-    }
+    },
+
+    WHITE_BALANCE {
+        @Override
+        public Image process(Image src, Properties properties) {
+            int red = 0;
+            int green = 0;
+            int blue = 0;
+            int gray = 0;
+            for (Pixel pixel : src) {
+                red += getRed(pixel.getValue());
+                green += getGreen(pixel.getValue());
+                blue += getBlue(pixel.getValue());
+                gray += getGray(pixel.getValue());
+            }
+            red /= src.getSize();
+            green /= src.getSize();
+            blue /= src.getSize();
+            gray /= src.getSize();
+            Image out = src.clone();
+            for (Pixel pixel : out) {
+                out.setPixel(pixel.getId(), combine(
+                        255,
+                        normalize(getRed(pixel.getValue()) * gray / red),
+                        normalize(getGreen(pixel.getValue()) * gray / green),
+                        normalize(getBlue(pixel.getValue()) * gray / blue))
+                );
+            }
+            return out;
+        }
+    },
 
     ;
 
