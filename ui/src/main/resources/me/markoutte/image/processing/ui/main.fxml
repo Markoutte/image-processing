@@ -28,6 +28,11 @@
                   <Insets left="10.0" />
                </HBox.margin>
             </MenuButton>
+            <Button mnemonicParsing="false" onAction="#repeatLastProcessing" text="%repeatButton.text">
+               <HBox.margin>
+                  <Insets left="10.0" right="10.0" />
+               </HBox.margin>
+            </Button>
             <MenuButton fx:id="processButton" mnemonicParsing="false" text="%processButton.text">
                <HBox.margin>
                   <Insets left="10.0" />
@@ -69,6 +74,7 @@
           </Menu>
             <Menu mnemonicParsing="false" text="%menu.edit">
               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#resetImage" text="%menu.edit.reset" />
                 <MenuItem fx:id="prevImage" mnemonicParsing="false" onAction="#setPrevImage" text="%menu.edit.prevImage">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="UP" shortcut="UP" />

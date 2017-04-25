@@ -17,11 +17,9 @@ import javafx.scene.input.*;
 import javafx.stage.*;
 import me.markoutte.algorithm.ColorHeuristics;
 import me.markoutte.algorithm.Heuristics;
-import me.markoutte.ds.Channel;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
-import me.markoutte.image.impl.ArrayRectImage;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.process.impl.ColorProcessing;
 import me.markoutte.process.impl.FilteringProcessing;
@@ -36,7 +34,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -71,8 +68,11 @@ public class MainController implements Initializable {
 
     private final ObjectProperty<ImageContainer> image = new SimpleObjectProperty<>();
     private Image drawn = null;
+    private ImageContainer lastOpened = null;
 
     private final List<ImageContainer> history = new ArrayList<>();
+
+    private ImageProcessing lastImageProcessing;
 
     private final ObjectProperty<Segmentation<RectImage>> segmentation = new SimpleObjectProperty<>();
 
@@ -124,6 +124,10 @@ public class MainController implements Initializable {
                     history.add(newValue);
                     jou.debug(String.format("Изображение \"%s\" добавлено в историю начиная с позиции %d. Всего в истории %d изображений", newValue, i + 1, history.size()));
                 }
+            }
+
+            if (history.size() > 10) {
+                history.subList(0, 1).clear();
             }
 
             prevImage.setDisable(history.size() <= 1 || history.get(0) == newValue);
@@ -220,7 +224,7 @@ public class MainController implements Initializable {
         this.stage = stage;
         this.stage.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> {
             try (InputStream stream = getClass().getClassLoader().getResourceAsStream("me/markoutte/image/processing/ui/lena-color.jpg")) {
-                image.set(new ImageContainer(new Image(stream), "lena.jpg"));
+                image.set(lastOpened = new ImageContainer(new Image(stream), "lena.jpg"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -238,12 +242,22 @@ public class MainController implements Initializable {
         }
         try (InputStream stream = new FileInputStream(file)) {
             Image image = new Image(stream);
-            ImageContainer value = new ImageContainer(image, file.getName());
-            jou.info(String.format("Загружено новое изображение (%s)", value));
-            this.image.set(value);
+            lastOpened = new ImageContainer(image, file.getName());
+            jou.info(String.format("Загружено новое изображение (%s)", lastOpened));
+            this.image.set(lastOpened);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void resetImage() {
+        int i = history.indexOf(lastOpened);
+        if (i < 0) {
+            history.clear();
+        } else {
+            history.subList(i + 1, history.size()).clear();
+        }
+        this.image.set(lastOpened);
     }
 
     public void saveFile() {
@@ -352,7 +366,20 @@ public class MainController implements Initializable {
         jou.info(String.format(bundle.getString("preprocessTime"), (stop - start), processor));
         if (!Objects.equals(newValue, oldValue)) {
             this.image.set(new ImageContainer(FXImageUtils.toFXImage(newValue), this.image.get().name, processor.toString()));
+            lastImageProcessing = processor;
+        } else {
+            jou.error("Изображение идентичны");
         }
+    }
+
+    public void repeatLastProcessing() {
+        if (lastImageProcessing == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText(bundle.getString("noImageProcessing"));
+            alert.showAndWait();
+            return;
+        }
+        preprocess(lastImageProcessing);
     }
 
     public void process(Heuristics heuristics) {

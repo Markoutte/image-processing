@@ -13,6 +13,21 @@ import java.util.function.IntFunction;
 
 public enum  FilteringProcessing implements ImageProcessing {
 
+    BOX {
+        @Override
+        public RectImage process(Image src, Properties properties) {
+            Integer kernel = Integer.valueOf(properties.getProperty("BOX.kernel", "3"));
+            double[][] filter = new double[kernel][kernel];
+            for (int j = 0; j < filter[0].length; j++) {
+                for (int i = 0; i < filter.length; i++) {
+                    filter[i][j] = 1d / kernel / kernel;
+                }
+            }
+
+            return filter((RectImage) src, filter, false);
+        }
+    },
+
     GAUSS {
         @Override
         public Image process(Image src, Properties properties) {

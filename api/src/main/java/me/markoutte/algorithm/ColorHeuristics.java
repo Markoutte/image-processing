@@ -15,6 +15,27 @@ public enum ColorHeuristics implements Heuristics {
         }
     },
 
+    RED {
+        @Override
+        public double getWeight(int left, int right) {
+            return Math.abs(Color.getRed(left) - Color.getRed(right));
+        }
+    },
+
+    GREEN {
+        @Override
+        public double getWeight(int left, int right) {
+            return Math.abs(Color.getGreen(left) - Color.getGreen(right));
+        }
+    },
+
+    BLUE {
+        @Override
+        public double getWeight(int left, int right) {
+            return Math.abs(Color.getBlue(left) - Color.getBlue(right));
+        }
+    },
+
     HUE {
         @Override
         public double getWeight(int left, int right) {

@@ -98,8 +98,8 @@ public class SegmentationController implements Initializable {
                 long start = System.currentTimeMillis();
                 double[] bounds = segmentation.getHierarchy().getLevelBounds();
                 RectImage image = (RectImage) segmentation.getImage();
-                int low = image.width() * image.height() * 25 / 1000;
-                int upper = (int) (image.width() * image.height() * 75L / 100);
+                int low = image.width() * image.height() * 50 / 10000;
+                int upper = (int) (image.width() * image.height() * 90L / 100);
 
                 class LevelWithSegments {
                     final int level;
@@ -111,7 +111,7 @@ public class SegmentationController implements Initializable {
                     }
                 }
 
-                Function<LevelWithSegments, List<ImageCanvas.Info>> myFunction = pixels -> {
+                Function<LevelWithSegments, List<ImageCanvas.Info>> toInfo = pixels -> {
                     List<ImageCanvas.Info> infos = new ArrayList<>();
                     for (Map.Entry<Integer, List<Pixel>> e : pixels.segments.entrySet()) {
                         if (isCanceled.get()) {
@@ -131,38 +131,38 @@ public class SegmentationController implements Initializable {
                 List<ImageCanvas.Info> result = IntStream.range((int) bounds[0] + 1, (int) bounds[1])
                         .parallel()
                         .mapToObj(i -> new LevelWithSegments(i, segmentation.getHierarchy().getSegmentsWithValues(i)))
-                        .map(myFunction)
+                        .map(toInfo)
                         .flatMap(List::stream)
                         .sorted(Comparator.comparingInt(ImageCanvas.Info::getSize))
                         .collect(Collectors.toList());
-//                List<ImageCanvas.Info> filteredResult = new ArrayList<>(result.size());
+                List<ImageCanvas.Info> filteredResult = new ArrayList<>(result.size());
 
-//                double filterSize = 25. / 1000;
-//                for (int i = 0; i < result.size() - 1; i++) {
-//                    ImageCanvas.Info current = result.get(i);
-//                    ImageCanvas.Info next = result.get(i + 1);
-//
-//                    List<ImageCanvas.Info> sameImagesButUsedBefore = new ArrayList<>();
-//                    for (int j = filteredResult.size() - 1; j >=0 && (next.getSize() - filteredResult.get(j).getSize()) / (double) filteredResult.get(j).getSize() < filterSize; j--) {
-//                        if (Objects.equals(current.getSegmentId(), filteredResult.get(j).getSegmentId())) {
-//                            sameImagesButUsedBefore.add(filteredResult.get(j));
-//                        }
-//                    }
-//                    filteredResult.removeAll(sameImagesButUsedBefore);
-//
-//                    if (Objects.equals(current.getSegmentId(), next.getSegmentId())) {
-//                        int currentSize = current.getSize();
-//                        int nextSize = next.getSize();
-//                        if ((double) (nextSize - currentSize) / currentSize > filterSize) {
-//                            filteredResult.add(current);
-//                        }
-//                    } else {
-//                        filteredResult.add(current);
-//                    }
-//                }
+                double filterSize = 1. / 100; // прирост сегмента менее 1% от его размеров
+                for (int i = 0; i < result.size() - 1; i++) {
+                    ImageCanvas.Info current = result.get(i);
+                    ImageCanvas.Info next = result.get(i + 1);
+
+                    List<ImageCanvas.Info> sameImagesButUsedBefore = new ArrayList<>();
+                    for (int j = filteredResult.size() - 1; j >=0 && (next.getSize() - filteredResult.get(j).getSize()) / (double) filteredResult.get(j).getSize() < filterSize; j--) {
+                        if (Objects.equals(current.getSegmentId(), filteredResult.get(j).getSegmentId())) {
+                            sameImagesButUsedBefore.add(filteredResult.get(j));
+                        }
+                    }
+                    filteredResult.removeAll(sameImagesButUsedBefore);
+
+                    if (Objects.equals(current.getSegmentId(), next.getSegmentId())) {
+                        int currentSize = current.getSize();
+                        int nextSize = next.getSize();
+                        if ((double) (nextSize - currentSize) / currentSize > filterSize) {
+                            filteredResult.add(current);
+                        }
+                    } else {
+                        filteredResult.add(current);
+                    }
+                }
                 long stop = System.currentTimeMillis();
-                Journal.get().debug(String.format("Собраны %d интересных сегментов за %s мс", result.size(), (stop - start)));
-                return result;
+                Journal.get().debug(String.format("Собраны %d интересных сегментов за %s мс", filteredResult.size(), (stop - start)));
+                return filteredResult;
             }
 
             @Override
