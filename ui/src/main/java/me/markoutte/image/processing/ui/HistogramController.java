@@ -11,7 +11,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import me.markoutte.ds.Channel;
@@ -20,7 +26,12 @@ import me.markoutte.image.RectImage;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.process.impl.ColorProcessing;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
@@ -59,11 +70,22 @@ public class HistogramController implements Initializable {
     @FXML
     private Canvas intensity;
 
+    @FXML
+    private MenuBar menu;
+    @FXML
+    private MenuItem saveButton;
+
     private ResourceBundle bundle;
+
+    private me.markoutte.image.Image image;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        bundle = resources;
+        bundle = resources;        final String os = System.getProperty ("os.name");
+        if (os != null && os.startsWith ("Mac")) {
+            menu.useSystemMenuBarProperty().set(true);
+            saveButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.META_DOWN));
+        }
     }
 
     public void setReds(int[] reds) {
@@ -83,6 +105,7 @@ public class HistogramController implements Initializable {
     }
 
     public void setImage(me.markoutte.image.Image image) {
+        this.image = image;
         drawImage(red, image, ColorProcessing.RED);
         drawImage(green, image, ColorProcessing.GREEN);
         drawImage(blue, image, ColorProcessing.BLUE);
@@ -165,7 +188,8 @@ public class HistogramController implements Initializable {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(HistogramController.class.getResource("histogram.fxml"));
+            ResourceBundle bundle = ResourceBundle.getBundle("me.markoutte.image.processing.ui.Main", Locale.getDefault());
+            FXMLLoader loader = new FXMLLoader(HistogramController.class.getResource("histogram.fxml"), bundle);
             Parent root = loader.load();
             HistogramController controller = loader.getController();
             Stage stage = new Stage();
@@ -184,6 +208,24 @@ public class HistogramController implements Initializable {
             controller.setImage(image);
         } catch (Exception err) {
             err.printStackTrace();
+        }
+    }
+
+    public void saveFile() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle(bundle.getString("menu.file.save"));
+        File file = chooser.showSaveDialog(red.getScene().getWindow());
+        if (file != null) {
+            String path = file.getAbsolutePath();
+            if (!path.endsWith(".png")) {
+                path += ".png";
+            }
+            BufferedImage bimg = FXImageUtils.toBufferedImage((RectImage) image);
+            try {
+                ImageIO.write(bimg, "png", new File(path));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

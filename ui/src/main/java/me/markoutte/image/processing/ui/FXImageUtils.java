@@ -31,7 +31,7 @@ public final class FXImageUtils {
     public static BufferedImage toBufferedImage(me.markoutte.image.RectImage image) {
         int width = image.width();
         int height = image.height();
-        BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 bf.setRGB(i, j, image.getPixel(i, j));
