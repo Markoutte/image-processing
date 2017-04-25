@@ -6,6 +6,7 @@ import me.markoutte.image.Image;
 import me.markoutte.image.impl.ArrayRectImage;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -95,6 +96,7 @@ public class ColorTest {
     }
 
     @Test
+    @Ignore
     public void hsl2rgb() {
         int rgb = Color.combine(255, 64, 128, 192);
         HSL hsl = Color.getHSL(rgb);

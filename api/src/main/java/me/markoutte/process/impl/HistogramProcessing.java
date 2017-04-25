@@ -6,7 +6,6 @@ import me.markoutte.image.HSL;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 import me.markoutte.process.ImageProcessing;
-import sun.jvm.hotspot.utilities.Assert;
 
 import java.util.Properties;
 
