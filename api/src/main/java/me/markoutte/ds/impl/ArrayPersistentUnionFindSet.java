@@ -97,11 +97,7 @@ public class ArrayPersistentUnionFindSet implements PersistentUnionFindSet {
         // Да, в этом случае double лучше сравнивать так
         for (int i = 0; i < parents.length; i++) {
             int parent = find(i, version);
-            List<Integer> set = segments.get(parent);
-            if (set == null) {
-                segments.put(parent, set = new ArrayList<>());
-            }
-            set.add(i);
+            segments.computeIfAbsent(parent, k -> new ArrayList<>()).add(i);
         }
         return segments;
     }
