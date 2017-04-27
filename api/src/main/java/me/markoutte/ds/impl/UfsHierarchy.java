@@ -4,9 +4,12 @@ import me.markoutte.ds.*;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.Segments;
+import me.markoutte.utils.MeasureUtils;
 
 import javax.swing.text.Segment;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -83,6 +86,18 @@ public final class UfsHierarchy implements Hierarchy {
         }
 
         Image image = getSourceImage().clone();
+        if (colorize == PseudoColorizeMethod.PLAIN) {
+            Segments segments = ufs.segments_(level);
+            for (int id = 0; id < segments.size(); id++) {
+                int value = this.image.getPixel(segments.root(id));
+                for (int integer : segments.pixels(id)) {
+                    image.setPixel(integer, value);
+                }
+            }
+
+            return image;
+        }
+
         if (colorize == PseudoColorizeMethod.AVERAGE) {
             Segments segments = ufs.segments_(level);
             for (int i = 0; i < segments.size(); i++) {
@@ -145,14 +160,32 @@ public final class UfsHierarchy implements Hierarchy {
 
     @Override
     public Map<Integer, List<Pixel>> getSegmentsWithValues(double level) {
-        Map<Integer, List<Integer>> segments = ufs.segments(level);
+        return getSegmentsWithValues(level, false);
+    }
+
+    public Map<Integer, List<Pixel>> getSegmentsWithValues(double level, boolean fast) {
         Map<Integer, List<Pixel>> segmentsWithValues = new HashMap<>();
-        for (Map.Entry<Integer, List<Integer>> entry : segments.entrySet()) {
-            List<Pixel> pixels = new ArrayList<>(entry.getValue().size());
-            for (Integer id : entry.getValue()) {
-                pixels.add(new Pixel(id, image.getPixel(id)));
+
+        if (fast) {
+            Segments segments = ufs.segments_(level);
+            for (int i = 0; i < segments.size(); i++) {
+                int parent = segments.root(i);
+                int[] indices = segments.pixels(i);
+                List<Pixel> pixels = new ArrayList<>(indices.length);
+                for (int id : indices) {
+                    pixels.add(new Pixel(id, image.getPixel(id)));
+                }
+                segmentsWithValues.put(parent, pixels);
             }
-            segmentsWithValues.put(entry.getKey(), pixels);
+        } else {
+            Map<Integer, List<Integer>> segments = ufs.segments(level);
+            for (Map.Entry<Integer, List<Integer>> entry : segments.entrySet()) {
+                List<Pixel> pixels = new ArrayList<>(entry.getValue().size());
+                for (Integer id : entry.getValue()) {
+                    pixels.add(new Pixel(id, image.getPixel(id)));
+                }
+                segmentsWithValues.put(entry.getKey(), pixels);
+            }
         }
         return segmentsWithValues;
     }

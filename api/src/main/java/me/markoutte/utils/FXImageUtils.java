@@ -1,4 +1,4 @@
-package me.markoutte.image.processing.ui;
+package me.markoutte.utils;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.*;

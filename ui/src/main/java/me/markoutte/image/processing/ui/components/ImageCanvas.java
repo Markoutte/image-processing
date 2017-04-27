@@ -1,21 +1,17 @@
 package me.markoutte.image.processing.ui.components;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import me.markoutte.ds.Color;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
-import me.markoutte.image.processing.ui.FXImageUtils;
+import me.markoutte.utils.FXImageUtils;
 import me.markoutte.image.processing.ui.HistogramController;
 
 import java.util.Objects;

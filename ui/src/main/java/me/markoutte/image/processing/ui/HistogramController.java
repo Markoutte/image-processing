@@ -25,6 +25,7 @@ import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.process.impl.ColorProcessing;
+import me.markoutte.utils.FXImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -35,8 +36,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class HistogramController implements Initializable {
 

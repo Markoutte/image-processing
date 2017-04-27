@@ -25,6 +25,7 @@ import me.markoutte.process.impl.ColorProcessing;
 import me.markoutte.process.impl.FilteringProcessing;
 import me.markoutte.process.impl.HistogramProcessing;
 import me.markoutte.segmentation.Segmentation;
+import me.markoutte.utils.FXImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
