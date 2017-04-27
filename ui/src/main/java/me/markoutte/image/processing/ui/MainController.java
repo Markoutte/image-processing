@@ -406,9 +406,9 @@ public class MainController implements Initializable {
                 RectImage processed = FXImageUtils.fromFXImage(image.get().data);
 
                 Segmentation<RectImage> ff = Configuration.segmentation.newInstance();
+                ff.setImage(processed);
                 ff.setHeuristic(heuristics);
                 ff.setImageRetriever(Configuration.retriever.newInstance());
-                ff.setImage(processed);
                 ff.start();
 
                 long stop = System.currentTimeMillis();
@@ -423,7 +423,7 @@ public class MainController implements Initializable {
                     jou.info(String.format("Изображение \"%s\" обработанно за %d мс (%s)", image.get(), get(), heuristics));
                     Segmentation<RectImage> ff = segmentation.get();
                     comboBox.getItems().clear();
-                    double[] bounds = ff.getHierarchy().getLevelBounds();
+                    double[] bounds = ff.getBounds();
                     comboBox.getItems().addAll(IntStream.range((int) bounds[0], (int) bounds[1]).boxed().collect(Collectors.toList()));
                     comboBox.setValue(0);
                 } catch (InterruptedException | ExecutionException e) {

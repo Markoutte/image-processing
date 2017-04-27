@@ -92,7 +92,7 @@ public class SegmentationController implements Initializable {
             @Override
             protected List<ImageCanvas.Info> call() throws Exception {
                 long start = System.currentTimeMillis();
-                double[] bounds = segmentation.getHierarchy().getLevelBounds();
+                double[] bounds = segmentation.getBounds();
                 RectImage image = (RectImage) segmentation.getImage();
                 int low = image.width() * image.height() * 50 / 10000;
                 int upper = (int) (image.width() * image.height() * 90L / 100);

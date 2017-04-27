@@ -7,6 +7,8 @@ import me.markoutte.image.*;
 import me.markoutte.image.impl.ArrayRectImage;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 
 public final class FXImageUtils {
 
@@ -76,6 +78,12 @@ public final class FXImageUtils {
         }
 
         return true;
+    }
+
+    public static RectImage getDefaultImage() throws IOException {
+        try (InputStream stream = RudeBenchmark.class.getClassLoader().getResourceAsStream("me/markoutte/image/lena-color.jpg")) {
+            return FXImageUtils.fromFXImage(new javafx.scene.image.Image(stream));
+        }
     }
 
     private FXImageUtils() {

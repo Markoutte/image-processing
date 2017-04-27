@@ -52,6 +52,7 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
     @Override
     public void setImageRetriever(ImageRetriever retriever) {
         this.retriever = retriever;
+        this.retriever.setImage(image);
     }
 
     @Override
@@ -65,6 +66,11 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
         calculateHierarchy();
         ((UfsHierarchy) hierarchy).optimize();
         edges = null;
+    }
+
+    @Override
+    public double[] getBounds() {
+        return hierarchy.getLevelBounds();
     }
 
     public Hierarchy getHierarchy() {

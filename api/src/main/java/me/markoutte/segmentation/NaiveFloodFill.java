@@ -72,6 +72,11 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
     }
 
     @Override
+    public double[] getBounds() {
+        return hierarchy.getLevelBounds();
+    }
+
+    @Override
     public Hierarchy getHierarchy() {
         return hierarchy;
     }

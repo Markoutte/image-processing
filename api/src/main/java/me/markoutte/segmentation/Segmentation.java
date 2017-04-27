@@ -26,6 +26,9 @@ public interface Segmentation<T extends Image> {
 
     void start();
 
+    double[] getBounds();
+
+    @Deprecated
     Hierarchy getHierarchy();
 
 }
