@@ -85,11 +85,11 @@ public final class UfsHierarchy implements Hierarchy {
         Image image = getSourceImage().clone();
         if (colorize == PseudoColorizeMethod.AVERAGE) {
             Segments segments = ufs.segments_(level);
-            for (int segment : segments.roots()) {
+            for (int i = 0; i < segments.size(); i++) {
                 long red = 0;
                 long green = 0;
                 long blue = 0;
-                int[] pixels = segments.pixels(segment);
+                int[] pixels = segments.pixels(i);
                 for (int pixel : pixels) {
                     int value = image.getPixel(pixel);
                     red += Color.getChannel(value, Channel.RED);

@@ -29,9 +29,9 @@ public class ArraySegmentsTest {
 
         ArraySegments segments = (ArraySegments) ArraySegments.from(ufs);
         Assert.assertArrayEquals(new int[] {2, 0, 3, 4, 1, 5, 6}, segments.data);
-        Assert.assertArrayEquals(new int[]{2, 0, 3}, segments.pixels(segments.roots()[0]));
-        Assert.assertArrayEquals(new int[]{4, 1}, segments.pixels(segments.roots()[1]));
-        Assert.assertArrayEquals(new int[]{5, 6}, segments.pixels(segments.roots()[2]));
+        Assert.assertArrayEquals(new int[]{2, 0, 3}, segments.pixels(0));
+        Assert.assertArrayEquals(new int[]{4, 1}, segments.pixels(1));
+        Assert.assertArrayEquals(new int[]{5, 6}, segments.pixels(2));
     }
     
 }

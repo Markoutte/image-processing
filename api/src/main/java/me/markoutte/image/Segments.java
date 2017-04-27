@@ -13,17 +13,15 @@ public interface Segments {
     int size();
 
     /**
-     * Возвращает список идентификторов сегментов
+     * Возвращает идентификтор сегмента.
      */
-    int[] roots();
+    int root(int index);
 
     /**
      * Возвращает список точек сегмента, включая сам корень.
-     * 
-     * Верно, что {@code pixels(id)[0] == id}.
-     * 
-     * @param id идентификтора сегмента
+     *
+     * @param index индекс сегмента, может принимать значение от 0 и до size().
      */
-    int[] pixels(int id);
+    int[] pixels(int index);
     
 }
