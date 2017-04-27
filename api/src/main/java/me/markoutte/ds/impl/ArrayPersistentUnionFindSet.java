@@ -105,12 +105,6 @@ public class ArrayPersistentUnionFindSet implements PersistentUnionFindSet {
     }
 
     @Override
-    public Segments segments_(double version) {
-        UnionFindSet simplify = simplify(version);
-        return ArraySegments.from((ArrayUnionFindSet) simplify);
-    }
-
-    @Override
     public void compress() {
         for (int i : parents) {
             parents[i] = find(i, versions[i]);

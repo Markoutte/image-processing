@@ -272,7 +272,7 @@ public class MainController implements Initializable {
             }
             RectImage image;
             if (segmentation.get() != null) {
-                image = segmentation.get().getImage(comboBox.getValue());
+                image = segmentation.get().getImage(comboBox.getValue(), Configuration.colorize);
             } else {
                 image = FXImageUtils.fromFXImage(this.image.get().data);
             }
@@ -304,7 +304,7 @@ public class MainController implements Initializable {
                     image = MainController.this.image.get().data;
                 } else {
                     try {
-                        image = FXImageUtils.toFXImage(segmentation.get().getImage(level));
+                        image = FXImageUtils.toFXImage(segmentation.get().getImage(level, Configuration.colorize));
                     } catch (Exception e) {
                         e.printStackTrace();
                         image = MainController.this.image.get().data;
@@ -406,8 +406,9 @@ public class MainController implements Initializable {
                 RectImage processed = FXImageUtils.fromFXImage(image.get().data);
 
                 Segmentation<RectImage> ff = Configuration.segmentation.newInstance();
-                ff.setImage(processed);
                 ff.setHeuristic(heuristics);
+                ff.setImageRetriever(Configuration.retriever.newInstance());
+                ff.setImage(processed);
                 ff.start();
 
                 long stop = System.currentTimeMillis();
@@ -465,7 +466,7 @@ public class MainController implements Initializable {
             Hierarchy hierarchy = segmentation.get().getHierarchy();
             Integer level = comboBox.getValue();
             if (level == 0 || hierarchy == null) {
-                RectImage image = segmentation.get().getImage(0);
+                RectImage image = segmentation.get().getImage(0, Configuration.colorize);
                 HistogramController.show(bundle.getString("fullImageHist"), image, image);
                 return;
             }

@@ -9,26 +9,37 @@ import me.markoutte.ds.Hierarchy;
 import me.markoutte.ds.PseudoColorizeMethod;
 import me.markoutte.ds.impl.UfsHierarchy;
 import me.markoutte.image.Edge;
+import me.markoutte.image.ImageRetriever;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
+import me.markoutte.image.impl.ArrayBasedImageRetriever;
+
+import java.util.List;
+import java.util.Map;
 
 public class KruskalFloodFill implements Segmentation<RectImage> {
 
     private RectImage image = null;
     private Hierarchy hierarchy = null;
     private Heuristics heuristics = ColorHeuristics.MEAN;
+    private ImageRetriever retriever = new ArrayBasedImageRetriever();
 
     private Edge[] edges;
 
-    public RectImage getImage(int level) {
-        RectImage ret = (RectImage) hierarchy.getImage_(level, PseudoColorizeMethod.PLAIN);
-        return ret;
+    public RectImage getImage(double level, PseudoColorizeMethod colorize) {
+        return (RectImage) retriever.getImage(((UfsHierarchy) hierarchy).getUfs(), level, colorize);
+    }
+
+    @Override
+    public Map<Integer, List<Pixel>> getSegmentsWithValues(double level) {
+        return retriever.getSegments(((UfsHierarchy) hierarchy).getUfs(), level);
     }
 
     public void setImage(RectImage image) {
         this.image = image;
         hierarchy = new UfsHierarchy();
         hierarchy.setImage(image);
+        retriever.setImage(image);
         int edgeCount = 2*image.getSize() - image.width() - image.height();
         edges = new Edge[edgeCount];
     }
@@ -36,6 +47,11 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
     @Override
     public void setHeuristic(Heuristics heuristic) {
         this.heuristics = heuristic;
+    }
+
+    @Override
+    public void setImageRetriever(ImageRetriever retriever) {
+        this.retriever = retriever;
     }
 
     @Override

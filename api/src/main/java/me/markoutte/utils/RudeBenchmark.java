@@ -31,7 +31,7 @@ public class RudeBenchmark {
         double[] bounds = hierarchy.getLevelBounds();
         MeasureUtils.Stopwatch stopwatch = MeasureUtils.createTimer();
         for (double i = bounds[0] + 1; i < bounds[1]; i++) {
-            Image image = hierarchy.getImage_(i, PseudoColorizeMethod.PLAIN);
+            Image image = ff.getImage(i, PseudoColorizeMethod.PLAIN);
         }
         stopwatch.stop(totalTime -> System.out.println(String.format("Total time for all levels %dms", totalTime)));
 

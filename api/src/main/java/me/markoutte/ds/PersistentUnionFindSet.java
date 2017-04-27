@@ -18,8 +18,6 @@ public interface PersistentUnionFindSet {
 
     Map<Integer, List<Integer>> segments(double version);
 
-    Segments segments_(double version);
-
     void compress();
 
     /**

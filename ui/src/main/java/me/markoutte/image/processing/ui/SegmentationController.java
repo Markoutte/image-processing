@@ -126,7 +126,7 @@ public class SegmentationController implements Initializable {
 
                 List<ImageCanvas.Info> result = IntStream.range((int) bounds[0] + 1, (int) bounds[1])
                         .parallel()
-                        .mapToObj(i -> new LevelWithSegments(i, segmentation.getHierarchy().getSegmentsWithValues(i)))
+                        .mapToObj(i -> new LevelWithSegments(i, segmentation.getSegmentsWithValues(i)))
                         .map(toInfo)
                         .flatMap(List::stream)
                         .sorted(Comparator.comparingInt(ImageCanvas.Info::getSize))

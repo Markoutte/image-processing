@@ -21,22 +21,6 @@ public interface Hierarchy {
     Image getSourceImage();
 
     /**
-     * Задаёт исходное изображение для иерархии. Метод должен следить
-     * за очисткой иерархии после его вызова. level считается исходным
-     */
-    void setImage(Image image, int level);
-
-    /**
-     * Возращает изображение с заданного уровня
-     */
-    Image getImage(double level, PseudoColorizeMethod colorize);
-
-    /**
-     * Обновлённый алгоритм выборки изображения, без использования хэш-таблиц.
-     */
-    Image getImage_(double level, PseudoColorizeMethod colorize);
-
-    /**
      * Объединить 2 сегмента в один
      * @return true в случае, если точка была успешна добавлена
      */
@@ -52,13 +36,6 @@ public interface Hierarchy {
      * Возвращает идентификатор точки px с уровня level
      */
     int getSegment(int id, double level);
-
-    /**
-     * Возвращает список сегментов для заданного уровня.
-     */
-    Set<Integer> getSegments(double level);
-
-    Map<Integer, List<Pixel>> getSegmentsWithValues(double level);
 
     /**
      * Возвращает границы уровня сегментации.

@@ -7,9 +7,13 @@ import me.markoutte.ds.Color;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.ds.PseudoColorizeMethod;
 import me.markoutte.ds.impl.UfsHierarchy;
+import me.markoutte.image.ImageRetriever;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
+import me.markoutte.image.impl.HashMapBasedImageRetriever;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,26 +22,37 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
     private RectImage image = null;
     private Hierarchy hierarchy = new UfsHierarchy();
     private Heuristics heuristics = ColorHeuristics.MEAN;
+    private ImageRetriever retriever = new HashMapBasedImageRetriever();
     private int delta;
     private boolean[] painted;
 
-    public NaiveFloodFill() {
-        ;
+    public RectImage getImage(double level, PseudoColorizeMethod colorize) {
+        return (RectImage) retriever.getImage(((UfsHierarchy) hierarchy).getUfs(), level, colorize);
     }
 
-    public RectImage getImage(int level) {
-        RectImage ret = (RectImage) hierarchy.getImage(level, PseudoColorizeMethod.PLAIN);
-        return ret;
+    @Override
+    public Map<Integer, List<Pixel>> getSegmentsWithValues(double level) {
+        return retriever.getSegments(((UfsHierarchy) hierarchy).getUfs(), level);
     }
 
     public void setImage(RectImage image) {
         this.image = image;
         hierarchy.setImage(image);
+        retriever.setImage(image);
     }
 
     @Override
     public void setHeuristic(Heuristics heuristic) {
         this.heuristics = heuristic;
+    }
+
+    @Override
+    public void setImageRetriever(ImageRetriever retriever) {
+        this.retriever = retriever;
+    }
+
+    public void setRetriever(ImageRetriever retriever) {
+        this.retriever = retriever;
     }
 
     @Override
