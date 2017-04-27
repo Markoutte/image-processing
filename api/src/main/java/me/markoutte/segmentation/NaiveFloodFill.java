@@ -49,6 +49,7 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
     @Override
     public void setImageRetriever(ImageRetriever retriever) {
         this.retriever = retriever;
+        this.retriever.setImage(image);
     }
 
     public void setRetriever(ImageRetriever retriever) {
@@ -62,6 +63,10 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
 
     public void start() {
         for (delta = 0; delta <= 255; delta++) {
+            if (((UfsHierarchy) hierarchy).getUfs().size(delta) == 1) {
+                break;
+            }
+
             painted = new boolean[image.getSize()];
             for (Pixel px : image) {
                 if (!painted[px.getId()]) {
