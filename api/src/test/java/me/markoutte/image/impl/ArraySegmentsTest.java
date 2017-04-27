@@ -5,6 +5,8 @@ import me.markoutte.image.Segments;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 /**
  * Pelevin Maksim <maks.pelevin@oogis.ru>
  *
@@ -25,8 +27,11 @@ public class ArraySegmentsTest {
         data[6] = 5;
         Assert.assertEquals(3, ufs.size());
 
-        Segments segments = ArraySegments.from(ufs);
-        System.out.println("breakpoint");
+        ArraySegments segments = (ArraySegments) ArraySegments.from(ufs);
+        Assert.assertArrayEquals(new int[] {2, 0, 3, 4, 1, 5, 6}, segments.data);
+        Assert.assertArrayEquals(new int[]{2, 0, 3}, segments.pixels(segments.roots()[0]));
+        Assert.assertArrayEquals(new int[]{4, 1}, segments.pixels(segments.roots()[1]));
+        Assert.assertArrayEquals(new int[]{5, 6}, segments.pixels(segments.roots()[2]));
     }
     
 }

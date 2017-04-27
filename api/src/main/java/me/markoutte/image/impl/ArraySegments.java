@@ -15,7 +15,7 @@ public class ArraySegments implements Segments {
     
     private int[] roots;
     private int[] pos;
-    private int[] data;
+    /* package */ int[] data;
 
     public ArraySegments(int segments, int size) {
         roots = new int[segments];
@@ -38,7 +38,7 @@ public class ArraySegments implements Segments {
         for (int i = 0; i < roots.length; i++) {
             if (id == roots[i]) {
                 int from = pos[i];
-                int to = i >= pos.length - 1 ? pos.length : pos[i + 1];
+                int to = i >= pos.length - 1 ? data.length : pos[i + 1];
                 return Arrays.copyOfRange(data, from, to);
             }
         }
@@ -69,12 +69,11 @@ public class ArraySegments implements Segments {
 
         // посчитаем индексы всех корневых элементов в датасете и сразу положим туда идентификторы
         int[] pixno = new int[count];
-        s.data[0] = s.roots[0];
-        pixno[0] = 1;
-        for (int i = 1; i < s.pos.length; i++) {
-            int position = s.pos[i - 1] + s.pos[i] - 1;
-            s.pos[i] = position;
-            s.data[position] = s.roots[i];
+        int summary = s.data.length;
+        for (int i = s.pos.length - 1; i >= 0; i--) {
+            summary = summary - s.pos[i];
+            s.pos[i] = summary;
+            s.data[summary] = s.roots[i];
             pixno[i]++;
         }
 
