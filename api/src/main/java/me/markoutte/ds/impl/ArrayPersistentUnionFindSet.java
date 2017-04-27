@@ -2,6 +2,8 @@ package me.markoutte.ds.impl;
 
 import me.markoutte.ds.PersistentUnionFindSet;
 import me.markoutte.ds.UnionFindSet;
+import me.markoutte.image.Segments;
+import me.markoutte.image.impl.ArraySegments;
 
 import java.util.*;
 
@@ -100,6 +102,12 @@ public class ArrayPersistentUnionFindSet implements PersistentUnionFindSet {
             segments.computeIfAbsent(parent, k -> new ArrayList<>()).add(i);
         }
         return segments;
+    }
+
+    @Override
+    public Segments segments_(double version) {
+        UnionFindSet simplify = simplify(version);
+        return ArraySegments.from((ArrayUnionFindSet) simplify);
     }
 
     @Override

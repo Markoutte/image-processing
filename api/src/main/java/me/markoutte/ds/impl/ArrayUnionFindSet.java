@@ -36,6 +36,10 @@ public class ArrayUnionFindSet implements UnionFindSet {
         return id;
     }
 
+    public int[] data() {
+        return parents;
+    }
+    
     public int size() {
         int size = 0;
         for (int i = 0; i < parents.length; i++) {
@@ -44,19 +48,6 @@ public class ArrayUnionFindSet implements UnionFindSet {
             }
         }
         return size;
-    }
-
-    public Map<Integer, List<Integer>> segments() {
-        Map<Integer, List<Integer>> segments = new HashMap<>();
-        for (int i = 0; i < parents.length; i++) {
-            int parent = find(i);
-            List<Integer> set = segments.get(parent);
-            if (set == null) {
-                segments.put(parent, set = new ArrayList<>());
-            }
-            set.add(i);
-        }
-        return segments;
     }
 
     public void compress() {

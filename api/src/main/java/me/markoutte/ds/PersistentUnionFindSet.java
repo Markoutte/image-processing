@@ -1,5 +1,7 @@
 package me.markoutte.ds;
 
+import me.markoutte.image.Segments;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +17,8 @@ public interface PersistentUnionFindSet {
     int size(double version);
 
     Map<Integer, List<Integer>> segments(double version);
+
+    Segments segments_(double version);
 
     void compress();
 

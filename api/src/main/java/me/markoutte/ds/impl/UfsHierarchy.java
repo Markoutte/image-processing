@@ -3,6 +3,7 @@ package me.markoutte.ds.impl;
 import me.markoutte.ds.*;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
+import me.markoutte.image.Segments;
 
 import javax.swing.text.Segment;
 import java.util.*;
@@ -72,6 +73,38 @@ public final class UfsHierarchy implements Hierarchy {
             return image;
         }
 
+        throw new UnsupportedOperationException("UfsHierarchy doesn't support method " + colorize);
+    }
+
+    @Override
+    public Image getImage_(double level, PseudoColorizeMethod colorize) {
+        if (level == 0) {
+            return image;
+        }
+
+        Image image = getSourceImage().clone();
+        if (colorize == PseudoColorizeMethod.AVERAGE) {
+            Segments segments = ufs.segments_(level);
+            for (int segment : segments.roots()) {
+                long red = 0;
+                long green = 0;
+                long blue = 0;
+                int[] pixels = segments.pixels(segment);
+                for (int pixel : pixels) {
+                    int value = image.getPixel(pixel);
+                    red += Color.getChannel(value, Channel.RED);
+                    green += Color.getChannel(value, Channel.GREEN);
+                    blue += Color.getChannel(value, Channel.BLUE);
+                }
+                for (int pixel : pixels) {
+                    long summary = 255 << 24 | (red / pixels.length) << 16 | (green / pixels.length) << 8 | (blue / pixels.length);
+                    image.setPixel(pixel, (int) (summary));
+                }
+            }
+            System.out.println("-----");
+            return image;
+        }
+        
         throw new UnsupportedOperationException("UfsHierarchy doesn't support method " + colorize);
     }
 

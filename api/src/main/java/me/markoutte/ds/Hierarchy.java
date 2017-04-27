@@ -32,6 +32,11 @@ public interface Hierarchy {
     Image getImage(double level, PseudoColorizeMethod colorize);
 
     /**
+     * Обновлённый алгоритм выборки изображения, без использования хэш-таблиц.
+     */
+    Image getImage_(double level, PseudoColorizeMethod colorize);
+
+    /**
      * Объединить 2 сегмента в один
      * @return true в случае, если точка была успешна добавлена
      */

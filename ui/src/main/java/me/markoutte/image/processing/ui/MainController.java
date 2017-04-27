@@ -302,7 +302,12 @@ public class MainController implements Initializable {
                 if (level == 0) {
                     image = MainController.this.image.get().data;
                 } else {
-                    image = FXImageUtils.toFXImage(segmentation.get().getImage(level));
+                    try {
+                        image = FXImageUtils.toFXImage(segmentation.get().getImage(level));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        image = MainController.this.image.get().data;
+                    }
                 }
                 drawImage(image);
 

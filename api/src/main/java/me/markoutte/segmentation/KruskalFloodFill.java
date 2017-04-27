@@ -21,7 +21,7 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
     private Edge[] edges;
 
     public RectImage getImage(int level) {
-        RectImage ret = (RectImage) hierarchy.getImage(level, PseudoColorizeMethod.AVERAGE);
+        RectImage ret = (RectImage) hierarchy.getImage_(level, PseudoColorizeMethod.AVERAGE);
         return ret;
     }
 
