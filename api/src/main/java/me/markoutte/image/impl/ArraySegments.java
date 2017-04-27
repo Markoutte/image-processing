@@ -13,10 +13,12 @@ import java.util.Arrays;
  */
 public class ArraySegments implements Segments {
     
-    /* package private */ int[] pos;
-    /* package private */ int[] data;
+    private int[] roots;
+    private int[] pos;
+    private int[] data;
 
     public ArraySegments(int segments, int size) {
+        roots = new int[segments];
         pos = new int[segments];
         data = new int[size];
     }
@@ -28,80 +30,64 @@ public class ArraySegments implements Segments {
 
     @Override
     public int[] roots() {
-        int[] roots = new int[size()];
-        for (int i = 0; i < pos.length; i++) {
-            int p = pos[i];
-            roots[i] = data[p - 1];
-        }
         return roots;
     }
 
     @Override
     public int[] pixels(int id) {
-        
-        return new int[0];
+        for (int i = 0; i < roots.length; i++) {
+            if (id == roots[i]) {
+                int from = pos[i];
+                int to = i >= pos.length - 1 ? pos.length : pos[i + 1];
+                return Arrays.copyOfRange(data, from, to);
+            }
+        }
+        throw new IllegalArgumentException("id not found: " + id);
     }
 
     public static Segments from(ArrayUnionFindSet ufs) {
         // 1 прогон по массиву
         int count = ufs.size();
         int[] data = Arrays.copyOf(ufs.data(), ufs.data().length);
-        int[] parents = new int[count];
         ArraySegments s = new ArraySegments(count, data.length);
-
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         
         for (int i = 0, parno = 0; i < data.length; i++) {
             int parent = ufs.find(ufs.data()[i]);
+            // Мы ещё ничего не меняли, так что надо бы это исправить
             if (data[parent] == parent) {
                 // Вместо ссылки на себя, указываем место в позиции маленького массива (с отрицательным значением).
                 // -1 потому что начинается с 0
                 data[parent] = -parno - 1;
-                parents[parno] = parent;
+                s.roots[parno] = parent;
                 s.pos[parno]++;
                 parno++;
             } else {
-                s.pos[-data[parent] + 1]++;
+                // иначе просто продолжаем считать количество точек
+                s.pos[-data[parent] - 1]++;
             }
         }
 
-        // segments.pos на текущий момент содержит площадь каждого из сегментов
-        // будем сохранять информацию по положении каждого пикселя на своём месте
+        // посчитаем индексы всех корневых элементов в датасете и сразу положим туда идентификторы
         int[] pixno = new int[count];
-        for (int i = 0; i < s.pos.length - 1; i++) {
-            int position = 1;
-            if (i != 0) {
-                position = s.pos[i - 1] + s.pos[i];
-                s.pos[i] = position;
-            }
-            s.data[position - 1] = parents[i];
+        s.data[0] = s.roots[0];
+        pixno[0] = 1;
+        for (int i = 1; i < s.pos.length; i++) {
+            int position = s.pos[i - 1] + s.pos[i] - 1;
+            s.pos[i] = position;
+            s.data[position] = s.roots[i];
             pixno[i]++;
         }
 
-        // 3 прогон
+        // теперь заполняем сами данные
         for (int i = 0; i < data.length; i++) {
             int parent = data[i];
             if (parent >= 0) {
-                int pos = -data[parent];
-                int start = s.pos[pos];
-                int shift = pixno[pos];
-                s.data[start + shift] = i;
+                int pos = -data[parent] - 1;
+                s.data[s.pos[pos] + pixno[pos]] = i;
                 pixno[pos]++;
             }
         }
         
         return s;
-    }
-
-    private static void exchange(int[] input, int i, int j) {
-        if (input[i] != input[j]) {
-            input[i] = input[i] ^ input[j];
-            input[j] = input[i] ^ input[j];
-            input[i] = input[i] ^ input[j];
-        }
     }
 }

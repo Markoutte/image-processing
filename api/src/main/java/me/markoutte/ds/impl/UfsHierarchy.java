@@ -101,7 +101,6 @@ public final class UfsHierarchy implements Hierarchy {
                     image.setPixel(pixel, (int) (summary));
                 }
             }
-            System.out.println("-----");
             return image;
         }
         
