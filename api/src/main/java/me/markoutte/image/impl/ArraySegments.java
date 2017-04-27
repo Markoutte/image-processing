@@ -19,7 +19,7 @@ public class ArraySegments implements Segments {
 
     public ArraySegments(int segments, int size) {
         roots = new int[segments];
-        pos = new int[segments];
+        pos = new int[size];
         data = new int[size];
     }
 
@@ -37,7 +37,7 @@ public class ArraySegments implements Segments {
     public int[] pixels(int id) {
         for (int i = 0; i < roots.length; i++) {
             if (id == roots[i]) {
-                int from = pos[i];
+                int from = pos[id];
                 int to = i >= pos.length - 1 ? data.length : pos[i + 1];
                 return Arrays.copyOfRange(data, from, to);
             }
@@ -46,10 +46,13 @@ public class ArraySegments implements Segments {
     }
 
     public static Segments from(ArrayUnionFindSet ufs) {
+        long start = System.currentTimeMillis();
         // 1 прогон по массиву
         int count = ufs.size();
         int[] data = Arrays.copyOf(ufs.data(), ufs.data().length);
         ArraySegments s = new ArraySegments(count, data.length);
+
+        int[] temp = new int[count];
         
         for (int i = 0, parno = 0; i < data.length; i++) {
             int parent = ufs.find(ufs.data()[i]);
@@ -59,21 +62,22 @@ public class ArraySegments implements Segments {
                 // -1 потому что начинается с 0
                 data[parent] = -parno - 1;
                 s.roots[parno] = parent;
-                s.pos[parno]++;
+                temp[parno]++;
                 parno++;
             } else {
                 // иначе просто продолжаем считать количество точек
-                s.pos[-data[parent] - 1]++;
+                temp[-data[parent] - 1]++;
             }
         }
 
         // посчитаем индексы всех корневых элементов в датасете и сразу положим туда идентификторы
         int[] pixno = new int[count];
         int summary = s.data.length;
-        for (int i = s.pos.length - 1; i >= 0; i--) {
-            summary = summary - s.pos[i];
-            s.pos[i] = summary;
+        for (int i = temp.length - 1; i >= 0; i--) {
+            summary = summary - temp[i];
+            temp[i] = summary;
             s.data[summary] = s.roots[i];
+            s.pos[s.roots[i]] = temp[i];
             pixno[i]++;
         }
 
@@ -82,11 +86,14 @@ public class ArraySegments implements Segments {
             int parent = data[i];
             if (parent >= 0) {
                 int pos = -data[parent] - 1;
-                s.data[s.pos[pos] + pixno[pos]] = i;
+                s.data[temp[pos] + pixno[pos]] = i;
                 pixno[pos]++;
             }
         }
-        
+
+        long stop = System.currentTimeMillis();
+        System.out.println("Generate segments for " + (stop - start) + "ms");
+
         return s;
     }
 }
