@@ -3,15 +3,8 @@ package me.markoutte.ds.impl;
 import me.markoutte.ds.*;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
-import me.markoutte.image.Segments;
-import me.markoutte.utils.MeasureUtils;
 
-import javax.swing.text.Segment;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class UfsHierarchy implements Hierarchy {
 

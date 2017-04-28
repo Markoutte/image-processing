@@ -4,6 +4,7 @@ import me.markoutte.ds.*;
 import me.markoutte.image.Image;
 import me.markoutte.image.ImageRetriever;
 import me.markoutte.image.Pixel;
+import me.markoutte.benchmark.MeasurementUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ public class HashMapBasedImageRetriever implements ImageRetriever {
 
         if (colorize == PseudoColorizeMethod.AVERAGE) {
             Map<Integer, List<Integer>> segments = ufs.segments(level);
+            MeasurementUtils.dumpObjectSize(segments);
             for (List<Integer> segment : segments.values()) {
                 long red = 0;
                 long green = 0;

@@ -1,11 +1,11 @@
 package me.markoutte.image.impl;
 
 import me.markoutte.ds.*;
-import me.markoutte.ds.impl.ArrayUnionFindSet;
 import me.markoutte.image.Image;
 import me.markoutte.image.ImageRetriever;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.Segments;
+import me.markoutte.benchmark.MeasurementUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +34,7 @@ public class ArrayBasedImageRetriever implements ImageRetriever {
 
         Image image = this.image.clone();
         Segments segments = ArraySegments.from(ufs, level);
+        MeasurementUtils.dumpObjectSize(segments);
 
         if (colorize == PseudoColorizeMethod.PLAIN) {
             for (int id = 0; id < segments.size(); id++) {

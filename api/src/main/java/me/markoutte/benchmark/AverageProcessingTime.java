@@ -1,4 +1,4 @@
-package me.markoutte.benchmark.semgentation;
+package me.markoutte.benchmark;
 
 import me.markoutte.ds.PseudoColorizeMethod;
 import me.markoutte.image.RectImage;
@@ -23,7 +23,7 @@ import static me.markoutte.utils.FXImageUtils.*;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @BenchmarkMode(Mode.AverageTime)
 @Fork(1)
-public class SegmentationBenchmark {
+public class AverageProcessingTime {
     
     private static final RectImage image = getDefaultImage();
     
@@ -40,7 +40,7 @@ public class SegmentationBenchmark {
         ff.setImage(image);
         ff.start();
     }
-    
+
     @State(Scope.Benchmark)
     public static class KruskalFloodFillSegmentation {
 
@@ -48,7 +48,7 @@ public class SegmentationBenchmark {
 
         @Param({"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64"})
         public double level;
-        
+
         @Setup(Level.Iteration)
         public void presegmentation() {
             ff = new KruskalFloodFill();
