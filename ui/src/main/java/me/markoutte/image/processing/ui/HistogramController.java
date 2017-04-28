@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
 
 public class HistogramController implements Initializable {
 
@@ -181,9 +182,9 @@ public class HistogramController implements Initializable {
         }
 
         if (area == image) {
-            Journal.get().info("Загружены гистограммы для изображения");
+            Logger.getLogger("journal").info("Загружены гистограммы для изображения");
         } else {
-            Journal.get().info(String.format("Загружены гистограммы для области размером %d", size));
+            Logger.getLogger("journal").info(String.format("Загружены гистограммы для области размером %d", size));
         }
 
         try {

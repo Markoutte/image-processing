@@ -1,24 +1,21 @@
-package me.markoutte.image.processing.ui;
+package me.markoutte.image.processing.ui.logging;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.StyleSpans;
 import org.fxmisc.richtext.StyleSpansBuilder;
 
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,14 +26,14 @@ public class JournalController implements Initializable {
     private StyleClassedTextArea textArea;
 
     @FXML
-    private ListProperty<Journal.Note> notes = new SimpleListProperty<>();
+    private ListProperty<JournalHandler.Note> notes = new SimpleListProperty<>();
 
     private Stage stage;
 
-    private static final String INFO = "(^|\n)\\[" + Journal.Level.INFO.name() + "\\].*";
-    private static final String WARN = "(^|\n)\\[" + Journal.Level.WARN.name() + "\\].*";
-    private static final String ERROR = "(^|\n)\\[" + Journal.Level.ERROR.name() + "\\].*";
-    private static final String DEBUG = "(^|\n)\\[" + Journal.Level.DEBUG.name() + "\\].*";
+    private static final String INFO = "(^|\n)\\[" + Level.INFO + "\\].*";
+    private static final String WARN = "(^|\n)\\[" + Level.WARNING + "\\].*";
+    private static final String ERROR = "(^|\n)\\[" + Level.SEVERE + "\\].*";
+    private static final String DEBUG = "(^|\n)\\[" + Level.FINE + "\\].*";
 
     private static final Pattern PATTERN = Pattern.compile(
             "(?<INFO>" + INFO + ")"
@@ -47,13 +44,21 @@ public class JournalController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        notes.setValue(Journal.get().getNotes());
-        notes.addListener((ListChangeListener<? super Journal.Note>) observable -> {
+        Handler[] handlers = Logger.getLogger("journal").getHandlers();
+        JournalHandler journal = null;
+        for (Handler handler : handlers) {
+            if (handler instanceof JournalHandler) {
+                journal = (JournalHandler) handler;
+                break;
+            }
+        }
+        notes.setValue(Objects.requireNonNull(journal, "No logging handler found").getNotes());
+        notes.addListener((ListChangeListener<? super JournalHandler.Note>) observable -> {
             if (!stage.isShowing()) {
                 return;
             }
             while (observable.next()) {
-                List<? extends Journal.Note> added = observable.getAddedSubList();
+                List<? extends JournalHandler.Note> added = observable.getAddedSubList();
                 String text = added.stream().map(this::getJournalMessage).collect(Collectors.joining("\n"));
                 textArea.replaceText(textArea.getLength(), textArea.getLength(), "\n" + text);
             }
@@ -70,8 +75,8 @@ public class JournalController implements Initializable {
         textArea.replaceText(notes.stream().map(this::getJournalMessage).collect(Collectors.joining("\n")));
     }
 
-    private String getJournalMessage(Journal.Note note) {
-        return String.format("[%-6s %s", note.getLevel().name() + "]", note.getMessage());
+    private String getJournalMessage(JournalHandler.Note note) {
+        return String.format("[%s %s", note.getLevel() + "]", note.getMessage());
     }
 
     public void setStage(Stage stage) {

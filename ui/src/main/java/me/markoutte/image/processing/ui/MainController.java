@@ -20,6 +20,7 @@ import me.markoutte.algorithm.Heuristics;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
+import me.markoutte.image.processing.ui.logging.JournalController;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.process.impl.ColorProcessing;
 import me.markoutte.process.impl.FilteringProcessing;
@@ -35,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -87,7 +89,7 @@ public class MainController implements Initializable {
 
     private double scale = 1;
 
-    private final Journal jou = Journal.get();
+    private final Logger jou = Logger.getLogger("journal");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -105,16 +107,16 @@ public class MainController implements Initializable {
 
             drawImage(newValue);
             if (newValue != null) {
-                jou.warn(String.format("Выбрано изображение \"%s\"", newValue));
+                jou.fine(String.format("Выбрано изображение \"%s\"", newValue));
             } else {
-                jou.error("Добавлено пустое изображение");
+                jou.severe("Добавлено пустое изображение");
             }
 
             addHistory: if (newValue != null && !history.contains(newValue)) {
                 // Просто добавили новое значение в конец истории
                 if (history.size() == 0 || history.get(history.size() - 1) == oldValue) {
                     history.add(newValue);
-                    jou.debug(String.format("Изображение \"%s\" добавлено в историю. Всего в истории %d изображений", newValue, history.size()));
+                    jou.fine(String.format("Изображение \"%s\" добавлено в историю. Всего в истории %d изображений", newValue, history.size()));
                     break addHistory;
                 }
 
@@ -123,7 +125,7 @@ public class MainController implements Initializable {
                 if (i >= 0) {
                     history.subList(i + 1, history.size()).clear();
                     history.add(newValue);
-                    jou.debug(String.format("Изображение \"%s\" добавлено в историю начиная с позиции %d. Всего в истории %d изображений", newValue, i + 1, history.size()));
+                    jou.fine(String.format("Изображение \"%s\" добавлено в историю начиная с позиции %d. Всего в истории %d изображений", newValue, i + 1, history.size()));
                 }
             }
 
@@ -226,6 +228,7 @@ public class MainController implements Initializable {
         this.stage.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> {
             try (InputStream stream = getClass().getClassLoader().getResourceAsStream("me/markoutte/image/processing/ui/lena-color.jpg")) {
                 image.set(lastOpened = new ImageContainer(new Image(stream), "lena.jpg"));
+                jou.info(String.format("Загружено новое изображение (%s)", lastOpened));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -279,6 +282,7 @@ public class MainController implements Initializable {
             BufferedImage bimg = ImageHelpers.toBufferedImage(image);
             try {
                 ImageIO.write(bimg, "png", new File(path));
+                jou.fine(String.format("Изображение сохранено: %s", path));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -319,8 +323,7 @@ public class MainController implements Initializable {
             @Override
             protected void succeeded() {
                 try {
-                    jou.debug(String.format(bundle.getString("levelChangeTime"), comboBox.getValue(), get()));
-//                    showPopup(String.format(bundle.getString("levelChangeTime"), comboBox.getValue(), get()));
+                    jou.fine(String.format(bundle.getString("levelChangeTime"), comboBox.getValue(), get()));
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 } finally {
@@ -374,7 +377,7 @@ public class MainController implements Initializable {
             this.image.set(new ImageContainer(ImageHelpers.toFXImage(newValue), this.image.get().name, processor.toString()));
             lastImageProcessing = processor;
         } else {
-            jou.error("Изображение идентичны");
+            jou.severe("Изображение идентичны");
         }
     }
 
@@ -486,7 +489,7 @@ public class MainController implements Initializable {
     public void setPrevImage() {
         int i = history.indexOf(image.get());
         ImageContainer image = history.get(i - 1);
-        jou.debug(String.format("Выбрано изображение из истории с позицией %d (%s)", i, image));
+        jou.fine(String.format("Выбрано изображение из истории с позицией %d (%s)", i, image));
         this.image.set(image);
     }
 
@@ -494,7 +497,7 @@ public class MainController implements Initializable {
     public void setNextImage() {
         int i = history.indexOf(image.get());
         ImageContainer image = history.get(i + 1);
-        jou.debug(String.format("Выбрано изображение из истории с позицией %d (%s)", i + 2, image));
+        jou.fine(String.format("Выбрано изображение из истории с позицией %d (%s)", i + 2, image));
         this.image.set(image);
     }
 
@@ -527,7 +530,7 @@ public class MainController implements Initializable {
     public void openJournal() {
         try {
             if (journal == null) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("journal.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("logging/journal.fxml"));
                 Parent root = loader.load();
                 JournalController controller = loader.getController();
                 journal = new Stage();

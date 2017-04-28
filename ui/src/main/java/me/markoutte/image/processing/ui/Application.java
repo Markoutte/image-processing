@@ -6,14 +6,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import me.markoutte.image.processing.ui.logging.JournalHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class Application extends javafx.application.Application {
 
@@ -23,6 +25,9 @@ public class Application extends javafx.application.Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        LogManager.getLogManager().readConfiguration(Application.class.getResourceAsStream("logging/logging.properties"));
+        Logger.getLogger("journal").addHandler(new JournalHandler());
+
         ResourceBundle bundle = ResourceBundle.getBundle("me.markoutte.image.processing.ui.Main", Locale.getDefault());
         FXMLLoader loader = new FXMLLoader(Application.class.getResource("main.fxml"), bundle);
         Parent root = loader.load();

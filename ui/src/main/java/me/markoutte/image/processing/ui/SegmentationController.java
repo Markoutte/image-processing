@@ -28,6 +28,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -157,7 +158,7 @@ public class SegmentationController implements Initializable {
                     }
                 }
                 long stop = System.currentTimeMillis();
-                Journal.get().debug(String.format("Собраны %d интересных сегментов за %s мс", filteredResult.size(), (stop - start)));
+                Logger.getLogger("journal").info(String.format("Собраны %d интересных сегментов за %s мс", filteredResult.size(), (stop - start)));
                 return filteredResult;
             }
 
