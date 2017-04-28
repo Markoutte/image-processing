@@ -33,7 +33,7 @@ public class ArrayBasedImageRetriever implements ImageRetriever {
         }
 
         Image image = this.image.clone();
-        Segments segments = ArraySegments.from((ArrayUnionFindSet) ufs.simplify(level));
+        Segments segments = ArraySegments.from(ufs, level);
 
         if (colorize == PseudoColorizeMethod.PLAIN) {
             for (int id = 0; id < segments.size(); id++) {
@@ -73,7 +73,7 @@ public class ArrayBasedImageRetriever implements ImageRetriever {
     public Map<Integer, List<Pixel>> getSegments(PersistentUnionFindSet ufs, double level) {
         Map<Integer, List<Pixel>> segmentsWithValues = new HashMap<>();
 
-        Segments segments = ArraySegments.from((ArrayUnionFindSet) ufs.simplify(level));
+        Segments segments = ArraySegments.from(ufs, level);
 
         for (int i = 0; i < segments.size(); i++) {
             int parent = segments.root(i);

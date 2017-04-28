@@ -35,7 +35,7 @@ public class ArraySegmentsTest {
         data[6] = 5;
         Assert.assertEquals(3, ufs.size());
 
-        ArraySegments segments = (ArraySegments) ArraySegments.from(ufs);
+        ArraySegments segments = (ArraySegments) ArraySegments.from_(ufs);
         Assert.assertArrayEquals(new int[] {2, 0, 3, 4, 1, 5, 6}, segments.data);
         Assert.assertArrayEquals(new int[]{2, 0, 3}, segments.pixels(0));
         Assert.assertArrayEquals(new int[]{4, 1}, segments.pixels(1));

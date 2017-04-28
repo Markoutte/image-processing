@@ -1,5 +1,6 @@
 package me.markoutte.image.impl;
 
+import me.markoutte.ds.PersistentUnionFindSet;
 import me.markoutte.ds.UnionFindSet;
 import me.markoutte.ds.impl.ArrayUnionFindSet;
 import me.markoutte.image.Segments;
@@ -13,12 +14,10 @@ import java.util.Arrays;
  */
 public class ArraySegments implements Segments {
 
-    /* package */  int[] roots;
     /* package */  int[] pos;
     /* package */ int[] data;
 
     public ArraySegments(int segments, int size) {
-        roots = new int[segments];
         pos = new int[segments];
         data = new int[size];
     }
@@ -30,7 +29,7 @@ public class ArraySegments implements Segments {
 
     @Override
     public int root(int index) {
-        return roots[index];
+        return data[pos[index]];
     }
 
     @Override
@@ -40,20 +39,25 @@ public class ArraySegments implements Segments {
         return Arrays.copyOfRange(data, from, to);
     }
 
-    public static Segments from(ArrayUnionFindSet ufs) {
+    public static Segments from(PersistentUnionFindSet pufs, double level) {
+        return from_((ArrayUnionFindSet) pufs.simplify(level));
+    }
+    
+    /* package private */ static Segments from_(ArrayUnionFindSet ufs) {
         // 1 прогон по массиву
         int count = ufs.size();
-        int[] data = Arrays.copyOf(ufs.data(), ufs.data().length);
+        int[] data = ufs.data();
+        int[] roots = new int[count];
         ArraySegments s = new ArraySegments(count, data.length);
         
         for (int i = 0, parno = 0; i < data.length; i++) {
-            int parent = ufs.find(ufs.data()[i]);
+            int parent = data[i] < 0 ? roots[-data[i] - 1] : data[i];
             // Мы ещё ничего не меняли, так что надо бы это исправить
             if (data[parent] == parent) {
                 // Вместо ссылки на себя, указываем место в позиции маленького массива (с отрицательным значением).
                 // -1 потому что начинается с 0
                 data[parent] = -parno - 1;
-                s.roots[parno] = parent;
+                roots[parno] = parent;
                 s.pos[parno]++;
                 parno++;
             } else {
@@ -68,7 +72,7 @@ public class ArraySegments implements Segments {
         for (int i = s.pos.length - 1; i >= 0; i--) {
             summary = summary - s.pos[i];
             s.pos[i] = summary;
-            s.data[summary] = s.roots[i];
+            s.data[summary] = roots[i];
             pixno[i]++;
         }
 

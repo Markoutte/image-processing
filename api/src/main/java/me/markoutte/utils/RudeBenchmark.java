@@ -18,7 +18,7 @@ public class RudeBenchmark {
 
     public static void main(String[] args) throws Exception {
         RectImage lena = FXImageUtils.getDefaultImage();
-        Class<? extends Segmentation> segmentation = NaiveFloodFill.class;
+        Class<? extends Segmentation> segmentation = KruskalFloodFill.class;
         Class<? extends ImageRetriever> retriever = ArrayBasedImageRetriever.class;
 
         class Creator {
@@ -26,6 +26,7 @@ public class RudeBenchmark {
                 Segmentation ff = segmentation.newInstance();
                 ff.setImage(lena);
                 ff.setImageRetriever(retriever.newInstance());
+                ff.getImage(1, PseudoColorizeMethod.AVERAGE);
                 return ff;
             }
         }
