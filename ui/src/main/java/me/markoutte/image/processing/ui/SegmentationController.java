@@ -19,7 +19,7 @@ import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.processing.ui.components.ImageCanvas;
 import me.markoutte.segmentation.Segmentation;
-import me.markoutte.utils.FXImageUtils;
+import me.markoutte.image.ImageHelpers;
 
 import java.io.IOException;
 import java.net.URL;
@@ -115,7 +115,7 @@ public class SegmentationController implements Initializable {
                         }
                         if (e.getValue().size() > low && e.getValue().size() < upper)
                             infos.add(new ImageCanvas.Info(
-                                    FXImageUtils.createImageFromPixel(e.getValue(), image.width(), image.height()),
+                                    ImageHelpers.createImageFromPixel(e.getValue(), image.width(), image.height()),
                                     pixels.level,
                                     e.getKey(),
                                     e.getValue().size()

@@ -25,7 +25,7 @@ import me.markoutte.process.impl.ColorProcessing;
 import me.markoutte.process.impl.FilteringProcessing;
 import me.markoutte.process.impl.HistogramProcessing;
 import me.markoutte.segmentation.Segmentation;
-import me.markoutte.utils.FXImageUtils;
+import me.markoutte.image.ImageHelpers;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -274,9 +274,9 @@ public class MainController implements Initializable {
             if (segmentation.get() != null) {
                 image = segmentation.get().getImage(comboBox.getValue(), Configuration.colorize);
             } else {
-                image = FXImageUtils.fromFXImage(this.image.get().data);
+                image = ImageHelpers.fromFXImage(this.image.get().data);
             }
-            BufferedImage bimg = FXImageUtils.toBufferedImage(image);
+            BufferedImage bimg = ImageHelpers.toBufferedImage(image);
             try {
                 ImageIO.write(bimg, "png", new File(path));
             } catch (IOException e) {
@@ -304,7 +304,7 @@ public class MainController implements Initializable {
                     image = MainController.this.image.get().data;
                 } else {
                     try {
-                        image = FXImageUtils.toFXImage(segmentation.get().getImage(level, Configuration.colorize));
+                        image = ImageHelpers.toFXImage(segmentation.get().getImage(level, Configuration.colorize));
                     } catch (Exception e) {
                         e.printStackTrace();
                         image = MainController.this.image.get().data;
@@ -360,18 +360,18 @@ public class MainController implements Initializable {
     }
 
     public void preprocess(ImageProcessing processor) {
-        RectImage oldValue = FXImageUtils.fromFXImage(this.image.get().data);
+        RectImage oldValue = ImageHelpers.fromFXImage(this.image.get().data);
         long start = System.currentTimeMillis();
         int i = history.indexOf(image.get());
         if (i > 0) {
             ImageContainer image = history.get(i - 1);
-            properties.put("DIFF.image", FXImageUtils.fromFXImage(image.data));
+            properties.put("DIFF.image", ImageHelpers.fromFXImage(image.data));
         }
         me.markoutte.image.RectImage newValue = (RectImage) processor.process(oldValue, properties);
         long stop = System.currentTimeMillis();
         jou.info(String.format(bundle.getString("preprocessTime"), (stop - start), processor));
         if (!Objects.equals(newValue, oldValue)) {
-            this.image.set(new ImageContainer(FXImageUtils.toFXImage(newValue), this.image.get().name, processor.toString()));
+            this.image.set(new ImageContainer(ImageHelpers.toFXImage(newValue), this.image.get().name, processor.toString()));
             lastImageProcessing = processor;
         } else {
             jou.error("Изображение идентичны");
@@ -403,7 +403,7 @@ public class MainController implements Initializable {
             @Override
             protected Long call() throws Exception {
                 long start = System.currentTimeMillis();
-                RectImage processed = FXImageUtils.fromFXImage(image.get().data);
+                RectImage processed = ImageHelpers.fromFXImage(image.get().data);
 
                 Segmentation<RectImage> ff = Configuration.segmentation.newInstance();
                 ff.setImage(processed);
@@ -456,7 +456,7 @@ public class MainController implements Initializable {
     public void showHistogramOfSegment(MouseEvent e) {
         if (e.getClickCount() == 2) {
             if (segmentation.getValue() == null) {
-                RectImage image = FXImageUtils.fromFXImage(this.image.get().data);
+                RectImage image = ImageHelpers.fromFXImage(this.image.get().data);
                 HistogramController.show(bundle.getString("fullImageHist"), image, image);
                 return;
             }
@@ -475,7 +475,7 @@ public class MainController implements Initializable {
             List<Pixel> area = hierarchy.getArea(segment, level);
             if (e.isControlDown()) {
                 String title = String.format(bundle.getString("partlyImageHist"), segment % image.width(), segment / image.height(), level, area.size());
-                HistogramController.show(title, area, FXImageUtils.createImageFromPixel(area, image.width(), image.height()));
+                HistogramController.show(title, area, ImageHelpers.createImageFromPixel(area, image.width(), image.height()));
             } else {
                 HistogramController.show(bundle.getString("fullImageHist"), image, image);
             }

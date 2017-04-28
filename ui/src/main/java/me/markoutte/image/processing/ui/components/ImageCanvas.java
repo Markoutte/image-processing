@@ -11,7 +11,7 @@ import me.markoutte.ds.Color;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
-import me.markoutte.utils.FXImageUtils;
+import me.markoutte.image.ImageHelpers;
 import me.markoutte.image.processing.ui.HistogramController;
 
 import java.util.Objects;
@@ -25,7 +25,7 @@ public class ImageCanvas extends StackPane {
 
     public ImageCanvas(Info info) {
         this.src = info;
-        this.image = FXImageUtils.toFXImage((RectImage) info.getImage());
+        this.image = ImageHelpers.toFXImage((RectImage) info.getImage());
         this.canvas = new Canvas(getWidth(), getHeight());
 
 //        setStyle("-fx-background-color: #FFFFFF;");
@@ -69,7 +69,7 @@ public class ImageCanvas extends StackPane {
                 clone.setPixel(pixel.getId(), Color.combine(192, gray, gray, gray));
             }
         }
-        this.image = FXImageUtils.toFXImage((RectImage) clone);
+        this.image = ImageHelpers.toFXImage((RectImage) clone);
     }
 
     @Override

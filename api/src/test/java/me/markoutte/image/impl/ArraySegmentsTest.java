@@ -4,7 +4,7 @@ import me.markoutte.ds.PseudoColorizeMethod;
 import me.markoutte.ds.impl.ArrayUnionFindSet;
 import me.markoutte.image.Image;
 import me.markoutte.segmentation.KruskalFloodFill;
-import me.markoutte.utils.FXImageUtils;
+import me.markoutte.image.ImageHelpers;
 import me.markoutte.benchmark.MeasurementUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class ArraySegmentsTest {
     @Test
     public void testImageResult() throws IOException {
         KruskalFloodFill ff = new KruskalFloodFill();
-        ff.setImage(FXImageUtils.getDefaultImage());
+        ff.setImage(ImageHelpers.LENA);
         ff.setImageRetriever(new HashMapBasedImageRetriever());
         ff.start();
 

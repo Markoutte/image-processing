@@ -2,10 +2,9 @@ package me.markoutte.benchmark;
 
 import me.markoutte.ds.PseudoColorizeMethod;
 import me.markoutte.image.RectImage;
-import me.markoutte.image.impl.ArrayBasedImageRetriever;
 import me.markoutte.image.impl.HashMapBasedImageRetriever;
 import me.markoutte.segmentation.KruskalFloodFill;
-import me.markoutte.utils.FXImageUtils;
+import me.markoutte.image.ImageHelpers;
 import org.openjdk.jmh.Main;
 import org.openjdk.jmh.runner.RunnerException;
 
@@ -20,9 +19,9 @@ public class BenchmarkMain {
     
     public static void main(String... args) throws IOException, RunnerException {
         
-//        Main.main(args);
+        Main.main(args);
 
-        RectImage image = FXImageUtils.getDefaultImage();
+        RectImage image = ImageHelpers.LENA;
         KruskalFloodFill ff = new KruskalFloodFill();
         ff.setImage(image);
         ff.setImageRetriever(new HashMapBasedImageRetriever());

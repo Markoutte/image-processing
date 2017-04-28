@@ -1,17 +1,15 @@
-package me.markoutte.utils;
+package me.markoutte.image;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
-import me.markoutte.image.*;
 import me.markoutte.image.impl.ArrayRectImage;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
-public final class FXImageUtils {
-
+public final class ImageHelpers {
+    
     public static javafx.scene.image.Image toFXImage(me.markoutte.image.RectImage image) {
         WritableImage img = new WritableImage(image.width(), image.height());
         PixelWriter pw = img.getPixelWriter();
@@ -30,6 +28,10 @@ public final class FXImageUtils {
         return processed;
     }
 
+    public static RectImage fromBufferedImage(BufferedImage image) {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+    
     public static BufferedImage toBufferedImage(me.markoutte.image.RectImage image) {
         int width = image.width();
         int height = image.height();
@@ -50,7 +52,7 @@ public final class FXImageUtils {
         return image;
     }
 
-    public static boolean equals(Image left, Image right) {
+    public static boolean deepEquals(Image left, Image right) {
         if (left == right && left != null) {
             return true;
         }
@@ -79,15 +81,16 @@ public final class FXImageUtils {
 
         return true;
     }
-
-    public static RectImage getDefaultImage() {
-        try (InputStream stream = RudeBenchmark.class.getClassLoader().getResourceAsStream("me/markoutte/image/lena-color.jpg")) {
-            return FXImageUtils.fromFXImage(new javafx.scene.image.Image(stream));
+    
+    public static final me.markoutte.image.RectImage LENA;
+    static {
+        try (InputStream stream = ImageHelpers.class.getClassLoader().getResourceAsStream("me/markoutte/image/lena-color.jpg")) {
+            LENA = ImageHelpers.fromFXImage(new javafx.scene.image.Image(stream));
         } catch (IOException e) {
             throw new RuntimeException("Cannot load default image for some reason");
         }
     }
 
-    private FXImageUtils() {
+    private ImageHelpers() {
     }
 }

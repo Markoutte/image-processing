@@ -6,12 +6,11 @@ import me.markoutte.image.impl.ArrayBasedImageRetriever;
 import me.markoutte.image.impl.HashMapBasedImageRetriever;
 import me.markoutte.segmentation.KruskalFloodFill;
 import me.markoutte.segmentation.NaiveFloodFill;
-import me.markoutte.segmentation.Segmentation;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
 
-import static me.markoutte.utils.FXImageUtils.*;
+import static me.markoutte.image.ImageHelpers.*;
 
 /**
  * Pelevin Maksim <maks.pelevin@oogis.ru>
@@ -25,7 +24,7 @@ import static me.markoutte.utils.FXImageUtils.*;
 @Fork(1)
 public class AverageProcessingTime {
     
-    private static final RectImage image = getDefaultImage();
+    private static final RectImage image = LENA;
     
     @Benchmark
     public void runKruskal() {

@@ -25,7 +25,7 @@ import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.process.impl.ColorProcessing;
-import me.markoutte.utils.FXImageUtils;
+import me.markoutte.image.ImageHelpers;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -118,7 +118,7 @@ public class HistogramController implements Initializable {
         Application.async().submit(new Task<Image>() {
             @Override
             protected Image call() throws Exception {
-                return FXImageUtils.toFXImage((RectImage) processing.process(image, new Properties()));
+                return ImageHelpers.toFXImage((RectImage) processing.process(image, new Properties()));
             }
 
             @Override
@@ -219,7 +219,7 @@ public class HistogramController implements Initializable {
             if (!path.endsWith(".png")) {
                 path += ".png";
             }
-            BufferedImage bimg = FXImageUtils.toBufferedImage((RectImage) image);
+            BufferedImage bimg = ImageHelpers.toBufferedImage((RectImage) image);
             try {
                 ImageIO.write(bimg, "png", new File(path));
             } catch (IOException e) {
