@@ -1,11 +1,13 @@
 package me.markoutte.image.impl;
 
+import me.markoutte.benchmark.Strings;
 import me.markoutte.ds.PseudoColorizeMethod;
 import me.markoutte.ds.impl.ArrayUnionFindSet;
 import me.markoutte.image.Image;
 import me.markoutte.segmentation.KruskalFloodFill;
 import me.markoutte.image.ImageHelpers;
 import me.markoutte.benchmark.MeasurementUtils;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,12 +15,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static me.markoutte.benchmark.Strings.$;
+
 /**
  * Pelevin Maksim <maks.pelevin@oogis.ru>
  *
  * @since 2017/04/27
  */
 public class ArraySegmentsTest {
+
+    private static final Logger L = Logger.getLogger(ArraySegmentsTest.class);
 
     @Test
     public void test() {
@@ -53,7 +59,7 @@ public class ArraySegmentsTest {
         for (double level = bounds[0] + 1; level < bounds[1]; level++) {
             expected.add(ff.getImage(level, PseudoColorizeMethod.AVERAGE));
         }
-        timer1.stop(totalTime -> String.format("Total time for hashmap %dms", totalTime));
+        timer1.stop(totalTime -> L.info($("Total time for hashmap {0}s", totalTime)));
 
         List<Image> actual = new ArrayList<>();
         MeasurementUtils.Stopwatch timer2 = MeasurementUtils.startStopwatch();
@@ -61,7 +67,7 @@ public class ArraySegmentsTest {
         for (double level = bounds[0] + 1; level < bounds[1]; level++) {
             actual.add(ff.getImage(level, PseudoColorizeMethod.AVERAGE));
         }
-        timer2.stop(totalTime -> String.format("Total time for arrays %dms", totalTime));
+        timer2.stop(totalTime -> L.info($("Total time for arrays {0}s", totalTime)));
 
         for (int i = 0; i < expected.size(); i++) {
             Image e = expected.get(i);
