@@ -80,9 +80,11 @@ public final class FXImageUtils {
         return true;
     }
 
-    public static RectImage getDefaultImage() throws IOException {
+    public static RectImage getDefaultImage() {
         try (InputStream stream = RudeBenchmark.class.getClassLoader().getResourceAsStream("me/markoutte/image/lena-color.jpg")) {
             return FXImageUtils.fromFXImage(new javafx.scene.image.Image(stream));
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot load default image for some reason");
         }
     }
 

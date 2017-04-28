@@ -16,6 +16,7 @@ import me.markoutte.image.impl.ArrayBasedImageRetriever;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class KruskalFloodFill implements Segmentation<RectImage> {
 
@@ -37,11 +38,11 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
 
     public void setImage(RectImage image) {
         this.image = image;
+        int edgeCount = 2*image.getSize() - image.width() - image.height();
+        edges = new Edge[edgeCount];
         hierarchy = new UfsHierarchy();
         hierarchy.setImage(image);
         retriever.setImage(image);
-        int edgeCount = 2*image.getSize() - image.width() - image.height();
-        edges = new Edge[edgeCount];
     }
 
     @Override
@@ -61,6 +62,8 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
     }
 
     public void start() {
+        Objects.requireNonNull(edges);
+        
         calculateEdges();
         new Quicksort<Edge>().sort(edges);
         calculateHierarchy();
