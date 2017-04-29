@@ -1,13 +1,10 @@
 package me.markoutte.benchmark;
 
 import me.markoutte.ds.PseudoColorizeMethod;
-import me.markoutte.image.ImageRetriever;
-import me.markoutte.image.Pixel;
-import me.markoutte.image.RectImage;
+import me.markoutte.image.*;
 import me.markoutte.image.impl.ArrayBasedImageRetriever;
 import me.markoutte.image.impl.HashMapBasedImageRetriever;
 import me.markoutte.segmentation.KruskalFloodFill;
-import me.markoutte.image.ImageHelpers;
 import org.openjdk.jmh.Main;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jol.info.GraphLayout;
@@ -26,7 +23,7 @@ public class BenchmarkMain {
         Main.main(args);
 
         ImageRetriever[] retrievers = {new ArrayBasedImageRetriever(), new HashMapBasedImageRetriever()};
-        RectImage image = ImageHelpers.LENA;
+        RectImage image = Images.LENA.toImage();
         KruskalFloodFill ff = new KruskalFloodFill();
         ff.setImage(image);
         ff.start();

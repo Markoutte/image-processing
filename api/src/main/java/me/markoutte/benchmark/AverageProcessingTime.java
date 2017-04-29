@@ -1,6 +1,8 @@
 package me.markoutte.benchmark;
 
 import me.markoutte.ds.PseudoColorizeMethod;
+import me.markoutte.image.Image;
+import me.markoutte.image.Images;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.impl.ArrayBasedImageRetriever;
 import me.markoutte.image.impl.HashMapBasedImageRetriever;
@@ -8,9 +10,8 @@ import me.markoutte.segmentation.KruskalFloodFill;
 import me.markoutte.segmentation.NaiveFloodFill;
 import org.openjdk.jmh.annotations.*;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import static me.markoutte.image.ImageHelpers.*;
 
 /**
  * Pelevin Maksim <maks.pelevin@oogis.ru>
@@ -23,20 +24,38 @@ import static me.markoutte.image.ImageHelpers.*;
 @BenchmarkMode(Mode.AverageTime)
 @Fork(1)
 public class AverageProcessingTime {
-    
-    private static final RectImage image = LENA;
+
+    @State(Scope.Benchmark)
+    public static class ImageHolder {
+
+//        @Param({"GROUND", "LENA", "CARTER", "COOKIES", "SUMMER", "MEAL", "EARCH"})
+        @Param({"LENA"})
+        public String name;
+        public RectImage image;
+
+        @Setup(Level.Trial)
+        public void loadImage() {
+            for (Images images : Images.values()) {
+                if (Objects.equals(images.name(), name)) {
+                    image = images.toImage();
+                    return;
+                }
+            }
+            throw new IllegalArgumentException("Cannot find image");
+        }
+    }
     
     @Benchmark
-    public void runKruskal() {
+    public void runKruskal(ImageHolder holder) {
         KruskalFloodFill ff = new KruskalFloodFill();
-        ff.setImage(image);
+        ff.setImage(holder.image);
         ff.start();
     }
 
     @Benchmark
-    public void runNaive() {
+    public void runNaive(ImageHolder holder) {
         NaiveFloodFill ff = new NaiveFloodFill();
-        ff.setImage(image);
+        ff.setImage(holder.image);
         ff.start();
     }
 
@@ -51,7 +70,7 @@ public class AverageProcessingTime {
         @Setup(Level.Iteration)
         public void presegmentation() {
             ff = new KruskalFloodFill();
-            ff.setImage(image);
+            ff.setImage(Images.LENA.toImage());
             ff.start();
         }
     }

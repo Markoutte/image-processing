@@ -81,15 +81,6 @@ public final class ImageHelpers {
 
         return true;
     }
-    
-    public static final me.markoutte.image.RectImage LENA;
-    static {
-        try (InputStream stream = ImageHelpers.class.getClassLoader().getResourceAsStream("me/markoutte/image/lena-color.jpg")) {
-            LENA = ImageHelpers.fromFXImage(new javafx.scene.image.Image(stream));
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot load default image for some reason");
-        }
-    }
 
     private ImageHelpers() {
     }
