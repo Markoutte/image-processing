@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static me.markoutte.benchmark.Strings.$;
+
 public class ArrayBasedImageRetriever implements ImageRetriever {
 
     private Image image;
@@ -33,8 +35,9 @@ public class ArrayBasedImageRetriever implements ImageRetriever {
         }
 
         Image image = this.image.clone();
+        long start = System.currentTimeMillis();
         Segments segments = ArraySegments.from(ufs, level);
-        MeasurementUtils.dumpObjectSize(segments);
+        MeasurementUtils.dumpObjectSize(segments, totalSize -> System.out.println(String.format("%-6s %10s %10s", (int) level, totalSize, System.currentTimeMillis() - start)));
 
         if (colorize == PseudoColorizeMethod.PLAIN) {
             for (int id = 0; id < segments.size(); id++) {

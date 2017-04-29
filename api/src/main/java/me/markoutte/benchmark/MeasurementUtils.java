@@ -10,8 +10,16 @@ public final class MeasurementUtils {
         return new Stopwatch();
     }
 
-    public static void dumpObjectSize(Object instance) {
+    public static boolean isDumpObjectSize() {
+        return Boolean.getBoolean("memory.objects.dump");
+    }
+
+    public static void dumpObjectSize(Object instance, Consumer<Long> consumer) {
         if (Boolean.getBoolean("memory.objects.dump")) {
+            if (consumer != null) {
+                consumer.accept(GraphLayout.parseInstance(instance).totalSize());
+                return;
+            }
             System.out.println(GraphLayout.parseInstance(instance).toFootprint());
         }
     }

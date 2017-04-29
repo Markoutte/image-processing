@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static me.markoutte.benchmark.Strings.$;
+
 public class HashMapBasedImageRetriever implements ImageRetriever {
 
     private Image image;
@@ -45,8 +47,9 @@ public class HashMapBasedImageRetriever implements ImageRetriever {
         }
 
         if (colorize == PseudoColorizeMethod.AVERAGE) {
+            long start = System.currentTimeMillis();
             Map<Integer, List<Integer>> segments = ufs.segments(level);
-            MeasurementUtils.dumpObjectSize(segments);
+            MeasurementUtils.dumpObjectSize(segments, totalSize -> System.out.println(String.format("%-6s %10s %10s", (int) level, totalSize, System.currentTimeMillis() - start)));
             for (List<Integer> segment : segments.values()) {
                 long red = 0;
                 long green = 0;
