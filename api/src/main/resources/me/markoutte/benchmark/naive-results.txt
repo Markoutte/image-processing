@@ -1,0 +1,8 @@
+Benchmark                          (name)  Mode  Cnt     Score    Error  Units
+AverageProcessingTime.runNaive    LENNA_8  avgt   20     0,517 ±  0,069  ms/op
+AverageProcessingTime.runNaive   LENNA_16  avgt   20     2,687 ±  0,525  ms/op
+AverageProcessingTime.runNaive   LENNA_32  avgt   20    14,179 ±  1,368  ms/op
+AverageProcessingTime.runNaive   LENNA_64  avgt   20    58,299 ±  5,741  ms/op
+AverageProcessingTime.runNaive  LENNA_128  avgt   20   221,315 ±  6,934  ms/op
+AverageProcessingTime.runNaive  LENNA_256  avgt   20   963,731 ± 10,397  ms/op
+AverageProcessingTime.runNaive  LENNA_512  avgt   20  3643,481 ± 53,850  ms/op

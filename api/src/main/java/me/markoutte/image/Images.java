@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public enum Images {
-    GROUND("ground.jpg"),
-    LENA("lena-color.jpg"),
-    CARTER("carter.jpg"),
-    COOKIES("cookies.jpg"),
-    SUMMER("summer.jpg"),
-    MEAL("meal.jpg"),
-    EARCH("earch.jpg");
+    LENNA_8("lenna_8.jpg"),
+    LENNA_16("lenna_16.jpg"),
+    LENNA_32("lenna_32.jpg"),
+    LENNA_64("lenna_64.jpg"),
+    LENNA_128("lenna_128.jpg"),
+    LENNA_256("lenna_256.jpg"),
+    LENNA_512("lenna_512.jpg"),;
 
     private final String resourceName;
     private RectImage image;

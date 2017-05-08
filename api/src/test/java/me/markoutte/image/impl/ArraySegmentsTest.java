@@ -50,7 +50,7 @@ public class ArraySegmentsTest {
     @Test
     public void testImageResult() throws IOException {
         KruskalFloodFill ff = new KruskalFloodFill();
-        ff.setImage(Images.LENA.toImage());
+        ff.setImage(Images.LENNA_8.toImage());
         ff.setImageRetriever(new HashMapBasedImageRetriever());
         ff.start();
 

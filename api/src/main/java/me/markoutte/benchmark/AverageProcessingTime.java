@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2017/04/28
  */
-@Warmup(iterations = 2, time = 100, timeUnit = TimeUnit.MILLISECONDS)
+@Warmup(iterations = 5, time = 100, timeUnit = TimeUnit.MILLISECONDS)
 @Measurement(iterations = 10, time = 100, timeUnit = TimeUnit.MILLISECONDS)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @BenchmarkMode(Mode.AverageTime)
@@ -28,8 +28,7 @@ public class AverageProcessingTime {
     @State(Scope.Benchmark)
     public static class ImageHolder {
 
-//        @Param({"GROUND", "LENA", "CARTER", "COOKIES", "SUMMER", "MEAL", "EARCH"})
-        @Param({"LENA"})
+        @Param({"LENNA_8", "LENNA_16", "LENNA_32", "LENNA_64", "LENNA_128", "LENNA_256", "LENNA_512"})
         public String name;
         public RectImage image;
 
@@ -70,7 +69,7 @@ public class AverageProcessingTime {
         @Setup(Level.Iteration)
         public void presegmentation() {
             ff = new KruskalFloodFill();
-            ff.setImage(Images.LENA.toImage());
+            ff.setImage(Images.LENNA_512.toImage());
             ff.start();
         }
     }

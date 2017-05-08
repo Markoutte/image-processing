@@ -22,25 +22,25 @@ public class BenchmarkMain {
         
         Main.main(args);
 
-        ImageRetriever[] retrievers = {new ArrayBasedImageRetriever(), new HashMapBasedImageRetriever()};
-        RectImage image = Images.LENA.toImage();
-        KruskalFloodFill ff = new KruskalFloodFill();
-        ff.setImage(image);
-        ff.start();
-
-        System.setProperty("memory.objects.dump", "true");
-        GraphLayout.parseInstance(BenchmarkMain.class);
-
-        for (ImageRetriever retriever : retrievers) {
-            ff.setImageRetriever(retriever);
-            if (MeasurementUtils.isDumpObjectSize()) {
-                System.out.println(String.format("%-6s %-10s %10s %30s", "Level", "Total size", "Time (ms)", retriever.getClass().getSimpleName()));
-                System.out.println("====================");
-            }
-            for (double i = ff.getBounds()[0]; i < ff.getBounds()[1]; i++) {
-                ff.getImage(i, PseudoColorizeMethod.AVERAGE);
-            }
-            System.out.println("\n\n\n");
-        }
+//        ImageRetriever[] retrievers = {new ArrayBasedImageRetriever(), new HashMapBasedImageRetriever()};
+//        RectImage image = Images.LENA.toImage();
+//        KruskalFloodFill ff = new KruskalFloodFill();
+//        ff.setImage(image);
+//        ff.start();
+//
+//        System.setProperty("memory.objects.dump", "true");
+//        GraphLayout.parseInstance(BenchmarkMain.class);
+//
+//        for (ImageRetriever retriever : retrievers) {
+//            ff.setImageRetriever(retriever);
+//            if (MeasurementUtils.isDumpObjectSize()) {
+//                System.out.println(String.format("%-6s %-10s %10s %30s", "Level", "Total size", "Time (ms)", retriever.getClass().getSimpleName()));
+//                System.out.println("====================");
+//            }
+//            for (double i = ff.getBounds()[0]; i < ff.getBounds()[1]; i++) {
+//                ff.getImage(i, PseudoColorizeMethod.AVERAGE);
+//            }
+//            System.out.println("\n\n\n");
+//        }
     }
 }

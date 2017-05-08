@@ -1,0 +1,8 @@
+Benchmark                            (name)  Mode  Cnt    Score   Error  Units
+AverageProcessingTime.runKruskal    LENNA_8  avgt   20    0,008 ± 0,001  ms/op
+AverageProcessingTime.runKruskal   LENNA_16  avgt   20    0,044 ± 0,004  ms/op
+AverageProcessingTime.runKruskal   LENNA_32  avgt   20    0,294 ± 0,013  ms/op
+AverageProcessingTime.runKruskal   LENNA_64  avgt   20    1,260 ± 0,071  ms/op
+AverageProcessingTime.runKruskal  LENNA_128  avgt   20    5,544 ± 0,318  ms/op
+AverageProcessingTime.runKruskal  LENNA_256  avgt   20   24,421 ± 1,247  ms/op
+AverageProcessingTime.runKruskal  LENNA_512  avgt   20  115,283 ± 6,800  ms/op
