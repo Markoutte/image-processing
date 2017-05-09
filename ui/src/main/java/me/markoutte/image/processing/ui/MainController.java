@@ -477,7 +477,7 @@ public class MainController implements Initializable {
             int segment = hierarchy.getSegment( (int) y * image.width() + (int) x, level);
             List<Pixel> area = hierarchy.getArea(segment, level);
             if (e.isControlDown()) {
-                String title = String.format(bundle.getString("partlyImageHist"), segment % image.width(), segment / image.height(), level, area.size());
+                String title = String.format(bundle.getString("partlyImageHist"), segment % image.width(), segment / image.width(), level, area.size());
                 HistogramController.show(title, area, ImageHelpers.createImageFromPixel(area, image.width(), image.height()));
             } else {
                 HistogramController.show(bundle.getString("fullImageHist"), image, image);

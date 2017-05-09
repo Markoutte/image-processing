@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import me.markoutte.ds.Channel;
 import me.markoutte.ds.Color;
 import me.markoutte.image.Image;
 import me.markoutte.image.Pixel;
@@ -22,6 +23,7 @@ public class ImageCanvas extends StackPane {
     private final Info src;
     private final Canvas canvas;
     private final VBox box;
+    private boolean trim;
 
     public ImageCanvas(Info info) {
         this.src = info;
@@ -32,7 +34,7 @@ public class ImageCanvas extends StackPane {
 
         box = new VBox();
         String defaultCss = "-fx-border-color: black; -fx-border-width: 1px; -fx-padding: 10px;";
-        String backgroundCss = defaultCss + "-fx-background-color: #FFFFFF;";
+        String backgroundCss = defaultCss + "-fx-background-color: rgba(255, 255, 255, .8);";
         box.setStyle(defaultCss);
         box.setVisible(false);
         box.getChildren().add(new Label(String.valueOf(String.format("LV: %d", (int) info.level))));
@@ -97,9 +99,32 @@ public class ImageCanvas extends StackPane {
             x = (canvas.getWidth() - width) / 2;
         }
 
-        context.drawImage(img, x, y, width, height);
+        if (trim && !box.getStyle().contains("rgba(255, 255, 255, .8)")) {
+            int sx = Integer.MAX_VALUE;
+            int sy = Integer.MAX_VALUE;
+            int sw = 0;
+            int sh = 0;
+            RectImage image = (RectImage) src.getImage();
+            for (Pixel pixel : image) {
+                if (Color.getChannel(pixel.getValue(), Channel.OPACITY) != 0) {
+                    sx = Math.min(pixel.getId() % image.width(), sx);
+                    sy = Math.min(pixel.getId() / image.width(), sy);
+                    sw = Math.max(pixel.getId() % image.width(), sw);
+                    sh = Math.max(pixel.getId() / image.width(), sh);
+                }
+            }
+            sw = sw - sx;
+            sh = sh - sy;
+            context.drawImage(img, sx, sy, sw, sh, x, y, width, height);
+        } else {
+            context.drawImage(img, x, y, width, height);
+        }
 
         super.layoutChildren();
+    }
+
+    public void trim(boolean trim) {
+        this.trim = trim;
     }
 
     public static final class Info {

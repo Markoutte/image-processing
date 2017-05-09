@@ -14,12 +14,11 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import me.markoutte.image.Image;
-import me.markoutte.image.Pixel;
-import me.markoutte.image.RectImage;
+import me.markoutte.ds.Color;
+import me.markoutte.image.*;
 import me.markoutte.image.processing.ui.components.ImageCanvas;
+import me.markoutte.image.processing.ui.util.DuplicateImageFilter;
 import me.markoutte.segmentation.Segmentation;
-import me.markoutte.image.ImageHelpers;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,9 +27,11 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.*;
 
 public class SegmentationController implements Initializable {
 
@@ -65,6 +66,7 @@ public class SegmentationController implements Initializable {
             canvas.setBackground(background);
             canvas.setPrefWidth(vpw / 4);
             canvas.setPrefHeight(vpw / 4);
+            canvas.trim(true);
             grid.add(canvas, i % 4, i / 4);
         }
     }
@@ -88,15 +90,29 @@ public class SegmentationController implements Initializable {
             return null;
         }
 
+        RectImage image = (RectImage) segmentation.getImage();
+
+        Predicate<List<Pixel>> sizeCriteria = pixels -> {
+            int low = (int) (image.width() * image.height() * 0_005L / 10_000);
+            int upper = (int) (image.width() * image.height() * 9_000L / 10_000);
+            return low < pixels.size() && pixels.size() < upper;
+        };
+        Predicate<List<Pixel>> hueCriteria = pixels -> {
+            List<HSL> list = pixels.stream().map(pixel -> Color.getHSL(pixel.getValue())).collect(toList());
+            double h = list.stream().map(HSL::getHue).reduce(Double::sum).get() / list.size();
+            double s = list.stream().map(HSL::getSaturation).reduce(Double::sum).get() / list.size();
+            double l = list.stream().map(HSL::getIntensity).reduce(Double::sum).get() / list.size();
+            return 0.15 <= h && h <= 0.20 && s > .5;
+        };
+
+        final Predicate<List<Pixel>> CRITERIA = sizeCriteria
+                .and(hueCriteria);
+
         final AtomicBoolean isCanceled = new AtomicBoolean();
         Application.async().submit(new Task<List<ImageCanvas.Info>>() {
             @Override
             protected List<ImageCanvas.Info> call() throws Exception {
                 long start = System.currentTimeMillis();
-                double[] bounds = segmentation.getBounds();
-                RectImage image = (RectImage) segmentation.getImage();
-                int low = image.width() * image.height() * 50 / 10000;
-                int upper = (int) (image.width() * image.height() * 90L / 100);
 
                 class LevelWithSegments {
                     final int level;
@@ -114,7 +130,7 @@ public class SegmentationController implements Initializable {
                         if (isCanceled.get()) {
                             throw new CancellationException("Work is canceled");
                         }
-                        if (e.getValue().size() > low && e.getValue().size() < upper)
+                        if (CRITERIA.test(e.getValue()))
                             infos.add(new ImageCanvas.Info(
                                     ImageHelpers.createImageFromPixel(e.getValue(), image.width(), image.height()),
                                     pixels.level,
@@ -125,41 +141,17 @@ public class SegmentationController implements Initializable {
                     return infos;
                 };
 
-                List<ImageCanvas.Info> result = IntStream.range((int) bounds[0] + 1, (int) bounds[1])
+                List<ImageCanvas.Info> result = IntStream.range(1, 10)
                         .parallel()
                         .mapToObj(i -> new LevelWithSegments(i, segmentation.getSegmentsWithValues(i)))
                         .map(toInfo)
                         .flatMap(List::stream)
                         .sorted(Comparator.comparingInt(ImageCanvas.Info::getSize))
-                        .collect(Collectors.toList());
-                List<ImageCanvas.Info> filteredResult = new ArrayList<>(result.size());
+                        .collect(collectingAndThen(toList(), new DuplicateImageFilter(0.15)));
 
-                double filterSize = 1. / 100; // прирост сегмента менее 1% от его размеров
-                for (int i = 0; i < result.size() - 1; i++) {
-                    ImageCanvas.Info current = result.get(i);
-                    ImageCanvas.Info next = result.get(i + 1);
-
-                    List<ImageCanvas.Info> sameImagesButUsedBefore = new ArrayList<>();
-                    for (int j = filteredResult.size() - 1; j >=0 && (next.getSize() - filteredResult.get(j).getSize()) / (double) filteredResult.get(j).getSize() < filterSize; j--) {
-                        if (Objects.equals(current.getSegmentId(), filteredResult.get(j).getSegmentId())) {
-                            sameImagesButUsedBefore.add(filteredResult.get(j));
-                        }
-                    }
-                    filteredResult.removeAll(sameImagesButUsedBefore);
-
-                    if (Objects.equals(current.getSegmentId(), next.getSegmentId())) {
-                        int currentSize = current.getSize();
-                        int nextSize = next.getSize();
-                        if ((double) (nextSize - currentSize) / currentSize > filterSize) {
-                            filteredResult.add(current);
-                        }
-                    } else {
-                        filteredResult.add(current);
-                    }
-                }
                 long stop = System.currentTimeMillis();
-                Logger.getLogger("journal").info(String.format("Собраны %d интересных сегментов за %s мс", filteredResult.size(), (stop - start)));
-                return filteredResult;
+                Logger.getLogger("journal").info(String.format("Собраны %d интересных сегментов за %s мс", result.size(), (stop - start)));
+                return result;
             }
 
             @Override
