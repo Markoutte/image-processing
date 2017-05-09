@@ -1,8 +1,8 @@
-Benchmark                          (name)  Mode  Cnt     Score    Error  Units
-AverageProcessingTime.runNaive    LENNA_8  avgt   20     0,517 ±  0,069  ms/op
-AverageProcessingTime.runNaive   LENNA_16  avgt   20     2,687 ±  0,525  ms/op
-AverageProcessingTime.runNaive   LENNA_32  avgt   20    14,179 ±  1,368  ms/op
-AverageProcessingTime.runNaive   LENNA_64  avgt   20    58,299 ±  5,741  ms/op
-AverageProcessingTime.runNaive  LENNA_128  avgt   20   221,315 ±  6,934  ms/op
-AverageProcessingTime.runNaive  LENNA_256  avgt   20   963,731 ± 10,397  ms/op
-AverageProcessingTime.runNaive  LENNA_512  avgt   20  3643,481 ± 53,850  ms/op
+Benchmark                          (name)  Mode  Cnt      Score     Error  Units
+AverageProcessingTime.runNaive    LENNA_8  avgt   10      1,765 ±   0,548  ms/op
+AverageProcessingTime.runNaive   LENNA_16  avgt   10      8,599 ±   2,647  ms/op
+AverageProcessingTime.runNaive   LENNA_32  avgt   10     38,404 ±   9,284  ms/op
+AverageProcessingTime.runNaive   LENNA_64  avgt   10    155,038 ±  30,476  ms/op
+AverageProcessingTime.runNaive  LENNA_128  avgt   10    604,534 ±  17,610  ms/op
+AverageProcessingTime.runNaive  LENNA_256  avgt   10   2487,258 ±  50,011  ms/op
+AverageProcessingTime.runNaive  LENNA_512  avgt   10  10657,012 ± 177,398  ms/op

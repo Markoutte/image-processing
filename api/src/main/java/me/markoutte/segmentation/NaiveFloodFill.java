@@ -12,6 +12,7 @@ import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.impl.HashMapBasedImageRetriever;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -97,7 +98,7 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
             return;
         }
 
-        Queue<Pixel> q = new LinkedBlockingQueue();
+        Queue<Pixel> q = new ArrayDeque<>();
 
         q.offer(element);
         while (!q.isEmpty()) {
