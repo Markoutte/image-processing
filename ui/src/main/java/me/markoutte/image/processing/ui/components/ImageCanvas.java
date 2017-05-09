@@ -4,6 +4,8 @@ import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -34,7 +36,7 @@ public class ImageCanvas extends StackPane {
 
         box = new VBox();
         String defaultCss = "-fx-border-color: black; -fx-border-width: 1px; -fx-padding: 10px;";
-        String backgroundCss = defaultCss + "-fx-background-color: rgba(255, 255, 255, .8);";
+        String backgroundCss = defaultCss + "-fx-background-color: rgba(255, 255, 255, .9);";
         box.setStyle(defaultCss);
         box.setVisible(false);
         box.getChildren().add(new Label(String.valueOf(String.format("LV: %d", (int) info.level))));
@@ -48,10 +50,13 @@ public class ImageCanvas extends StackPane {
             if (!isSelected) box.setStyle(defaultCss);
         });
         box.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            if (event.getClickCount() == 2) {
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                 HistogramController.show("Гистограмма интересного сегмента", info.getImage(), info.getImage());
-            } else {
+            } else if (event.getButton() == MouseButton.SECONDARY) {
                 box.setStyle(Objects.equals(box.getStyle(), defaultCss) ? backgroundCss : defaultCss);
+            } else if (event.getButton() == MouseButton.PRIMARY) {
+                trim = !trim;
+                requestLayout();
             }
         });
         box.setCursor(Cursor.HAND);
@@ -86,20 +91,12 @@ public class ImageCanvas extends StackPane {
         canvas.setWidth(getWidth());
         canvas.setHeight(getHeight());
 
-        double ratio = img.getWidth() / img.getHeight();
         double x = 0;
         double y = 0;
         double width = canvas.getWidth();
         double height = canvas.getHeight();
-        if (ratio > 1) {
-            height = height / ratio;
-            y = (canvas.getHeight() - height) / 2;
-        } else {
-            width = width * ratio;
-            x = (canvas.getWidth() - width) / 2;
-        }
 
-        if (trim && !box.getStyle().contains("rgba(255, 255, 255, .8)")) {
+        if (trim) {
             int sx = Integer.MAX_VALUE;
             int sy = Integer.MAX_VALUE;
             int sw = 0;
@@ -115,8 +112,24 @@ public class ImageCanvas extends StackPane {
             }
             sw = sw - sx;
             sh = sh - sy;
+            double ratio = sw * 1. / sh;
+            if (ratio > 1) {
+                height = height / ratio;
+                y = (canvas.getHeight() - height) / 2;
+            } else {
+                width = width * ratio;
+                x = (canvas.getWidth() - width) / 2;
+            }
             context.drawImage(img, sx, sy, sw, sh, x, y, width, height);
         } else {
+            double ratio = img.getWidth() / img.getHeight();
+            if (ratio > 1) {
+                height = height / ratio;
+                y = (canvas.getHeight() - height) / 2;
+            } else {
+                width = width * ratio;
+                x = (canvas.getWidth() - width) / 2;
+            }
             context.drawImage(img, x, y, width, height);
         }
 

@@ -18,6 +18,7 @@ import me.markoutte.ds.Color;
 import me.markoutte.image.*;
 import me.markoutte.image.processing.ui.components.ImageCanvas;
 import me.markoutte.image.processing.ui.util.DuplicateImageFilter;
+import me.markoutte.image.processing.ui.util.HSLBoundChooserController;
 import me.markoutte.segmentation.Segmentation;
 
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class SegmentationController implements Initializable {
         }
     }
 
-    public static Stage show(Segmentation<?> segmentation) {
+    public static Stage show(Segmentation<?> segmentation, HSLBoundChooserController.HSLBounds bounds) {
         SegmentationController controller;
         Stage stage;
         try {
@@ -97,12 +98,15 @@ public class SegmentationController implements Initializable {
             int upper = (int) (image.width() * image.height() * 9_000L / 10_000);
             return low < pixels.size() && pixels.size() < upper;
         };
+
         Predicate<List<Pixel>> hueCriteria = pixels -> {
             List<HSL> list = pixels.stream().map(pixel -> Color.getHSL(pixel.getValue())).collect(toList());
             double h = list.stream().map(HSL::getHue).reduce(Double::sum).get() / list.size();
             double s = list.stream().map(HSL::getSaturation).reduce(Double::sum).get() / list.size();
             double l = list.stream().map(HSL::getIntensity).reduce(Double::sum).get() / list.size();
-            return 0.15 <= h && h <= 0.20 && s > .5;
+            return bounds.min.getHue() <= h && h <= bounds.max.getHue()
+                    && bounds.min.getSaturation() <= s &&  s <= bounds.max.getSaturation()
+                    && bounds.min.getIntensity() <= l && l <= bounds.max.getSaturation();
         };
 
         final Predicate<List<Pixel>> CRITERIA = sizeCriteria

@@ -21,6 +21,7 @@ import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.processing.ui.logging.JournalController;
+import me.markoutte.image.processing.ui.util.HSLBoundChooserController;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.process.impl.ColorProcessing;
 import me.markoutte.process.impl.FilteringProcessing;
@@ -90,6 +91,8 @@ public class MainController implements Initializable {
     private double scale = 1;
 
     private final Logger jou = Logger.getLogger("journal");
+
+    private HSLBoundChooserController.HSLBounds bounds;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -199,6 +202,12 @@ public class MainController implements Initializable {
         processButton.getItems().addAll(heuristics);
 
         // Finding all segments of interesting
+        MenuItem bounds = new MenuItem("Настройка условий выборки");
+        bounds.setOnAction(event -> {
+            this.bounds = HSLBoundChooserController.getBounds(this.bounds);
+            System.out.println(bounds);
+        });
+
         MenuItem item = new MenuItem("Список интересных сегментов");
         item.setOnAction(event -> {
             Segmentation<RectImage> segmentation = this.segmentation.get();
@@ -208,11 +217,11 @@ public class MainController implements Initializable {
                 alert.showAndWait();
                 return;
             }
-            Stage stage = SegmentationController.show(segmentation);
+            Stage stage = SegmentationController.show(segmentation, this.bounds);
             stage.setTitle(String.format("Просмотр интересных областей %s", this.image.get()));
         });
 
-        processButton.getItems().addAll(new SeparatorMenuItem(), item);
+        processButton.getItems().addAll(new SeparatorMenuItem(), bounds, item);
 
         try (InputStream resource = getClass().getResourceAsStream("icons/terminal.png")) {
             journalButton.setGraphic(new ImageView(new Image(resource)));
