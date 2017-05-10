@@ -7,12 +7,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import me.markoutte.image.HSL;
 
@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class HSLBoundChooserController implements Initializable {
+public class BoundsPreferencesController implements Initializable {
 
     private Stage stage;
 
@@ -50,6 +50,9 @@ public class HSLBoundChooserController implements Initializable {
 
     @FXML
     private Spinner<Integer> minSize;
+
+    @FXML
+    private Spinner<Integer> maxLevel;
 
     private HSLBounds bounds = DEFAULT;
 
@@ -101,16 +104,17 @@ public class HSLBoundChooserController implements Initializable {
     public static HSLBounds getBounds(HSLBounds prev) {
         try {
             ResourceBundle bundle = ResourceBundle.getBundle("me.markoutte.image.processing.ui.Main", Locale.getDefault());
-            FXMLLoader loader = new FXMLLoader(HSLBoundChooserController.class.getResource("hsl.fxml"), bundle);
+            FXMLLoader loader = new FXMLLoader(BoundsPreferencesController.class.getResource("hsl.fxml"), bundle);
             Parent root = loader.load();
-            HSLBoundChooserController controller = loader.getController();
+            BoundsPreferencesController controller = loader.getController();
             controller.stage = new Stage();
             controller.stage.initModality(Modality.WINDOW_MODAL);
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(HSLBoundChooserController.class.getResource("../style.css").toExternalForm());
+            scene.getStylesheets().add(BoundsPreferencesController.class.getResource("../style.css").toExternalForm());
             controller.stage.setScene(scene);
             controller.stage.setResizable(false);
-            controller.stage.setTitle("***");
+            controller.stage.setTitle("Настройка условий выборки");
+            controller.stage.initStyle(StageStyle.UTILITY);
             controller.stage.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> controller.setHSL(prev));
             controller.stage.showAndWait();
             if (controller.result == RESET) {
@@ -119,7 +123,8 @@ public class HSLBoundChooserController implements Initializable {
             return new HSLBounds(
                     new HSL(controller.minHue.getValue() / 360., controller.minSaturation.getValue() / 100., controller.minIntensive.getValue() / 100.),
                     new HSL(controller.maxHue.getValue() / 360., controller.maxSaturation.getValue() / 100., controller.maxIntensive.getValue() / 100.),
-                    controller.minSize.getValue()
+                    controller.minSize.getValue(),
+                    controller.maxLevel.getValue()
             );
 
         } catch (Exception err) {
@@ -148,18 +153,20 @@ public class HSLBoundChooserController implements Initializable {
     public static final HSLBounds DEFAULT = new HSLBounds(
             new HSL(0, 0, 0),
             new HSL(1, 1, 1),
-            100
+            100, 10
     );
 
     public static class HSLBounds {
         public final HSL min;
         public final HSL max;
         public final int size;
+        public final int level;
 
-        public HSLBounds(HSL min, HSL max, int minSize) {
+        public HSLBounds(HSL min, HSL max, int minSize, int maxLevel) {
             this.min = min;
             this.max = max;
             this.size = minSize;
+            this.level = maxLevel;
         }
     }
 }

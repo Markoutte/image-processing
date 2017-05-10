@@ -21,7 +21,7 @@ import me.markoutte.ds.Hierarchy;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.processing.ui.logging.JournalController;
-import me.markoutte.image.processing.ui.util.HSLBoundChooserController;
+import me.markoutte.image.processing.ui.util.BoundsPreferencesController;
 import me.markoutte.process.ImageProcessing;
 import me.markoutte.process.impl.ColorProcessing;
 import me.markoutte.process.impl.FilteringProcessing;
@@ -68,6 +68,8 @@ public class MainController implements Initializable {
     @FXML
     private Button journalButton;
 
+    private MenuItem viewSegmentsItem;
+
     private Stage journal;
 
     private final ObjectProperty<ImageContainer> image = new SimpleObjectProperty<>();
@@ -92,7 +94,7 @@ public class MainController implements Initializable {
 
     private final Logger jou = Logger.getLogger("journal");
 
-    private HSLBoundChooserController.HSLBounds bounds;
+    private BoundsPreferencesController.HSLBounds bounds;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -149,6 +151,7 @@ public class MainController implements Initializable {
             nextImage.setDisable(newValue || history.size() <= 1 || history.get(history.size() - 1) == image.get());
             comboBox.setDisable(newValue || segmentation.get() == null);
             openButton.setDisable(newValue);
+            viewSegmentsItem.setDisable(newValue || segmentation.get() == null);
         });
 
         properties = new Properties();
@@ -204,12 +207,13 @@ public class MainController implements Initializable {
         // Finding all segments of interesting
         MenuItem bounds = new MenuItem("Настройка условий выборки");
         bounds.setOnAction(event -> {
-            this.bounds = HSLBoundChooserController.getBounds(this.bounds);
+            this.bounds = BoundsPreferencesController.getBounds(this.bounds);
             System.out.println(bounds);
         });
 
-        MenuItem item = new MenuItem("Список интересных сегментов");
-        item.setOnAction(event -> {
+        viewSegmentsItem = new MenuItem("Список интересных сегментов");
+        viewSegmentsItem.setDisable(true);
+        viewSegmentsItem.setOnAction(event -> {
             Segmentation<RectImage> segmentation = this.segmentation.get();
             if (segmentation == null) {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -221,7 +225,7 @@ public class MainController implements Initializable {
             stage.setTitle(String.format("Просмотр интересных областей %s", this.image.get()));
         });
 
-        processButton.getItems().addAll(new SeparatorMenuItem(), bounds, item);
+        processButton.getItems().addAll(new SeparatorMenuItem(), bounds, viewSegmentsItem);
 
         try (InputStream resource = getClass().getResourceAsStream("icons/terminal.png")) {
             journalButton.setGraphic(new ImageView(new Image(resource)));

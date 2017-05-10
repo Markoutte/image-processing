@@ -1,33 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="281.0" prefWidth="544.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.util.HSLBoundChooserController">
+<AnchorPane prefHeight="281.0" prefWidth="544.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.util.BoundsPreferencesController">
    <children>
       <VBox spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <children>
-            <Slider fx:id="minHue" majorTickUnit="30.0" max="360.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="rainbow" />
-            <Slider fx:id="minSaturation" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
-            <Slider fx:id="minIntensive" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="grayscale" />
-            <Slider fx:id="maxHue" majorTickUnit="30.0" max="360.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="rainbow" />
-            <Slider fx:id="maxSaturation" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
-            <Slider fx:id="maxIntensive" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="grayscale" />
+            <TitledPane text="Минимальный HSB">
+               <content>
+                  <VBox>
+                     <children>
+                        <Slider fx:id="minHue" layoutX="3.0" layoutY="5.0" majorTickUnit="30.0" max="360.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="rainbow" />
+                        <Slider fx:id="minSaturation" layoutX="3.0" layoutY="44.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Slider fx:id="minIntensive" layoutX="3.0" layoutY="83.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="grayscale" />
+                     </children>
+                  </VBox>
+               </content>
+            </TitledPane>
+            <TitledPane text="Максимальный HSB">
+               <content>
+                  <VBox>
+                     <children>
+                        <Slider fx:id="maxHue" layoutX="3.0" layoutY="12.0" majorTickUnit="30.0" max="360.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="rainbow" />
+                        <Slider fx:id="maxSaturation" layoutX="3.0" layoutY="38.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Slider fx:id="maxIntensive" layoutX="3.0" layoutY="64.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="grayscale" />
+                     </children>
+                  </VBox>
+               </content>
+            </TitledPane>
+             <TitledPane prefHeight="200.0" prefWidth="200.0" text="Минимальный размер сегмента">
+                 <content>
+                     <HBox spacing="10.0">
+                         <children>
+                             <Spinner fx:id="minSize" editable="true" BorderPane.alignment="CENTER">
+                                 <valueFactory>
+                                     <SpinnerValueFactory.IntegerSpinnerValueFactory max="2147483647" min="1" />
+                                 </valueFactory>
+                             </Spinner>
+                             <Spinner fx:id="maxLevel" editable="true" BorderPane.alignment="CENTER">
+                                 <valueFactory>
+                                     <SpinnerValueFactory.IntegerSpinnerValueFactory initialValue="10" max="255" min="1" />
+                                 </valueFactory>
+                             </Spinner>
+                         </children>
+                     </HBox>
+                 </content>
+             </TitledPane>
 
             <HBox alignment="CENTER_RIGHT" spacing="10.0">
                <children>
-                  <Spinner fx:id="minSize" editable="true" BorderPane.alignment="CENTER">
-                     <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="2147483647" min="1" />
-                     </valueFactory>
-                  </Spinner>
                   <Button mnemonicParsing="false" onAction="#save" text="%menu.file.save" />
 
-                  <Hyperlink onAction="#reset" text="Reset" textAlignment="CENTER" />
+                  <Hyperlink onAction="#reset" text="Сбросить" textAlignment="CENTER" />
                </children>
             </HBox>
          </children>

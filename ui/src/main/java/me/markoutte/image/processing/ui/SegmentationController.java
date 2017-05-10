@@ -18,7 +18,7 @@ import me.markoutte.ds.Color;
 import me.markoutte.image.*;
 import me.markoutte.image.processing.ui.components.ImageCanvas;
 import me.markoutte.image.processing.ui.util.DuplicateImageFilter;
-import me.markoutte.image.processing.ui.util.HSLBoundChooserController;
+import me.markoutte.image.processing.ui.util.BoundsPreferencesController;
 import me.markoutte.segmentation.Segmentation;
 
 import java.io.IOException;
@@ -67,12 +67,11 @@ public class SegmentationController implements Initializable {
             canvas.setBackground(background);
             canvas.setPrefWidth(vpw / 4);
             canvas.setPrefHeight(vpw / 4);
-            canvas.trim(true);
             grid.add(canvas, i % 4, i / 4);
         }
     }
 
-    public static Stage show(Segmentation<?> segmentation, HSLBoundChooserController.HSLBounds bounds) {
+    public static Stage show(Segmentation<?> segmentation, BoundsPreferencesController.HSLBounds bounds) {
         SegmentationController controller;
         Stage stage;
         try {
@@ -113,7 +112,7 @@ public class SegmentationController implements Initializable {
                     && bounds.min.getIntensity() <= l && l <= bounds.max.getSaturation();
         };
 
-        final Predicate<List<Pixel>> CRITERIA = sizeCriteria.and(bounds == HSLBoundChooserController.DEFAULT ? val -> true : hueCriteria);
+        final Predicate<List<Pixel>> CRITERIA = sizeCriteria.and(bounds == BoundsPreferencesController.DEFAULT ? val -> true : hueCriteria);
 
         final AtomicBoolean isCanceled = new AtomicBoolean();
         Application.async().submit(new Task<List<ImageCanvas.Info>>() {
@@ -135,6 +134,7 @@ public class SegmentationController implements Initializable {
                     List<ImageCanvas.Info> infos = new ArrayList<>();
                     for (Map.Entry<Integer, List<Pixel>> e : pixels.segments.entrySet()) {
                         if (isCanceled.get()) {
+                            Logger.getLogger("journal").severe("Work is canceled");
                             throw new CancellationException("Work is canceled");
                         }
                         if (CRITERIA.test(e.getValue()))
@@ -148,7 +148,7 @@ public class SegmentationController implements Initializable {
                     return infos;
                 };
 
-                List<ImageCanvas.Info> result = IntStream.range(1, 10)
+                List<ImageCanvas.Info> result = IntStream.rangeClosed(1, bounds.level)
                         .parallel()
                         .mapToObj(i -> new LevelWithSegments(i, segmentation.getSegmentsWithValues(i)))
                         .map(toInfo)
