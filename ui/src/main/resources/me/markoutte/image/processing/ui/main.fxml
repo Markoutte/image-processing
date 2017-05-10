@@ -28,7 +28,7 @@
                   <Insets left="10.0" />
                </HBox.margin>
             </MenuButton>
-            <Button mnemonicParsing="false" onAction="#repeatLastProcessing" text="%repeatButton.text">
+            <Button fx:id="repeatButton" disable="true" mnemonicParsing="false" onAction="#repeatLastProcessing" onMouseEntered="#showRepeatButtonTooltip" onMouseExited="#hideRepeatButtonTooltip" text="%repeatButton.text">
                <HBox.margin>
                   <Insets left="10.0" right="10.0" />
                </HBox.margin>

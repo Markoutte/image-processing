@@ -5,6 +5,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,6 +15,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.stage.*;
 import me.markoutte.algorithm.ColorHeuristics;
 import me.markoutte.algorithm.Heuristics;
@@ -41,6 +45,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.lang.Math.abs;
+
 public class MainController implements Initializable {
 
     @FXML
@@ -67,6 +73,8 @@ public class MainController implements Initializable {
     private MenuButton filterMenuButton;
     @FXML
     private Button journalButton;
+    @FXML
+    private Button repeatButton;
 
     private MenuItem viewSegmentsItem;
 
@@ -78,7 +86,7 @@ public class MainController implements Initializable {
 
     private final List<ImageContainer> history = new ArrayList<>();
 
-    private ImageProcessing lastImageProcessing;
+    private ObjectProperty<ImageProcessing> lastImageProcessing = new SimpleObjectProperty<>();
 
     private final ObjectProperty<Segmentation<RectImage>> segmentation = new SimpleObjectProperty<>();
 
@@ -153,6 +161,8 @@ public class MainController implements Initializable {
             openButton.setDisable(newValue);
             viewSegmentsItem.setDisable(newValue || segmentation.get() == null);
         });
+
+        lastImageProcessing.addListener((observable, oldValue, newValue) -> repeatButton.setDisable(newValue == null));
 
         properties = new Properties();
         try (InputStream stream = getClass().getResourceAsStream("algorithms.properties")) {
@@ -262,6 +272,7 @@ public class MainController implements Initializable {
             lastOpened = new ImageContainer(image, file.getName());
             jou.info(String.format("Загружено новое изображение (%s)", lastOpened));
             this.image.set(lastOpened);
+            this.lastImageProcessing.set(null);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -388,10 +399,33 @@ public class MainController implements Initializable {
         jou.info(String.format(bundle.getString("preprocessTime"), (stop - start), processor));
         if (!Objects.equals(newValue, oldValue)) {
             this.image.set(new ImageContainer(ImageHelpers.toFXImage(newValue), this.image.get().name, processor.toString()));
-            lastImageProcessing = processor;
+            lastImageProcessing.set(processor);
+            repeatButton.setAccessibleHelp(bundle.getString(((Enum<?>) processor).name()));
         } else {
             jou.severe("Изображение идентичны");
         }
+    }
+
+    private final Popup popup = new Popup();
+    {
+        Label text = new Label();
+        text.setStyle("-fx-text-fill: white;");
+        HBox pane = new HBox(text);
+        pane.setStyle("-fx-background-color: rgba(0, 0, 0, .6); -fx-padding: 5px; -fx-border-color: rgba(0, 0, 0, 1);");
+        popup.getContent().add(pane);
+    }
+
+    public void showRepeatButtonTooltip() {
+        Label text = (Label) ((HBox) popup.getContent().get(0)).getChildren().get(0);
+        text.setText(repeatButton.getAccessibleHelp());
+        Bounds bounds = repeatButton.localToScreen(repeatButton.getBoundsInLocal());
+        popup.setX(bounds.getMinX() - abs(repeatButton.getWidth() - popup.getWidth()) / 2);
+        popup.setY(bounds.getMaxY() + 5);
+        popup.show(stage);
+    }
+
+    public void hideRepeatButtonTooltip() {
+        popup.hide();
     }
 
     public void repeatLastProcessing() {
@@ -401,7 +435,7 @@ public class MainController implements Initializable {
             alert.showAndWait();
             return;
         }
-        preprocess(lastImageProcessing);
+        preprocess(lastImageProcessing.get());
     }
 
     public void process(Heuristics heuristics) {
