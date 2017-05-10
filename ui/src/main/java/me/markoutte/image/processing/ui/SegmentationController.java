@@ -112,7 +112,7 @@ public class SegmentationController implements Initializable {
                     && bounds.min.getIntensity() <= l && l <= bounds.max.getSaturation();
         };
 
-        final Predicate<List<Pixel>> CRITERIA = sizeCriteria.and(bounds == BoundsPreferencesController.DEFAULT ? val -> true : hueCriteria);
+        final Predicate<List<Pixel>> CRITERIA = sizeCriteria.and(bounds == BoundsPreferencesController.DEFAULT ? val -> true : hueCriteria).and(Configuration.segments());
 
         final AtomicBoolean isCanceled = new AtomicBoolean();
         Application.async().submit(new Task<List<ImageCanvas.Info>>() {

@@ -162,7 +162,14 @@ public class MainController implements Initializable {
             viewSegmentsItem.setDisable(newValue || segmentation.get() == null);
         });
 
-        lastImageProcessing.addListener((observable, oldValue, newValue) -> repeatButton.setDisable(newValue == null));
+        lastImageProcessing.addListener((observable, oldValue, newValue) -> {
+            repeatButton.setDisable(newValue == null);
+            if (newValue == null) {
+                repeatButton.setText(bundle.getString("repeatButton.text"));
+            } else {
+                repeatButton.setText(bundle.getString(((Enum<?>) newValue).name()));
+            }
+        });
 
         properties = new Properties();
         try (InputStream stream = getClass().getResourceAsStream("algorithms.properties")) {
@@ -400,33 +407,11 @@ public class MainController implements Initializable {
         if (!Objects.equals(newValue, oldValue)) {
             this.image.set(new ImageContainer(ImageHelpers.toFXImage(newValue), this.image.get().name, processor.toString()));
             lastImageProcessing.set(processor);
-            repeatButton.setAccessibleHelp(bundle.getString(((Enum<?>) processor).name()));
         } else {
             jou.severe("Изображение идентичны");
         }
     }
 
-    private final Popup popup = new Popup();
-    {
-        Label text = new Label();
-        text.setStyle("-fx-text-fill: white;");
-        HBox pane = new HBox(text);
-        pane.setStyle("-fx-background-color: rgba(0, 0, 0, .6); -fx-padding: 5px; -fx-border-color: rgba(0, 0, 0, 1);");
-        popup.getContent().add(pane);
-    }
-
-    public void showRepeatButtonTooltip() {
-        Label text = (Label) ((HBox) popup.getContent().get(0)).getChildren().get(0);
-        text.setText(repeatButton.getAccessibleHelp());
-        Bounds bounds = repeatButton.localToScreen(repeatButton.getBoundsInLocal());
-        popup.setX(bounds.getMinX() - abs(repeatButton.getWidth() - popup.getWidth()) / 2);
-        popup.setY(bounds.getMaxY() + 5);
-        popup.show(stage);
-    }
-
-    public void hideRepeatButtonTooltip() {
-        popup.hide();
-    }
 
     public void repeatLastProcessing() {
         if (lastImageProcessing == null) {

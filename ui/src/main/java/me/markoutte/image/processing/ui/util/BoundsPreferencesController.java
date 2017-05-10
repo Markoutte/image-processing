@@ -9,14 +9,18 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import javafx.util.StringConverter;
 import me.markoutte.image.HSL;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -29,6 +33,7 @@ public class BoundsPreferencesController implements Initializable {
     public static final Integer UNKNOWN = 0x00;
     public static final Integer SAVE = 0x01;
     public static final Integer RESET = 0x02;
+    public static final Integer CANCEL = 0x03;
 
     @FXML
     private Slider minHue;
@@ -56,6 +61,8 @@ public class BoundsPreferencesController implements Initializable {
 
     private HSLBounds bounds = DEFAULT;
 
+    private HSLBounds remember = null;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         InvalidationListener mins = observable -> update(minHue, minSaturation, minIntensive);
@@ -65,6 +72,14 @@ public class BoundsPreferencesController implements Initializable {
         InvalidationListener maxs = observable -> update(maxHue, maxSaturation, maxIntensive);
         maxHue.valueProperty().addListener(maxs);
         maxIntensive.valueProperty().addListener(maxs);
+
+        // fix fo spinner commit values
+        for (Spinner<Integer> spinner : Arrays.asList(minSize, maxLevel)) {
+            spinner.focusedProperty().addListener((s, ov, nv) -> {
+                if (nv) return;
+                commitEditorText(spinner);
+            });
+        }
     }
 
     private void update(Slider hue, Slider saturation, Slider intensity) {
@@ -95,9 +110,12 @@ public class BoundsPreferencesController implements Initializable {
         maxSaturation.setValue((int) (this.bounds.max.getSaturation() * 100));
         maxIntensive.setValue((int) (this.bounds.max.getIntensity() * 100));
         minSize.getValueFactory().setValue(this.bounds.size);
+        maxLevel.getValueFactory().setValue(this.bounds.level);
 
         update(minHue, minSaturation, minIntensive);
         update(maxHue, maxSaturation, maxIntensive);
+
+        remember = bounds;
     }
 
 
@@ -119,6 +137,9 @@ public class BoundsPreferencesController implements Initializable {
             controller.stage.showAndWait();
             if (controller.result == RESET) {
                 return DEFAULT;
+            }
+            if (controller.result == CANCEL) {
+                return controller.remember;
             }
             return new HSLBounds(
                     new HSL(controller.minHue.getValue() / 360., controller.minSaturation.getValue() / 100., controller.minIntensive.getValue() / 100.),
@@ -145,6 +166,11 @@ public class BoundsPreferencesController implements Initializable {
         stage.close();
     }
 
+    public void cancel() {
+        result = CANCEL;
+        stage.close();
+    }
+
     public void reset() {
         result = RESET;
         stage.close();
@@ -167,6 +193,21 @@ public class BoundsPreferencesController implements Initializable {
             this.max = max;
             this.size = minSize;
             this.level = maxLevel;
+        }
+    }
+
+    // FIXES
+
+    private <T> void commitEditorText(Spinner<T> spinner) {
+        if (!spinner.isEditable()) return;
+        String text = spinner.getEditor().getText();
+        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
+        if (valueFactory != null) {
+            StringConverter<T> converter = valueFactory.getConverter();
+            if (converter != null) {
+                T value = converter.fromString(text);
+                valueFactory.setValue(value);
+            }
         }
     }
 }
