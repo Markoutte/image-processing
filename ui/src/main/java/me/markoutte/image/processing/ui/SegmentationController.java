@@ -104,13 +104,20 @@ public class SegmentationController implements Initializable {
             double h = list.stream().map(HSL::getHue).reduce(Double::sum).get() / list.size();
             double s = list.stream().map(HSL::getSaturation).reduce(Double::sum).get() / list.size();
             double l = list.stream().map(HSL::getIntensity).reduce(Double::sum).get() / list.size();
-            return bounds.min.getHue() <= h && h <= bounds.max.getHue()
+            double minHue = bounds.min.getHue();
+            double maxHue = bounds.max.getHue();
+            boolean hitHue;
+            if (maxHue >= minHue) {
+                hitHue = minHue <= h && h <= maxHue;
+            } else {
+                hitHue = h <= maxHue || h >= minHue;
+            }
+            return hitHue
                     && bounds.min.getSaturation() <= s &&  s <= bounds.max.getSaturation()
                     && bounds.min.getIntensity() <= l && l <= bounds.max.getSaturation();
         };
 
-        final Predicate<List<Pixel>> CRITERIA = sizeCriteria
-                .and(hueCriteria);
+        final Predicate<List<Pixel>> CRITERIA = sizeCriteria.and(bounds == HSLBoundChooserController.DEFAULT ? val -> true : hueCriteria);
 
         final AtomicBoolean isCanceled = new AtomicBoolean();
         Application.async().submit(new Task<List<ImageCanvas.Info>>() {

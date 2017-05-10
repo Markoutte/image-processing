@@ -24,3 +24,11 @@
 .error {
     -fx-fill: #ff0000;
 }
+
+.rainbow .track {
+    -fx-background-color: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+}
+
+.grayscale .track {
+    -fx-background-color: linear-gradient(to right, black, white);
+}

@@ -1,15 +1,19 @@
 package me.markoutte.image.processing.ui.util;
 
+import javafx.beans.InvalidationListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import me.markoutte.image.HSL;
 
 import java.net.URL;
@@ -23,35 +27,66 @@ public class HSLBoundChooserController implements Initializable {
     private boolean reset = false;
 
     @FXML
-    private Spinner<Integer> minHue;
+    private Slider minHue;
 
     @FXML
-    private Spinner<Integer> minSaturation;
+    private Slider minSaturation;
 
     @FXML
-    private Spinner<Integer> minIntensive;
+    private Slider minIntensive;
 
     @FXML
-    private Spinner<Integer> maxHue;
+    private Slider maxHue;
 
     @FXML
-    private Spinner<Integer> maxSaturation;
+    private Slider maxSaturation;
 
     @FXML
-    private Spinner<Integer> maxIntensive;
+    private Slider maxIntensive;
+
+    private HSLBounds bounds = DEFAULT;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        InvalidationListener mins = observable -> update(minHue, minSaturation, minIntensive);
+        minHue.valueProperty().addListener(mins);
+        minIntensive.valueProperty().addListener(mins);
+
+        InvalidationListener maxs = observable -> update(maxHue, maxSaturation, maxIntensive);
+        maxHue.valueProperty().addListener(maxs);
+        maxIntensive.valueProperty().addListener(maxs);
+    }
+
+    private void update(Slider hue, Slider saturation, Slider intensity) {
+        Node track = saturation.lookup(".track");
+        Color from = Color.hsb(0, 0, intensity.getValue() / 100);
+        Color to = Color.hsb(hue.getValue(), 1, 1);
+        track.setStyle("-fx-background-color: " + gradient(from, to));
+    }
+
+    private static String gradient(Color from, Color to) {
+        return String.format("linear-gradient(to right, %s, %s)", web(from), web(to));
+    }
+
+    private static String web(Color color) {
+        return String.format( "#%02X%02X%02X",
+                (int)( color.getRed() * 255),
+                (int)( color.getGreen() * 255),
+                (int)( color.getBlue() * 255 ));
     }
 
     private void setHSL(HSLBounds bounds) {
-        if (bounds == null) bounds = DEFAULT;
-        minHue.getValueFactory().setValue((int) (bounds.min.getHue() * 360));
-        minSaturation.getValueFactory().setValue((int) (bounds.min.getSaturation() * 100));
-        minIntensive.getValueFactory().setValue((int) (bounds.min.getIntensity() * 100));
-        maxHue.getValueFactory().setValue((int) (bounds.max.getHue() * 360));
-        maxSaturation.getValueFactory().setValue((int) (bounds.max.getSaturation() * 100));
-        maxIntensive.getValueFactory().setValue((int) (bounds.max.getIntensity() * 100));
+        this.bounds = bounds == null ? DEFAULT : bounds;
+
+        minHue.setValue((int) (this.bounds.min.getHue() * 360));
+        minSaturation.setValue((int) (this.bounds.min.getSaturation() * 100));
+        minIntensive.setValue((int) (this.bounds.min.getIntensity() * 100));
+        maxHue.setValue((int) (this.bounds.max.getHue() * 360));
+        maxSaturation.setValue((int) (this.bounds.max.getSaturation() * 100));
+        maxIntensive.setValue((int) (this.bounds.max.getIntensity() * 100));
+
+        update(minHue, minSaturation, minIntensive);
+        update(maxHue, maxSaturation, maxIntensive);
     }
 
 
@@ -68,7 +103,7 @@ public class HSLBoundChooserController implements Initializable {
             controller.stage.setScene(scene);
             controller.stage.setResizable(false);
             controller.stage.setTitle("***");
-            controller.setHSL(prev);
+            controller.stage.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> controller.setHSL(prev));
             controller.stage.showAndWait();
             if (controller.reset) {
                 return DEFAULT;

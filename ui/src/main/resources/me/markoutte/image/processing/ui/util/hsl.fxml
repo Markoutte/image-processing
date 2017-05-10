@@ -7,49 +7,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="282.0" prefWidth="367.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.util.HSLBoundChooserController">
+<AnchorPane prefHeight="281.0" prefWidth="544.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.markoutte.image.processing.ui.util.HSLBoundChooserController">
    <children>
       <VBox spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <children>
-            <HBox spacing="10.0">
-               <children>
-                  <Spinner fx:id="minHue" BorderPane.alignment="CENTER" editable="true">
-                     <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="360" min="0" />
-                     </valueFactory>
-                  </Spinner>
-                  <Spinner fx:id="minSaturation" BorderPane.alignment="CENTER" editable="true">
-                     <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="100" min="0" />
-                     </valueFactory>
-                  </Spinner>
-                  <Spinner fx:id="minIntensive" BorderPane.alignment="CENTER" editable="true">
-                     <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="100" min="0" />
-                     </valueFactory>
-                  </Spinner>
-               </children>
-            </HBox>
-            <HBox spacing="10.0">
-               <children>
-                  <Spinner fx:id="maxHue" BorderPane.alignment="CENTER" editable="true">
-                     <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="360" min="0" />
-                     </valueFactory>
-                  </Spinner>
-                  <Spinner fx:id="maxSaturation" BorderPane.alignment="CENTER" editable="true">
-                     <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="100" min="0" />
-                     </valueFactory>
-                  </Spinner>
-                  <Spinner fx:id="maxIntensive" BorderPane.alignment="CENTER" editable="true">
-                     <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="100" min="0" />
-                     </valueFactory>
-                  </Spinner>
-               </children>
-            </HBox>
-            <ColorPicker />
+            <Slider fx:id="minHue" majorTickUnit="30.0" max="360.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="rainbow" />
+            <Slider fx:id="minSaturation" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+            <Slider fx:id="minIntensive" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="grayscale" />
+            <Slider fx:id="maxHue" majorTickUnit="30.0" max="360.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="rainbow" />
+            <Slider fx:id="maxSaturation" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+            <Slider fx:id="maxIntensive" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="grayscale" />
             <Hyperlink onAction="#reset" text="Reset" textAlignment="CENTER" />
          </children>
       </VBox>
