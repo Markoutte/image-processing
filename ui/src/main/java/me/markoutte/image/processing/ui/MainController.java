@@ -225,7 +225,6 @@ public class MainController implements Initializable {
         MenuItem bounds = new MenuItem("Настройка условий выборки");
         bounds.setOnAction(event -> {
             this.bounds = BoundsPreferencesController.getBounds(this.bounds);
-            System.out.println(bounds);
         });
 
         viewSegmentsItem = new MenuItem("Список интересных сегментов");
