@@ -17,7 +17,19 @@
             <Slider fx:id="maxHue" majorTickUnit="30.0" max="360.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="rainbow" />
             <Slider fx:id="maxSaturation" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
             <Slider fx:id="maxIntensive" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="grayscale" />
-            <Hyperlink onAction="#reset" text="Reset" textAlignment="CENTER" />
+
+            <HBox alignment="CENTER_RIGHT" spacing="10.0">
+               <children>
+                  <Spinner fx:id="minSize" editable="true" BorderPane.alignment="CENTER">
+                     <valueFactory>
+                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="2147483647" min="1" />
+                     </valueFactory>
+                  </Spinner>
+                  <Button mnemonicParsing="false" onAction="#save" text="%menu.file.save" />
+
+                  <Hyperlink onAction="#reset" text="Reset" textAlignment="CENTER" />
+               </children>
+            </HBox>
          </children>
       </VBox>
    </children>

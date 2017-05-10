@@ -93,11 +93,7 @@ public class SegmentationController implements Initializable {
 
         RectImage image = (RectImage) segmentation.getImage();
 
-        Predicate<List<Pixel>> sizeCriteria = pixels -> {
-            int low = (int) (image.width() * image.height() * 0_005L / 10_000);
-            int upper = (int) (image.width() * image.height() * 9_000L / 10_000);
-            return low < pixels.size() && pixels.size() < upper;
-        };
+        Predicate<List<Pixel>> sizeCriteria = pixels -> bounds.size < pixels.size();
 
         Predicate<List<Pixel>> hueCriteria = pixels -> {
             List<HSL> list = pixels.stream().map(pixel -> Color.getHSL(pixel.getValue())).collect(toList());

@@ -24,7 +24,11 @@ public class HSLBoundChooserController implements Initializable {
 
     private Stage stage;
 
-    private boolean reset = false;
+    private Object result = UNKNOWN;
+
+    public static final Integer UNKNOWN = 0x00;
+    public static final Integer SAVE = 0x01;
+    public static final Integer RESET = 0x02;
 
     @FXML
     private Slider minHue;
@@ -43,6 +47,9 @@ public class HSLBoundChooserController implements Initializable {
 
     @FXML
     private Slider maxIntensive;
+
+    @FXML
+    private Spinner<Integer> minSize;
 
     private HSLBounds bounds = DEFAULT;
 
@@ -84,6 +91,7 @@ public class HSLBoundChooserController implements Initializable {
         maxHue.setValue((int) (this.bounds.max.getHue() * 360));
         maxSaturation.setValue((int) (this.bounds.max.getSaturation() * 100));
         maxIntensive.setValue((int) (this.bounds.max.getIntensity() * 100));
+        minSize.getValueFactory().setValue(this.bounds.size);
 
         update(minHue, minSaturation, minIntensive);
         update(maxHue, maxSaturation, maxIntensive);
@@ -105,12 +113,13 @@ public class HSLBoundChooserController implements Initializable {
             controller.stage.setTitle("***");
             controller.stage.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> controller.setHSL(prev));
             controller.stage.showAndWait();
-            if (controller.reset) {
+            if (controller.result == RESET) {
                 return DEFAULT;
             }
             return new HSLBounds(
                     new HSL(controller.minHue.getValue() / 360., controller.minSaturation.getValue() / 100., controller.minIntensive.getValue() / 100.),
-                    new HSL(controller.maxHue.getValue() / 360., controller.maxSaturation.getValue() / 100., controller.maxIntensive.getValue() / 100.)
+                    new HSL(controller.maxHue.getValue() / 360., controller.maxSaturation.getValue() / 100., controller.maxIntensive.getValue() / 100.),
+                    controller.minSize.getValue()
             );
 
         } catch (Exception err) {
@@ -126,23 +135,31 @@ public class HSLBoundChooserController implements Initializable {
         return me.markoutte.ds.Color.getHSL(color.hashCode());
     }
 
+    public void save() {
+        result = SAVE;
+        stage.close();
+    }
+
     public void reset() {
-        reset = true;
+        result = RESET;
         stage.close();
     }
 
     public static final HSLBounds DEFAULT = new HSLBounds(
             new HSL(0, 0, 0),
-            new HSL(1, 1, 1)
+            new HSL(1, 1, 1),
+            100
     );
 
     public static class HSLBounds {
         public final HSL min;
         public final HSL max;
+        public final int size;
 
-        public HSLBounds(HSL min, HSL max) {
+        public HSLBounds(HSL min, HSL max, int minSize) {
             this.min = min;
             this.max = max;
+            this.size = minSize;
         }
     }
 }

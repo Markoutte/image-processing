@@ -25,6 +25,8 @@ public class Application extends javafx.application.Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        System.out.println(Integer.MAX_VALUE);
+
         LogManager.getLogManager().readConfiguration(Application.class.getResourceAsStream("logging/logging.properties"));
         Logger.getLogger("journal").addHandler(new JournalHandler());
 
