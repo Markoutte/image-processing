@@ -102,7 +102,7 @@ public class MainController implements Initializable {
 
     private final Logger jou = Logger.getLogger("journal");
 
-    private BoundsPreferencesController.HSLBounds bounds;
+    private BoundsPreferencesController.HSLBounds bounds = BoundsPreferencesController.DEFAULT;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

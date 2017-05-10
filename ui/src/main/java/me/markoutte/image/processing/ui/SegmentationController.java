@@ -72,6 +72,7 @@ public class SegmentationController implements Initializable {
     }
 
     public static Stage show(Segmentation<?> segmentation, BoundsPreferencesController.HSLBounds bounds) {
+        Objects.requireNonNull(bounds);
         SegmentationController controller;
         Stage stage;
         try {
