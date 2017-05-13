@@ -50,7 +50,7 @@ public class ArraySegmentsTest {
     @Test
     public void testImageResult() throws IOException {
         KruskalFloodFill ff = new KruskalFloodFill();
-        ff.setImage(Images.LENNA_8.toImage());
+        ff.setImage(Images.LENNA_512.toImage());
         ff.setImageRetriever(new HashMapBasedImageRetriever());
         ff.start();
 
@@ -60,7 +60,7 @@ public class ArraySegmentsTest {
         for (double level = bounds[0] + 1; level < bounds[1]; level++) {
             expected.add(ff.getImage(level, PseudoColorizeMethod.AVERAGE));
         }
-        timer1.stop(totalTime -> L.info($("Total time for hashmap {0}s", totalTime)));
+        timer1.stop(totalTime -> L.info($("Total time for hashmap {0}ms", totalTime)));
 
         List<Image> actual = new ArrayList<>();
         MeasurementUtils.Stopwatch timer2 = MeasurementUtils.startStopwatch();
@@ -68,7 +68,7 @@ public class ArraySegmentsTest {
         for (double level = bounds[0] + 1; level < bounds[1]; level++) {
             actual.add(ff.getImage(level, PseudoColorizeMethod.AVERAGE));
         }
-        timer2.stop(totalTime -> L.info($("Total time for arrays {0}s", totalTime)));
+        timer2.stop(totalTime -> L.info($("Total time for arrays {0}ms", totalTime)));
 
         for (int i = 0; i < expected.size(); i++) {
             Image e = expected.get(i);

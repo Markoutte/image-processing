@@ -42,22 +42,20 @@ public class ArraySegments implements Segments {
     public static Segments from(PersistentUnionFindSet pufs, double level) {
         return from_((ArrayUnionFindSet) pufs.simplify(level));
     }
-    
+
     /* package private */ static Segments from_(ArrayUnionFindSet ufs) {
         // 1 прогон по массиву
         int count = ufs.size();
         int[] data = ufs.data();
-        int[] roots = new int[count];
         ArraySegments s = new ArraySegments(count, data.length);
         
         for (int i = 0, parno = 0; i < data.length; i++) {
-            int parent = data[i] < 0 ? roots[-data[i] - 1] : data[i];
+            int parent = data[i] < 0 ? i : data[i];
             // Мы ещё ничего не меняли, так что надо бы это исправить
             if (data[parent] == parent) {
                 // Вместо ссылки на себя, указываем место в позиции маленького массива (с отрицательным значением).
                 // -1 потому что начинается с 0
                 data[parent] = -parno - 1;
-                roots[parno] = parent;
                 s.pos[parno]++;
                 parno++;
             } else {
@@ -72,7 +70,6 @@ public class ArraySegments implements Segments {
         for (int i = s.pos.length - 1; i >= 0; i--) {
             summary = summary - s.pos[i];
             s.pos[i] = summary;
-            s.data[summary] = roots[i];
             pixno[i]++;
         }
 
@@ -83,6 +80,9 @@ public class ArraySegments implements Segments {
                 int pos = -data[parent] - 1;
                 s.data[s.pos[pos] + pixno[pos]] = i;
                 pixno[pos]++;
+            } else {
+                int pos = s.pos[-parent - 1];
+                s.data[pos] = i;
             }
         }
         
