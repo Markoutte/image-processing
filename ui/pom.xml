@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Image Processing</name>
+    <name>Image Processing Common</name>
     <artifactId>image-processing-ui</artifactId>
 
     <dependencies>
