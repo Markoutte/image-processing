@@ -132,7 +132,7 @@ public class BoundsPreferencesController implements Initializable {
             controller.stage.setScene(scene);
             controller.stage.setResizable(false);
             controller.stage.setTitle("Настройка условий выборки");
-            controller.stage.initStyle(StageStyle.UTILITY);
+//            controller.stage.initStyle(StageStyle.UTILITY);
             controller.stage.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> controller.setHSL(prev));
             controller.stage.showAndWait();
             if (controller.result == RESET) {
