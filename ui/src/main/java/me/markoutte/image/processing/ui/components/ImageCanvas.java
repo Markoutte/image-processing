@@ -11,10 +11,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import me.markoutte.ds.Channel;
 import me.markoutte.ds.Color;
-import me.markoutte.image.Image;
-import me.markoutte.image.Pixel;
-import me.markoutte.image.RectImage;
-import me.markoutte.image.ImageHelpers;
+import me.markoutte.image.*;
 import me.markoutte.image.processing.ui.HistogramController;
 
 import java.util.Objects;
@@ -39,9 +36,21 @@ public class ImageCanvas extends StackPane {
         String backgroundCss = defaultCss + "-fx-background-color: rgba(255, 255, 255, .9);";
         box.setStyle(defaultCss);
         box.setVisible(false);
+
+        double[] hsb = new double[3];
+        for (Pixel pixel : info.getImage()) {
+            HSL hsl = Color.getHSL(pixel.getValue());
+            hsb[0] += hsl.getHue();
+            hsb[1] += hsl.getSaturation();
+            hsb[2] += hsl.getIntensity();
+        }
+
         box.getChildren().add(new Label(String.valueOf(String.format("LV: %d", (int) info.level))));
         box.getChildren().add(new Label(String.valueOf(String.format("ID: %d", info.segmentId))));
         box.getChildren().add(new Label(String.valueOf(String.format("SZ: %d", info.size))));
+        box.getChildren().add(new Label(String.valueOf(String.format("H: %d", (int) (hsb[0] * 360 / info.getSize())))));
+        box.getChildren().add(new Label(String.valueOf(String.format("S: %d", (int) (hsb[1] * 100 / info.getSize())))));
+        box.getChildren().add(new Label(String.valueOf(String.format("B: %d", (int) (hsb[2] * 100 / info.getSize())))));
 
         this.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> box.setVisible(true));
         this.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {

@@ -110,7 +110,7 @@ public class SegmentationController implements Initializable {
             }
             return hitHue
                     && bounds.min.getSaturation() <= s &&  s <= bounds.max.getSaturation()
-                    && bounds.min.getIntensity() <= l && l <= bounds.max.getSaturation();
+                    && bounds.min.getIntensity() <= l && l <= bounds.max.getIntensity();
         };
 
         final Predicate<List<Pixel>> CRITERIA = sizeCriteria.and(bounds == BoundsPreferencesController.DEFAULT ? val -> true : hueCriteria).and(Configuration.segments());
