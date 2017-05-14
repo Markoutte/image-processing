@@ -63,20 +63,19 @@ public class ArraySegments implements Segments {
         }
 
         // посчитаем индексы всех корневых элементов в датасете и сразу положим туда идентификторы
-        int[] pixno = new int[count];
         int summary = s.data.length;
         for (int i = s.pos.length - 1; i >= 0; i--) {
             summary = summary - s.pos[i];
             s.pos[i] = summary;
-            pixno[i]++;
         }
 
         // теперь заполняем сами данные
+        int[] pixno = new int[count];
         for (int i = 0; i < data.length; i++) {
             int parent = data[i];
             if (parent >= 0) {
                 int pos = -data[parent] - 1;
-                s.data[s.pos[pos] + pixno[pos]] = i;
+                s.data[s.pos[pos] + pixno[pos] + 1] = i;
                 pixno[pos]++;
             } else {
                 int pos = s.pos[-parent - 1];
