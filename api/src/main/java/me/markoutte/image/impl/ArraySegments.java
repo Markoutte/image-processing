@@ -40,13 +40,11 @@ public class ArraySegments implements Segments {
     }
 
     public static Segments from(PersistentUnionFindSet pufs, double level) {
-        return from_((ArrayUnionFindSet) pufs.simplify(level));
+        ArrayUnionFindSet simplify = (ArrayUnionFindSet) pufs.simplify(level);
+        return from_(simplify.size(), simplify.data());
     }
 
-    /* package private */ static Segments from_(ArrayUnionFindSet ufs) {
-        // 1 прогон по массиву
-        int count = ufs.size();
-        int[] data = ufs.data();
+    /* package private */ static Segments from_(int count, int[] data) {
         ArraySegments s = new ArraySegments(count, data.length);
         
         for (int i = 0, parno = 0; i < data.length; i++) {

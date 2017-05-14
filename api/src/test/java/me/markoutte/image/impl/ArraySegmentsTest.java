@@ -29,8 +29,7 @@ public class ArraySegmentsTest {
 
     @Test
     public void test() {
-        ArrayUnionFindSet ufs = new ArrayUnionFindSet(7);
-        int[] data = ufs.data();
+        int[] data = new int[7];
         data[0] = 2;
         data[1] = 4;
         data[2] = 2;
@@ -38,9 +37,8 @@ public class ArraySegmentsTest {
         data[4] = 4;
         data[5] = 5;
         data[6] = 5;
-        Assert.assertEquals(3, ufs.size());
 
-        ArraySegments segments = (ArraySegments) ArraySegments.from_(ufs);
+        ArraySegments segments = (ArraySegments) ArraySegments.from_(3, data);
         Assert.assertArrayEquals(new int[] {2, 0, 3, 4, 1, 5, 6}, segments.data);
         Assert.assertArrayEquals(new int[]{2, 0, 3}, segments.pixels(0));
         Assert.assertArrayEquals(new int[]{4, 1}, segments.pixels(1));
