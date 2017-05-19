@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public final class ArrayRectImage extends RectImage {
 
-    int[] image = null;
+    private int[] image = null;
 
     public void setBytes(int[] argbArray) {
         this.image = argbArray;

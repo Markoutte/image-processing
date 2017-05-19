@@ -2,6 +2,7 @@ package me.markoutte.image;
 
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
+import me.markoutte.ds.Color;
 import me.markoutte.image.impl.ArrayRectImage;
 
 import java.awt.image.BufferedImage;
@@ -15,6 +16,17 @@ public final class ImageHelpers {
         PixelWriter pw = img.getPixelWriter();
         pw.setPixels(0, 0, image.width(), image.height(), PixelFormat.getIntArgbInstance(), image.getBytes(), 0, image.width());
         return img;
+    }
+
+    public static javafx.scene.image.Image toFXImage(me.markoutte.image.RectImage image, me.markoutte.image.RectImage background, double opacity) {
+        me.markoutte.image.Image clone = image.clone();
+        for (Pixel pixel : background) {
+            if (clone.getPixel(pixel.getId()) == 0x00000000) {
+                short gray = (short) Math.min(Color.getGray(background.getPixel(pixel.getId())) + 100, 255);
+                clone.setPixel(pixel.getId(), Color.combine((int) (opacity * 255), gray, gray, gray));
+            }
+        }
+        return ImageHelpers.toFXImage((RectImage) clone);
     }
 
     public static me.markoutte.image.RectImage fromFXImage(javafx.scene.image.Image image) {

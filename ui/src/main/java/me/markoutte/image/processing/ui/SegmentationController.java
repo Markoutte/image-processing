@@ -8,12 +8,14 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import me.markoutte.benchmark.MeasurementUtils;
 import me.markoutte.ds.Color;
 import me.markoutte.image.*;
 import me.markoutte.image.processing.ui.components.ImageCanvas;
@@ -58,17 +60,19 @@ public class SegmentationController implements Initializable {
         });
     }
 
-    public void setImages(List<ImageCanvas.Info> images, Image background) {
+    public void setImages(List<ImageCanvas.Info> images) {
+        MeasurementUtils.Stopwatch stopwatch = MeasurementUtils.startStopwatch();
         pbwrapper.setVisible(false);
         grid.getChildren().clear();
         int vpw = (int) scrollpane.getViewportBounds().getWidth();
         for (int i = 0; i < images.size(); i++) {
-            ImageCanvas canvas = new ImageCanvas(images.get(i));
-            canvas.setBackground(background);
+            ImageCanvas.Info info = images.get(i);
+            ImageCanvas canvas = new ImageCanvas(info);
             canvas.setPrefWidth(vpw / 4);
             canvas.setPrefHeight(vpw / 4);
             grid.add(canvas, i % 4, i / 4);
         }
+        stopwatch.stop(aLong -> Logger.getLogger("journal").severe(String.valueOf(aLong)));
     }
 
     public static Stage show(Segmentation<?> segmentation, BoundsPreferencesController.HSLBounds bounds) {
@@ -138,13 +142,16 @@ public class SegmentationController implements Initializable {
                             Logger.getLogger("journal").severe("Work is canceled");
                             throw new CancellationException("Work is canceled");
                         }
-                        if (CRITERIA.test(e.getValue()))
-                            infos.add(new ImageCanvas.Info(
+                        if (CRITERIA.test(e.getValue())) {
+                            ImageCanvas.Info info = new ImageCanvas.Info(
                                     ImageHelpers.createImageFromPixel(e.getValue(), image.width(), image.height()),
                                     pixels.level,
                                     e.getKey(),
                                     e.getValue().size()
-                            ));
+                            );
+                            info.setDisplayable(ImageHelpers.toFXImage((RectImage) info.getImage(), (RectImage) segmentation.getImage(), .75));
+                            infos.add(info);
+                        }
                     }
                     return infos;
                 };
@@ -165,7 +172,7 @@ public class SegmentationController implements Initializable {
             @Override
             protected void succeeded() {
                 try {
-                    controller.setImages(get(), segmentation.getImage());
+                    controller.setImages(get());
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 } finally {

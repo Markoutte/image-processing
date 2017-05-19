@@ -157,9 +157,8 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
         boolean isOutOfY = y < 0 || y >= image.height();
         if (isOutOfX || isOutOfY)
             return null;
-        Pixel ret = new Pixel( y * image.width() + (x - 1));
-        ret.setValue(image.getPixel(ret.getId()));
-        return ret;
+        int id = y * image.width() + (x - 1);
+        return new Pixel(id, image.getPixel(id));
 
     }
 
@@ -170,9 +169,8 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
         boolean isOutOfY = y < 0 || y >= image.height();
         if (isOutOfX || isOutOfY)
             return null;
-        Pixel ret = new Pixel( y * image.width() + (x + 1));
-        ret.setValue(image.getPixel(ret.getId()));
-        return ret;
+        int id = y * image.width() + (x + 1);
+        return new Pixel(id, image.getPixel(id));
     }
 
     private Pixel north(Pixel p) {
@@ -182,9 +180,8 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
         boolean isOutOfY = (y - 1) < 0 || (y - 1) >= image.height();
         if (isOutOfX || isOutOfY)
             return null;
-        Pixel ret = new Pixel( (y - 1) * image.width() + x);
-        ret.setValue(image.getPixel(ret.getId()));
-        return ret;
+        int id = (y - 1) * image.width() + x;
+        return new Pixel(id, image.getPixel(id));
     }
 
     private Pixel south(Pixel p) {
@@ -194,9 +191,8 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
         boolean isOutOfY = (y + 1) < 0 || (y + 1) >= image.height();
         if (isOutOfX || isOutOfY)
             return null;
-        Pixel ret = new Pixel( (y + 1) * image.width() + x);
-        ret.setValue(image.getPixel(ret.getId()));
-        return ret;
+        int id = (y + 1) * image.width() + x;
+        return new Pixel(id, image.getPixel(id));
     }
 }
 

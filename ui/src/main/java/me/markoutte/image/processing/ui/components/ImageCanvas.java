@@ -4,6 +4,7 @@ import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.image.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -12,6 +13,7 @@ import javafx.scene.layout.VBox;
 import me.markoutte.ds.Channel;
 import me.markoutte.ds.Color;
 import me.markoutte.image.*;
+import me.markoutte.image.Image;
 import me.markoutte.image.processing.ui.HistogramController;
 
 import java.util.Objects;
@@ -26,7 +28,7 @@ public class ImageCanvas extends StackPane {
 
     public ImageCanvas(Info info) {
         this.src = info;
-        this.image = ImageHelpers.toFXImage((RectImage) info.getImage());
+        this.image = info.displayable;
         this.canvas = new Canvas(getWidth(), getHeight());
 
 //        setStyle("-fx-background-color: #FFFFFF;");
@@ -77,19 +79,10 @@ public class ImageCanvas extends StackPane {
         return src;
     }
 
-    public void setBackground(final Image background) {
-        Image clone = src.getImage().clone();
-        for (Pixel pixel : background) {
-            if (clone.getPixel(pixel.getId()) == 0x00000000) {
-                short gray = (short) Math.min(Color.getGray(background.getPixel(pixel.getId())) + 100, 255);
-                clone.setPixel(pixel.getId(), Color.combine(192, gray, gray, gray));
-            }
-        }
-        this.image = ImageHelpers.toFXImage((RectImage) clone);
-    }
-
     @Override
     protected void layoutChildren() {
+        super.layoutChildren();
+
         javafx.scene.image.Image img = image;
         if (img == null) {
             return;
@@ -154,6 +147,7 @@ public class ImageCanvas extends StackPane {
         private final int segmentId;
         private final double level;
         private final int size;
+        private javafx.scene.image.Image displayable;
 
         public Info(Image image, int segmentId, int level) {
             this(image, segmentId, level, image.getSize());
@@ -180,6 +174,14 @@ public class ImageCanvas extends StackPane {
 
         public int getSize() {
             return size;
+        }
+
+        public javafx.scene.image.Image getDisplayable() {
+            return displayable;
+        }
+
+        public void setDisplayable(javafx.scene.image.Image displayable) {
+            this.displayable = displayable;
         }
     }
 }

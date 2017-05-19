@@ -79,29 +79,28 @@ public abstract class RectImage implements Image {
 
     @Override
     public Iterator<Pixel> iterator() {
-        Iterator<Pixel> iterator = new Iterator<Pixel>() {
+        return new Iter();
+    }
 
-            int position = 0;
+    private final class Iter implements Iterator<Pixel> {
+        private int position = 0;
 
-            @Override
-            public boolean hasNext() {
-                return 0 <= position && position < width * height;
-            }
+        @Override
+        public boolean hasNext() {
+            return 0 <= position && position < width * height;
+        }
 
-            @Override
-            public Pixel next() {
-                Pixel px = new Pixel(position);
-                px.setValue(getPixel(position));
-                position++;
-                return px;
-            }
+        @Override
+        public Pixel next() {
+            Pixel px = new Pixel(position, getPixel(position));
+            position++;
+            return px;
+        }
 
-            @Override
-            public void remove() {
-                // Не реализуется, т.к. удалять элементы из изображения в прямоугольном изображении нельзя
-            }
-        };
-        return iterator;
+        @Override
+        public void remove() {
+            // Не реализуется, т.к. удалять элементы из изображения в прямоугольном изображении нельзя
+        }
     }
 
     @Override

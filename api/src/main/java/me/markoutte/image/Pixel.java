@@ -1,25 +1,12 @@
 package me.markoutte.image;
 
-import java.io.Serializable;
+public final class Pixel {
 
-public class Pixel implements Serializable {
-
-    protected static final long serialVersionUID = 1L;
-
-    int id;
-    int value;
-
-    public Pixel() {
-        ;
-    };
-
-    public Pixel(int id) {
-        this();
-        this.id = id;
-    }
+    private final int id;
+    private final int value;
 
     public Pixel(int id, int value) {
-        this(id);
+        this.id = id;
         this.value = value;
     }
 
@@ -27,16 +14,8 @@ public class Pixel implements Serializable {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public int getValue() {
         return value;
-    }
-
-    public void setValue(int value) {
-        this.value = value;
     }
 
 }
