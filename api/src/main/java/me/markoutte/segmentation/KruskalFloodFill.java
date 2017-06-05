@@ -1,6 +1,7 @@
 package me.markoutte.segmentation;
 
 import me.markoutte.algorithm.ColorHeuristics;
+import me.markoutte.algorithm.CountSort;
 import me.markoutte.algorithm.Heuristics;
 import me.markoutte.algorithm.Quicksort;
 import me.markoutte.ds.Channel;
@@ -66,6 +67,7 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
         
         calculateEdges();
         new Quicksort<Edge>().sort(edges);
+//        edges = CountSort.sort(edges, 256);
         calculateHierarchy();
         ((UfsHierarchy) hierarchy).optimize();
         edges = null;
