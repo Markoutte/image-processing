@@ -26,8 +26,7 @@ public final class CountSort {
         int[] added = new int[max];
         for (int i = 0; i < edges.length; i++) {
             int c = (int) edges[i].getWeight();
-            sorted[indices[c] + added[c]] = edges[i];
-            added[c]++;
+            sorted[indices[c] + added[c]++] = edges[i];
         }
         return sorted;
     }

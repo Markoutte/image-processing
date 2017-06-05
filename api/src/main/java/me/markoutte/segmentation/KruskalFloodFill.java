@@ -66,8 +66,8 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
         Objects.requireNonNull(edges);
         
         calculateEdges();
-        new Quicksort<Edge>().sort(edges);
-//        edges = CountSort.sort(edges, 256);
+//        new Quicksort<Edge>().sort(edges);
+        edges = CountSort.sort(edges, 256);
         calculateHierarchy();
         ((UfsHierarchy) hierarchy).optimize();
         edges = null;

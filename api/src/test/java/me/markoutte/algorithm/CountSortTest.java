@@ -1,6 +1,7 @@
 package me.markoutte.algorithm;
 
 import me.markoutte.image.Edge;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -30,8 +31,12 @@ public class CountSortTest {
                 new Edge(0, 0, 8),
         };
 
-        Edge[] sort = CountSort.sort(edges, 9);
+        edges = CountSort.sort(edges, 9);
         System.out.println(Arrays.toString(edges));
+        for (int i = 1; i < edges.length; i++) {
+            Assert.assertTrue(edges[i - 1].getWeight() <= edges[i].getWeight());
+            
+        }
     }
 
 }
