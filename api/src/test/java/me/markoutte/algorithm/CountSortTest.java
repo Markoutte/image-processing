@@ -21,17 +21,18 @@ public class CountSortTest {
 
         Edge[] edges = {
                 new Edge(0, 0, 3),
-                new Edge(0, 0, 1),
-                new Edge(0, 0, 5),
-                new Edge(0, 0, 2),
-                new Edge(0, 0, 4),
-                new Edge(0, 0, 7),
-                new Edge(0, 0, 3),
-                new Edge(0, 0, 4),
-                new Edge(0, 0, 8),
+                new Edge(1, 0, 1),
+                new Edge(2, 0, 5),
+                new Edge(3, 0, 2),
+                new Edge(4, 0, 4),
+                new Edge(5, 0, 7),
+                new Edge(6, 0, 3),
+                new Edge(7, 0, 4),
+                new Edge(8, 0, 8),
         };
 
-        edges = CountSort.sort(edges, 9);
+        System.out.println(Arrays.toString(edges));
+        CountSort.sort(edges, 9);
         System.out.println(Arrays.toString(edges));
         for (int i = 1; i < edges.length; i++) {
             Assert.assertTrue(edges[i - 1].getWeight() <= edges[i].getWeight());
