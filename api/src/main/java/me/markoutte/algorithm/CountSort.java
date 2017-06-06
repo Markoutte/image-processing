@@ -21,32 +21,34 @@ public final class CountSort {
         for (Edge edge : edges) {
             max = (int) Math.max(max, edge.getWeight());
         }
+        sort(edges, type, max);
+    }
+
+    public static void sort(Edge[] edges, Type type, int maxValue) {
         switch (type) {
             case ARRAY_TO_COPY:
-                sort(edges, max);
+                sort(edges, maxValue);
                 break;
             case CALC_FOR_SORT:
-                sort_(edges, max);
+                sort_(edges, maxValue);
                 break;
         }
     }
 
     private static void sort(Edge[] edges, int max) {
         Edge[] orig = Arrays.copyOf(edges, edges.length);
-        int[] counts = new int[max + 1];
+        int[] indices = new int[max + 1];
         // проход, считаем количество рёбер определённого веса
         for (Edge edge : orig) {
-            counts[(int) edge.getWeight()]++;
+            indices[(int) edge.getWeight()]++;
         }
-        // строим индексы, куда помещать элементы
-        int[] indices = new int[max + 1];
-        for (int i = 1; i < counts.length; i++) {
-            indices[i] = indices[i - 1] + counts[i - 1];
+        // строим индексы, откуда начинаются элементы определённого веса
+        for (int summary = edges.length, i = indices.length - 1; i >=0; i--) {
+            indices[i] = summary = summary - indices[i];
         }
-        int[] added = new int[max + 1];
-        for (int i = 0; i < orig.length; i++) {
-            int c = (int) orig[i].getWeight();
-            edges[indices[c] + added[c]++] = orig[i];
+        for (Edge edge : orig) {
+            int c = (int) edge.getWeight();
+            edges[indices[c]++] = edge;
         }
     }
 

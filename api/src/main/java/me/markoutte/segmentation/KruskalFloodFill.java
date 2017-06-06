@@ -67,7 +67,7 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
         
         calculateEdges();
 //        Quicksort.sort(edges); // обычная сортировка
-        CountSort.sort(edges, CountSort.Type.ARRAY_TO_COPY); // быстрая подсчётом с использованием доп. массива
+        CountSort.sort(edges, CountSort.Type.ARRAY_TO_COPY, 255); // быстрая подсчётом с использованием доп. массива
 //        CountSort.sort(edges, CountSort.Type.CALC_FOR_SORT); // быстрая подсчётом без доп. массива, но медленнее предыдущего
         calculateHierarchy();
         ((UfsHierarchy) hierarchy).optimize();
