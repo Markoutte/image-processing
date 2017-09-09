@@ -101,6 +101,7 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
         Queue<Pixel> q = new ArrayDeque<>();
 
         q.offer(element);
+        painted[element.getId()] = true;
         while (!q.isEmpty()) {
             Pixel n = q.poll();
             int c = n.getValue();
