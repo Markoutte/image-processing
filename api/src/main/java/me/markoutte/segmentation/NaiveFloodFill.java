@@ -7,15 +7,13 @@ import me.markoutte.ds.Color;
 import me.markoutte.ds.Hierarchy;
 import me.markoutte.ds.PseudoColorizeMethod;
 import me.markoutte.ds.impl.UfsHierarchy;
+import me.markoutte.image.Image;
 import me.markoutte.image.ImageRetriever;
 import me.markoutte.image.Pixel;
 import me.markoutte.image.RectImage;
 import me.markoutte.image.impl.HashMapBasedImageRetriever;
 
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class NaiveFloodFill implements Segmentation<RectImage> {
@@ -25,6 +23,8 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
     private Heuristics heuristics = ColorHeuristics.MEAN;
     private ImageRetriever retriever = new HashMapBasedImageRetriever();
     private int delta;
+    private int deltaMin = 0;
+    private int deltaMax = 255;
     private boolean[] painted;
 
     public RectImage getImage(double level, PseudoColorizeMethod colorize) {
@@ -40,6 +40,7 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
         this.image = image;
         hierarchy.setImage(image);
         retriever.setImage(image);
+        painted = new boolean[image.getSize()];
     }
 
     @Override
@@ -63,7 +64,7 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
     }
 
     public void start() {
-        for (delta = 0; delta <= 255; delta++) {
+        for (delta = deltaMin; delta <= deltaMax; delta++) {
             if (((UfsHierarchy) hierarchy).getUfs().size(delta) == 1) {
                 break;
             }
@@ -194,6 +195,38 @@ public class NaiveFloodFill implements Segmentation<RectImage> {
             return null;
         int id = (y + 1) * image.width() + x;
         return new Pixel(id, image.getPixel(id));
+    }
+
+    public void setBounds(int deltaMin, int deltaMax) {
+        this.deltaMin = deltaMin;
+        this.deltaMax = deltaMax;
+    }
+
+    // TESTING
+
+    public static void testCenter(RectImage image, int maxValue) {
+        NaiveFloodFill ff = new NaiveFloodFill();
+        ff.setImage(image);
+        ff.setBounds(maxValue + 1, maxValue + 1);
+        int x = image.width() / 2;
+        int y = image.height() / 2;
+        ff.fill(new Pixel(y * image.width() + x, image.getPixel(x, y)));
+    }
+
+    private void drawImage(Queue<Pixel> pixels, int width, int height) {
+        System.out.println("= " + pixels.size() + " =");
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                char draw = '·';
+                for (Pixel pixel : pixels) {
+                    if (pixel.getId() == j * width + i)
+                        draw = '+';
+                }
+                System.out.print(draw);
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 }
 

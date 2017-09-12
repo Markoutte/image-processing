@@ -25,6 +25,7 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
     private Hierarchy hierarchy = null;
     private Heuristics heuristics = ColorHeuristics.MEAN;
     private ImageRetriever retriever = new ArrayBasedImageRetriever();
+    private boolean useFastSort = true;
 
     private Edge[] edges;
 
@@ -66,12 +67,18 @@ public class KruskalFloodFill implements Segmentation<RectImage> {
         Objects.requireNonNull(edges);
         
         calculateEdges();
-//        Quicksort.sort(edges); // обычная сортировка
-        CountSort.sort(edges, CountSort.Type.ARRAY_TO_COPY, 255); // быстрая подсчётом с использованием доп. массива
-//        CountSort.sort(edges, CountSort.Type.CALC_FOR_SORT); // быстрая подсчётом без доп. массива, но медленнее предыдущего
+        if (useFastSort) {
+            CountSort.sort(edges, CountSort.Type.ARRAY_TO_COPY, 255); // быстрая подсчётом с использованием доп. массива=
+        } else {
+            Quicksort.sort(edges); // обычная сортировка
+        }
         calculateHierarchy();
         ((UfsHierarchy) hierarchy).optimize();
         edges = null;
+    }
+
+    public void setUseFastSort(boolean useFastSort) {
+        this.useFastSort = useFastSort;
     }
 
     @Override

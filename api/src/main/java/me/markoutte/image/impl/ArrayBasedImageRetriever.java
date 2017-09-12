@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static me.markoutte.benchmark.Strings.$;
 
@@ -75,20 +77,17 @@ public class ArrayBasedImageRetriever implements ImageRetriever {
 
     @Override
     public Map<Integer, List<Pixel>> getSegments(PersistentUnionFindSet ufs, double level) {
-        Map<Integer, List<Pixel>> segmentsWithValues = new HashMap<>();
 
         Segments segments = ArraySegments.from(ufs, level);
 
-        for (int i = 0; i < segments.size(); i++) {
-            int parent = segments.root(i);
-            int[] indices = segments.pixels(i);
-            List<Pixel> pixels = new ArrayList<>(indices.length);
-            for (int id : indices) {
-                pixels.add(new Pixel(id, image.getPixel(id)));
-            }
-            segmentsWithValues.put(parent, pixels);
-        }
-
-        return segmentsWithValues;
+        return IntStream.range(0, segments.size()).parallel().boxed()
+                .collect(Collectors.toMap(segments::root, i -> {
+                    int[] indices = segments.pixels(i);
+                    List<Pixel> pixels = new ArrayList<>(indices.length);
+                    for (int id : indices) {
+                        pixels.add(new Pixel(id, image.getPixel(id)));
+                    }
+                    return pixels;
+                }));
     }
 }
