@@ -48,6 +48,8 @@ buildNumber.properties
 *.iws
 *.iml
 *.ipr
+dataSources/*
+.ideaDataSources/*
 
 ## Plugin-specific files:
 
