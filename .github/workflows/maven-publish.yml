@@ -36,4 +36,4 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        path: ui/target/image-processing-ui-*.jar
+        path: ui/target/image-processing-app-*.jar
